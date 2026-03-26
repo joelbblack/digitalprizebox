@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ─── Currency model ────────────────────────────────────────────────────────────
 //  🟢 Green  = real dollars  (Stripe, buys digital codes)
@@ -935,6 +935,12 @@ export default function ParentConsole({
 const [chores,setChores]       = useState(initialChores   || SEED_CHORES);
 const [rewards,setRewards]     = useState(initialRewards  || DEFAULT_HOME_REWARDS);
 const [proposals,setProposals] = useState(initialProposals|| SEED_PROPOSALS);
+  useEffect(() => {
+  if (initialKids      && initialKids.length      >= 0) setKids(initialKids);
+  if (initialChores    && initialChores.length    >= 0) setChores(initialChores);
+  if (initialRewards   && initialRewards.length   >= 0) setRewards(initialRewards);
+  if (initialProposals && initialProposals.length >= 0) setProposals(initialProposals);
+}, [initialKids, initialChores, initialRewards, initialProposals]);
   const [toast,setToast]         = useState(null);
 
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),2600); };

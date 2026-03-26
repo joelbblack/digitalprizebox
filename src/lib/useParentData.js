@@ -131,7 +131,8 @@ export function useParentData(userId) {
           ...r,
           orange: r.orange_cost || r.orange,
         }));
-
+console.log("Fetched kids:", kidsData);
+console.log("User ID:", userId);
       setKids(normalizedKids);
       setChores(normalizedChores);
       setProposals(normalizedProposals);

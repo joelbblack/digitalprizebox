@@ -9,6 +9,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "./auth";
 
 export function useParentData(userId) {
+  console.log("useParentData userId:", userId);
   const [kids,      setKids]      = useState([]);
   const [chores,    setChores]    = useState([]);
   const [proposals, setProposals] = useState([]);
@@ -16,10 +17,10 @@ export function useParentData(userId) {
   const [loading,   setLoading]   = useState(true);
   const [error,     setError]     = useState(null);
 
-  // ── Fetch all data ──────────────────────────────────────────────────────────
-  const fetchAll = useCallback(async () => {
-    if (!userId) return;
-    setLoading(true);
+const fetchAll = useCallback(async () => {
+  console.log("fetchAll running, userId:", userId);
+  if (!userId) return;
+  setLoading(true);
     try {
       // Fetch kids with their jars
       const { data: kidsData, error: kidsError } = await supabase

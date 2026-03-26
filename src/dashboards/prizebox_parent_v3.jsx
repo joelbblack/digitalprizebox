@@ -548,14 +548,30 @@ function ChoresTab({kids,setKids,chores,setChores,showToast}) {
     showToast("❌ Chore sent back");
   };
 
-  const addChore = () => {
-    if (!newChore.name||!newChore.kidId) return;
-    setChores(prev=>[...prev,{...newChore,id:Date.now(),status:"pending",orange:Number(newChore.orange)}]);
+  const addChore = async () => {
+  if (!newChore.name || !newChore.kidId) return;
+  try {
+    if (onAddChore) {
+      await onAddChore({
+        kidId:  newChore.kidId,
+        name:   newChore.name,
+        emoji:  newChore.emoji,
+        orange: Number(newChore.orange),
+      });
+    } else {
+      setChores(prev=>[...prev,{
+        ...newChore, id:Date.now(),
+        status:"pending", orange:Number(newChore.orange)
+      }]);
+    }
     setNewChore({name:"",emoji:"🧹",orange:10,kidId:""});
     setShowAdd(false);
     showToast("✅ Chore added!");
-  };
-
+  } catch (err) {
+    showToast("❌ Failed to add chore");
+    console.error(err);
+  }
+};
   return (
     <div style={{animation:"fadeIn 0.3s ease"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",

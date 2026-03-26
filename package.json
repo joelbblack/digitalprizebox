@@ -15,34 +15,15 @@
     "test": "react-scripts test"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version"
+    ]
   },
   "proxy": "http://localhost:3001"
 }
-```
-
----
-
-## FILE 2 — `.gitignore` (root folder)
-```
-node_modules/
-build/
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.DS_Store
-```
-
----
-
-## FILE 3 — `.env.example` (root folder)
-```
-REACT_APP_SUPABASE_URL=https://yourproject.supabase.co
-REACT_APP_SUPABASE_ANON_KEY=eyJ...
-REACT_APP_API_URL=http://localhost:3001

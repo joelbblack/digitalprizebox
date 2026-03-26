@@ -1,12 +1,15 @@
-// src/screens/ParentScreen.jsx
-// Wires the parent console to real Supabase data via useParentData hook
-
 import { useAuth } from "../lib/auth";
 import { useParentData } from "../lib/useParentData";
 import ParentConsole from "../dashboards/prizebox_parent_v3";
 
 export default function ParentScreen() {
-  const { profile } = useAuth();
+  const { profile, user, loading: authLoading } = useAuth();
+
+  console.log("=== ParentScreen ===");
+  console.log("authLoading:", authLoading);
+  console.log("user:", user);
+  console.log("profile:", profile);
+  console.log("profile?.id:", profile?.id);
 
   const {
     kids, chores, proposals, rewards,
@@ -17,7 +20,7 @@ export default function ParentScreen() {
     addHomeReward, updateHomeReward, deleteHomeReward,
   } = useParentData(profile?.id);
 
-  if (loading) return (
+  if (authLoading || loading) return (
     <div style={{
       minHeight: "100vh", background: "#0F172A",
       display: "flex", alignItems: "center", justifyContent: "center",
@@ -48,12 +51,10 @@ export default function ParentScreen() {
   return (
     <ParentConsole
       profile={profile}
-      // Real data from Supabase
       initialKids={kids}
       initialChores={chores}
       initialProposals={proposals}
       initialRewards={rewards}
-      // Actions that write to Supabase
       onAddKid={addKid}
       onAddChore={addChore}
       onApproveChore={approveChore}

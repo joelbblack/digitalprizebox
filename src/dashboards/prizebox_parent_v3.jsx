@@ -611,7 +611,14 @@ function ChoresTab({kids,setKids,chores,setChores,showToast}) {
               letterSpacing:1.5,marginBottom:8}}>Assign To</div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {kids.map(k=>(
-                <button key={k.id} onClick={()=>setNewChore(p=>({...p,kidId:k.id}))} style={{
+               <button key={k.id} onClick={()=>{
+  console.log("Kid clicked:", k.id, k.name);
+  setNewChore(p=>{
+    const updated = {...p, kidId:k.id};
+    console.log("newChore updated:", updated);
+    return updated;
+  });
+}} style={{
                   background:newChore.kidId===k.id?C.orange:"transparent",
                   border:`2px solid ${newChore.kidId===k.id?C.orange:C.border}`,
                   color:newChore.kidId===k.id?"white":C.sub,

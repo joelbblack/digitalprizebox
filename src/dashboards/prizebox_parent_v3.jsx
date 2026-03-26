@@ -924,7 +924,12 @@ function FundGreenTab({kids,showToast}) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function ParentConsole() {
+export default function ParentConsole({
+  profile, initialKids, initialChores, initialProposals, initialRewards,
+  onAddKid, onAddChore, onApproveChore, onRejectChore,
+  onAwardOrange, onApproveProposal, onDeclineProposal,
+  onAddReward, onUpdateReward, onDeleteReward,
+}) {
   const [tab,setTab]             = useState("overview");
   const [kids,setKids]           = useState(initialKids     || SEED_KIDS);
 const [chores,setChores]       = useState(initialChores   || SEED_CHORES);

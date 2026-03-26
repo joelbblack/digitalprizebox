@@ -926,10 +926,10 @@ function FundGreenTab({kids,showToast}) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function ParentConsole() {
   const [tab,setTab]             = useState("overview");
-  const [kids,setKids]           = useState(SEED_KIDS);
-  const [chores,setChores]       = useState(SEED_CHORES);
-  const [rewards,setRewards]     = useState(DEFAULT_HOME_REWARDS);
-  const [proposals,setProposals] = useState(SEED_PROPOSALS);
+  const [kids,setKids]           = useState(initialKids     || SEED_KIDS);
+const [chores,setChores]       = useState(initialChores   || SEED_CHORES);
+const [rewards,setRewards]     = useState(initialRewards  || DEFAULT_HOME_REWARDS);
+const [proposals,setProposals] = useState(initialProposals|| SEED_PROPOSALS);
   const [toast,setToast]         = useState(null);
 
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),2600); };

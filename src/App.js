@@ -12,6 +12,7 @@ const PrincipalDashboard = lazy(() => import("./screens/PrincipalScreen"));
 const KidView           = lazy(() => import("./screens/KidScreen"));
 const RolePicker        = lazy(() => import("./screens/RolePicker"));
 const LandingPage       = lazy(() => import("./screens/LandingPage"));
+const JoinPage = lazy(() => import("./screens/JoinPage"));
 
 function Loading() {
   return (
@@ -102,6 +103,8 @@ export default function App() {
 
             {/* Catch all */}
             <Route path="*" element={<Navigate to="/" replace />} />
+
+              <Route path="/join/:code" element={<JoinPage />} />
 
           </Routes>
         </Suspense>

@@ -1,25 +1,18 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
     {
-      "source": "/",
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "www.digitalprizebox.com" }],
-      "destination": "https://digitalprizebox.com",
+      "destination": "https://digitalprizebox.com/$1",
       "permanent": true
-    },
+    }
+  ],
+  "rewrites": [
     {
-      "source": "/",
-      "has": [{ "type": "host", "value": "app.digitalprizebox.com" }],
-      "destination": "https://app.digitalprizebox.com/login",
-      "permanent": false
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
-```
-
-Commit it — Vercel picks up `vercel.json` automatically on the next deploy.
-
-This tells Vercel:
-```
-www.digitalprizebox.com    → redirect to digitalprizebox.com (landing page)
-app.digitalprizebox.com/   → redirect to /login (the app)
-digitalprizebox.com        → serve normally (landing page for guests)

@@ -316,23 +316,23 @@ export function PrizeBox({ size = 80, animate = false, open = false }) {
 
 // ── Animal registry ───────────────────────────────────────────────────────────
 export const ANIMALS = [
-  { id: "fox",       name: "Fox",       Component: Fox,       color: "#E8621A", unlockLevel: 0    },
-  { id: "panda",     name: "Panda",     Component: Panda,     color: "#2D2D3A", unlockLevel: 0    },
-  { id: "butterfly", name: "Butterfly", Component: Butterfly, color: "#9B5DE5", unlockLevel: 0    },
-  { id: "frog",      name: "Frog",      Component: Frog,      color: "#3EBD6E", unlockLevel: 0    },
-  { id: "bear",      name: "Bear",      Component: Bear,      color: "#A78BFA", unlockLevel: 100  },
-  { id: "tiger",     name: "Tiger",     Component: Tiger,     color: "#F97316", unlockLevel: 200  },
-  { id: "owl",       name: "Owl",       Component: Owl,       color: "#3B82F6", unlockLevel: 350  },
-  { id: "penguin",   name: "Penguin",   Component: Penguin,   color: "#1A2035", unlockLevel: 500  },
-  { id: "koala",     name: "Koala",     Component: Koala,     color: "#94A3B8", unlockLevel: 700  },
-  { id: "deer",      name: "Deer",      Component: Deer,      color: "#D97706", unlockLevel: 900  },
-  { id: "whale",     name: "Whale",     Component: Whale,     color: "#3B82F6", unlockLevel: 1200 },
-  { id: "dragon",    name: "Dragon",    Component: Dragon,    color: "#10B981", unlockLevel: 1500 },
-  { id: "octopus",   name: "Octopus",   Component: Octopus,   color: "#EC4899", unlockLevel: 2000 },
+  { id: "fox",       name: "Fox",       Component: Fox,       color: "#E8621A", choreThreshold: 0    },
+  { id: "panda",     name: "Panda",     Component: Panda,     color: "#2D2D3A", choreThreshold: 0    },
+  { id: "butterfly", name: "Butterfly", Component: Butterfly, color: "#9B5DE5", choreThreshold: 0    },
+  { id: "frog",      name: "Frog",      Component: Frog,      color: "#3EBD6E", choreThreshold: 0    },
+  { id: "bear",      name: "Bear",      Component: Bear,      color: "#A78BFA", choreThreshold: 100  },
+  { id: "tiger",     name: "Tiger",     Component: Tiger,     color: "#F97316", choreThreshold: 200  },
+  { id: "owl",       name: "Owl",       Component: Owl,       color: "#3B82F6", choreThreshold: 350  },
+  { id: "penguin",   name: "Penguin",   Component: Penguin,   color: "#1A2035", choreThreshold: 500  },
+  { id: "koala",     name: "Koala",     Component: Koala,     color: "#94A3B8", choreThreshold: 700  },
+  { id: "deer",      name: "Deer",      Component: Deer,      color: "#D97706", choreThreshold: 900  },
+  { id: "whale",     name: "Whale",     Component: Whale,     color: "#3B82F6", choreThreshold: 1200 },
+  { id: "dragon",    name: "Dragon",    Component: Dragon,    color: "#10B981", choreThreshold: 1500 },
+  { id: "octopus",   name: "Octopus",   Component: Octopus,   color: "#EC4899", choreThreshold: 2000 },
 ];
 
 export const getAnimal       = (id) => ANIMALS.find(a => a.id === id) || ANIMALS[0];
-export const unlockedAnimals = (totalOrange = 0) => ANIMALS.filter(a => a.unlockLevel <= totalOrange);
+export const unlockedAnimals = (totalOrange = 0) => ANIMALS.filter(a => a.choreThreshold <= totalOrange);
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 export function StarField({ count = 40 }) {

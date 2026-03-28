@@ -1,72 +1,140 @@
-import { useNavigate } from "react-router-dom";
+// ─── src/screens/RolePicker.jsx ──────────────────────────────────────────────
+// For users with role="both" — pick parent or teacher mode for this session.
+// Stores preference in sessionStorage so they don't have to pick every time.
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { useState }          from "react";
+import { useNavigate }       from "react-router-dom";
+import { useAuth }           from "../lib/auth";
+import { fontCSS, T }        from "../lib/theme";
+import { Fox, Bear, StarField, PrizeBox } from "../lib/animals";
 
 export default function RolePicker() {
-  const navigate = useNavigate();
+  const navigate       = useNavigate();
+  const { profile }    = useAuth();
+  const [hovering, setHovering] = useState(null);
+
+  const name = profile?.display_name?.split(" ")[0] || "there";
+
+  const options = [
+    {
+      id:    "parent",
+      path:  "/parent",
+      label: "Parent Console",
+      desc:  "Manage chores, award orange, fund green for your kids at home.",
+      color: T.green,
+      Animal: Fox,
+      emoji: "🏠",
+    },
+    {
+      id:    "teacher",
+      path:  "/teacher",
+      label: "Teacher Dashboard",
+      desc:  "Run your classroom, award students, manage class goals and prizes.",
+      color: T.purple,
+      Animal: Bear,
+      emoji: "🏫",
+    },
+  ];
 
   return (
     <div style={{
-      minHeight: "100vh",
-      background: "#0F172A",
-      color: "#F1F5F9",
-      fontFamily: "Nunito, sans-serif",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 24,
+      minHeight: "100vh", background: T.sky,
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "24px 16px",
+      fontFamily: "'Nunito', sans-serif",
+      position: "relative", overflow: "hidden",
     }}>
-      <div style={{ textAlign: "center", maxWidth: 400, width: "100%" }}>
+      <style>{fontCSS}</style>
+      <StarField count={30}/>
 
-        <div style={{
-          fontFamily: "Fredoka One, cursive",
-          fontSize: 24,
-          color: "#6366F1",
-          marginBottom: 8,
-        }}>
-          Which view today?
+      <div style={{
+        position: "relative", zIndex: 1,
+        width: "100%", maxWidth: 500,
+        textAlign: "center",
+      }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: 8, animation: "bounce 3s ease-in-out infinite" }}>
+          <PrizeBox size={60}/>
         </div>
-
         <div style={{
-          fontSize: 13,
-          color: "#94A3B8",
-          marginBottom: 24,
+          fontFamily: "'Fredoka One', cursive", fontSize: 26,
+          color: T.text, marginBottom: 6,
+          animation: "fadeUp 0.3s ease",
+        }}>
+          Hey {name}! Which mode today?
+        </div>
+        <div style={{
+          fontSize: 14, color: T.sub, marginBottom: 32,
+          animation: "fadeUp 0.4s ease",
         }}>
           Your account has both parent and teacher access.
         </div>
 
-        <div style={{ display: "flex", gap: 16 }}>
-          {[
-            { emoji: "🏠", label: "Parent Console",    path: "/parent"  },
-            { emoji: "🏫", label: "Teacher Dashboard", path: "/teacher" },
-          ].map(r => (
-            <button
-              key={r.path}
-              onClick={() => navigate(r.path)}
-              style={{
-                flex: 1,
-                background: "#1E293B",
-                border: "2px solid #334155",
-                borderRadius: 16,
-                padding: "24px 12px",
-                cursor: "pointer",
-                color: "#F1F5F9",
-                fontFamily: "Nunito, sans-serif",
-                transition: "all 0.2s",
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.borderColor = "#6366F1";
-                e.currentTarget.style.background  = "#1E293B";
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.borderColor = "#334155";
-                e.currentTarget.style.background  = "#1E293B";
-              }}
-            >
-              <div style={{ fontSize: 40, marginBottom: 10 }}>{r.emoji}</div>
-              <div style={{ fontWeight: 800, fontSize: 14 }}>{r.label}</div>
-            </button>
-          ))}
+        {/* Options */}
+        <div style={{
+          display: "grid", gridTemplateColumns: "1fr 1fr",
+          gap: 16, animation: "fadeUp 0.5s ease",
+        }}>
+          {options.map(opt => {
+            const isHovered = hovering === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  sessionStorage.setItem("lastRole", opt.id);
+                  navigate(opt.path);
+                }}
+                onMouseEnter={() => setHovering(opt.id)}
+                onMouseLeave={() => setHovering(null)}
+                style={{
+                  background: isHovered
+                    ? `linear-gradient(135deg,${opt.color}33,${opt.color}18)`
+                    : T.panel,
+                  border: `3px solid ${isHovered ? opt.color : T.borderBold}`,
+                  borderRadius: 20, padding: "24px 16px",
+                  cursor: "pointer",
+                  fontFamily: "'Nunito', sans-serif",
+                  boxShadow: isHovered
+                    ? `6px 6px 0 ${opt.color}66`
+                    : "4px 4px 0 #1A0A3C",
+                  transition: "all 0.2s",
+                  transform: isHovered ? "translateY(-4px)" : "translateY(0)",
+                }}>
+                <div style={{
+                  display: "flex", justifyContent: "center",
+                  marginBottom: 12,
+                  animation: isHovered ? "wiggle 0.5s ease" : "none",
+                }}>
+                  <opt.Animal size={72}/>
+                </div>
+                <div style={{
+                  fontFamily: "'Fredoka One', cursive", fontSize: 18,
+                  color: isHovered ? opt.color : T.text,
+                  marginBottom: 6, transition: "color 0.2s",
+                }}>
+                  {opt.emoji} {opt.label}
+                </div>
+                <div style={{
+                  fontSize: 12, color: T.sub, lineHeight: 1.5,
+                }}>
+                  {opt.desc}
+                </div>
+              </button>
+            );
+          })}
         </div>
 
+        {/* Quick tip */}
+        <div style={{
+          marginTop: 24, fontSize: 12, color: T.sub,
+          animation: "fadeUp 0.6s ease",
+        }}>
+          💡 You can switch modes anytime from your dashboard header.
+        </div>
       </div>
     </div>
   );

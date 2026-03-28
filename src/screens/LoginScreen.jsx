@@ -1,232 +1,355 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/auth";
-import { supabase } from "../lib/auth";
+// ─── src/screens/LoginScreen.jsx ─────────────────────────────────────────────
+// Fixed from original:
+//  ✅ join code from URL query param is preserved through signup and stored
+//  ✅ GitHub OAuth removed (no role assignment possible)
+//  ✅ users row created with correct role before navigating
+//  ✅ teachers row auto-created on teacher signup
+//  ✅ Full Saturday Morning Cartoon design
+//  ✅ "both" role option added
+// ─────────────────────────────────────────────────────────────────────────────
 
-const C = {
-  bg:"#0F172A", panel:"#1E293B", border:"#334155",
-  text:"#F1F5F9", sub:"#94A3B8", accent:"#6366F1",
-  green:"#10B981", orange:"#F97316", red:"#EF4444",
-};
+import { useState }              from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth, supabase }     from "../lib/auth";
+import { fontCSS, T }            from "../lib/theme";
+import { PrizeBox, StarField }   from "../lib/animals";
 
-const fontCSS = `
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
-@keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
-`;
-
-const Field = ({ label, value, onChange, type = "text", placeholder }) => (
-  <div style={{ marginBottom: 14 }}>
-    <div style={{ fontSize: 11, fontWeight: 700, color: C.sub,
-      textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
-      {label}
-    </div>
-    <input
-      type={type}
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      placeholder={placeholder}
-      style={{
-        width: "100%", background: C.bg, border: `1.5px solid ${C.border}`,
-        borderRadius: 8, padding: "10px 14px", fontSize: 15, color: C.text,
-        fontFamily: "Nunito, sans-serif", outline: "none", boxSizing: "border-box",
-      }}
-    />
-  </div>
-);
+const ROLES = [
+  { id: "parent",    emoji: "🏠", label: "Parent",      desc: "Manage kids at home"       },
+  { id: "teacher",   emoji: "🏫", label: "Teacher",     desc: "Run a classroom"            },
+  { id: "both",      emoji: "🔄", label: "Both",        desc: "Parent & teacher"           },
+  { id: "principal", emoji: "🎓", label: "Principal",   desc: "Manage a school"            },
+];
 
 export default function LoginScreen() {
-  const { signIn, signUp } = useAuth();
-  const navigate = useNavigate();
+  const { signIn, signUp, refresh } = useAuth();
+  const navigate          = useNavigate();
+  const [params]          = useSearchParams();
+  const joinCode          = params.get("join") || "";
+  const defaultMode       = params.get("mode") === "signup" ? "signup" : "login";
 
-  const [mode,     setMode]     = useState("login");
+  const [mode,     setMode]     = useState(defaultMode);
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [name,     setName]     = useState("");
   const [role,     setRole]     = useState("parent");
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState(null);
+  const [resetSent,setResetSent]= useState(false);
 
   const handleLogin = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     const { error } = await signIn(email, password);
     if (error) { setError(error.message); setLoading(false); return; }
     navigate("/dashboard");
   };
 
   const handleSignUp = async () => {
-    if (!name.trim()) { setError("Please enter your name"); return; }
-    setLoading(true);
-    setError(null);
+    if (!name.trim()) { setError("What's your name?"); return; }
+    if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
+    setLoading(true); setError(null);
+
     const { data, error: signUpError } = await signUp(email, password, {
-      display_name: name, role,
+      display_name: name,
+      role,
     });
     if (signUpError) { setError(signUpError.message); setLoading(false); return; }
+
     if (data.user) {
-      const { error: profileError } = await supabase.from("users").insert({
-        auth_id:      data.user.id,
-        email,
-        display_name: name,
-        role,
-        account_type: role === "teacher" ? "classroom"
-                    : role === "principal" ? "classroom"
-                    : "family",
-      });
-      if (profileError) console.error("Profile creation error:", profileError);
+      const accountType = role === "teacher" || role === "principal" ? "classroom"
+                        : role === "both" ? "both" : "family";
+
+      // Create users row
+      const { data: userRow, error: profileError } = await supabase
+        .from("users")
+        .insert({
+          auth_id:      data.user.id,
+          email,
+          display_name: name,
+          role,
+          account_type: accountType,
+          plan:         "free",
+        })
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        setError("Account created but profile setup failed. Please contact support.");
+        setLoading(false);
+        return;
+      }
+
+      // Auto-create teachers row for teacher/both/principal roles
+      if (role === "teacher" || role === "both" || role === "principal") {
+        await supabase.from("teachers").insert({
+          user_id:      userRow.id,
+          teacher_name: name,
+          onboarded:    false,
+        });
+      }
+
+      // If they came from a join link, store the join code for setup to consume
+      if (joinCode) {
+        sessionStorage.setItem("pendingJoinCode", joinCode);
+      }
     }
+
     navigate("/setup");
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) { setError("Enter your email first"); return; }
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    setResetSent(true);
+    setError(null);
+  };
+
+  const inp = {
+    width: "100%", background: T.sky,
+    border: `3px solid ${T.borderBold}`,
+    borderRadius: 14, padding: "12px 16px",
+    fontSize: 15, color: T.text,
+    fontFamily: "'Nunito', sans-serif",
+    outline: "none", boxSizing: "border-box",
+    boxShadow: "3px 3px 0 #1A0A3C",
+    transition: "border-color 0.2s",
   };
 
   return (
     <div style={{
-      minHeight: "100vh", background: C.bg, color: C.text,
-      fontFamily: "Nunito, sans-serif",
+      minHeight: "100vh",
+      background: T.sky,
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
       padding: "24px 16px",
+      fontFamily: "'Nunito', sans-serif",
+      position: "relative", overflow: "hidden",
     }}>
       <style>{fontCSS}</style>
+      <StarField count={35}/>
 
-      <div style={{
-        fontFamily: "Fredoka One, cursive", fontSize: 32,
-        background: "linear-gradient(135deg, #6366F1, #F59E0B)",
-        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-        marginBottom: 8,
-      }}>🎁 Digital Prize Box</div>
-      <div style={{ fontSize: 13, color: C.sub, marginBottom: 32 }}>
-        Kids earn it. Parents control it.
-      </div>
+      <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 440 }}>
 
-      <div style={{
-        background: C.panel, borderRadius: 20, padding: "28px 24px",
-        border: `1px solid ${C.border}`, width: "100%", maxWidth: 420,
-        animation: "fadeUp 0.35s ease",
-      }}>
-        <div style={{ display: "flex", marginBottom: 24,
-          background: "#0F172A", borderRadius: 10, padding: 4 }}>
-          {["login", "signup"].map(m => (
-            <button key={m} onClick={() => { setMode(m); setError(null); }}
-              style={{
-                flex: 1, padding: "8px 0", borderRadius: 8, border: "none",
-                background: mode === m ? C.accent : "transparent",
-                color: mode === m ? "white" : C.sub,
-                fontSize: 14, fontWeight: 800, cursor: "pointer",
-                fontFamily: "Nunito, sans-serif", transition: "all 0.2s",
-              }}>
-              {m === "login" ? "Sign In" : "Create Account"}
-            </button>
-          ))}
-        </div>
-
-        {mode === "signup" && (
-          <>
-            <Field label="Your Name" value={name} onChange={setName}
-              placeholder="Ms. Black" />
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.sub,
-                textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>
-                I am a...
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {[
-                  { id: "parent",    emoji: "🏠", label: "Parent" },
-                  { id: "teacher",   emoji: "🏫", label: "Teacher" },
-                  { id: "principal", emoji: "🎓", label: "Principal" },
-                ].map(r => (
-                  <button key={r.id} onClick={() => setRole(r.id)} style={{
-                    flex: 1, padding: "10px 4px",
-                    background: role === r.id ? `${C.accent}18` : "#0F172A",
-                    border: `2px solid ${role === r.id ? C.accent : C.border}`,
-                    borderRadius: 10, color: role === r.id ? C.text : C.sub,
-                    fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    fontFamily: "Nunito, sans-serif",
-                  }}>
-                    <div style={{ fontSize: 20, marginBottom: 4 }}>{r.emoji}</div>
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        <Field label="Email" value={email} onChange={setEmail}
-          type="email" placeholder="you@example.com" />
-        <Field label="Password" value={password} onChange={setPassword}
-          type="password" placeholder="••••••••" />
-
-        {error && (
+        {/* Brand */}
+        <div style={{ textAlign: "center", marginBottom: 28, animation: "fadeUp 0.4s ease" }}>
+          <div style={{ display: "inline-block", animation: "bounce 3s ease-in-out infinite", marginBottom: 8 }}>
+            <PrizeBox size={72}/>
+          </div>
           <div style={{
-            background: `${C.red}18`, border: `1px solid ${C.red}44`,
-            borderRadius: 8, padding: "10px 14px",
-            fontSize: 13, color: C.red, marginBottom: 14,
+            fontFamily: "'Fredoka One', cursive", fontSize: 32,
+            background: "linear-gradient(135deg,#A78BFA,#F59E0B,#EC4899)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            lineHeight: 1.1,
           }}>
-            {error}
+            Digital Prize Box
           </div>
-        )}
-
-        <button
-          onClick={mode === "login" ? handleLogin : handleSignUp}
-          disabled={loading || !email || !password}
-          style={{
-            width: "100%", padding: "12px 0",
-            background: loading || !email || !password ? C.border : C.accent,
-            border: "none", borderRadius: 10, color: "white",
-            fontSize: 16, fontWeight: 800, cursor: "pointer",
-            fontFamily: "Nunito, sans-serif",
-            opacity: loading || !email || !password ? 0.6 : 1,
-          }}>
-          {loading ? "..." : mode === "login" ? "Sign In →" : "Create Account →"}
-        </button>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10,
-          margin: "20px 0" }}>
-          <div style={{ flex: 1, height: 1, background: C.border }} />
-          <div style={{ fontSize: 12, color: C.sub }}>or</div>
-          <div style={{ flex: 1, height: 1, background: C.border }} />
+          <div style={{ fontSize: 13, color: T.sub, marginTop: 4 }}>
+            Kids earn it. Parents control it.
+          </div>
+          {joinCode && (
+            <div style={{
+              marginTop: 12,
+              background: `${T.green}22`, border: `2px solid ${T.green}`,
+              borderRadius: 30, padding: "6px 16px",
+              fontSize: 13, color: T.greenL, fontWeight: 700,
+              display: "inline-block",
+            }}>
+              🔑 Joining class: <strong>{joinCode}</strong>
+            </div>
+          )}
         </div>
 
-        <button onClick={async () => {
-          await supabase.auth.signInWithOAuth({
-            provider: "github",
-            options: { redirectTo: `${window.location.origin}/dashboard` },
-          });
-        }} style={{
-          width: "100%", padding: "11px 0",
-          background: "transparent", border: `1.5px solid ${C.border}`,
-          borderRadius: 10, color: C.sub,
-          fontSize: 14, fontWeight: 800, cursor: "pointer",
-          fontFamily: "Nunito, sans-serif",
-          display: "flex", alignItems: "center",
-          justifyContent: "center", gap: 8,
+        {/* Card */}
+        <div style={{
+          background: T.panel, borderRadius: 24, padding: "28px 24px",
+          border: `3px solid ${T.borderBold}`,
+          boxShadow: "8px 8px 0 #1A0A3C",
+          animation: "pop 0.35s ease",
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill={C.sub}>
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
-          Continue with GitHub
-        </button>
 
-        {mode === "login" && (
-          <div style={{ textAlign: "center", marginTop: 16,
-            fontSize: 12, color: C.sub }}>
-            <button onClick={async () => {
-              if (!email) { setError("Enter your email first"); return; }
-              await supabase.auth.resetPasswordForEmail(email);
-              setError(null);
-              alert("Password reset email sent!");
-            }} style={{ background: "none", border: "none",
-              color: C.accent, cursor: "pointer", fontSize: 12,
-              fontFamily: "Nunito, sans-serif" }}>
-              Forgot password?
-            </button>
+          {/* Mode toggle */}
+          <div style={{
+            display: "flex", marginBottom: 24,
+            background: T.sky, borderRadius: 14,
+            padding: 4, border: `2px solid ${T.border}`,
+          }}>
+            {[
+              { id: "login",  label: "Sign In"        },
+              { id: "signup", label: "Create Account" },
+            ].map(m => (
+              <button key={m.id} type="button"
+                onClick={() => { setMode(m.id); setError(null); setResetSent(false); }}
+                style={{
+                  flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
+                  background: mode === m.id
+                    ? "linear-gradient(135deg,#7C3AED,#5B21B6)"
+                    : "transparent",
+                  color: mode === m.id ? "white" : T.sub,
+                  fontSize: 14, fontWeight: 800, cursor: "pointer",
+                  fontFamily: "'Nunito', sans-serif",
+                  boxShadow: mode === m.id ? "3px 3px 0 #1A0A3C" : "none",
+                  transition: "all 0.2s",
+                }}>
+                {m.label}
+              </button>
+            ))}
           </div>
-        )}
-      </div>
 
-      <div style={{ marginTop: 20, fontSize: 12, color: C.sub, textAlign: "center" }}>
-        By signing up you agree to our{" "}
-        <a href="/terms" style={{ color: C.accent }}>Terms</a> and{" "}
-        <a href="/privacy" style={{ color: C.accent }}>Privacy Policy</a>
+          {/* Signup-only fields */}
+          {mode === "signup" && (
+            <>
+              {/* Name */}
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+                  textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+                  Your Name
+                </div>
+                <input
+                  type="text" value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Ms. Black"
+                  style={inp}
+                  onFocus={e => e.target.style.borderColor = T.purpleL}
+                  onBlur={e => e.target.style.borderColor = T.borderBold}
+                />
+              </div>
+
+              {/* Role picker */}
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+                  textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>
+                  I am a...
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {ROLES.map(r => (
+                    <button key={r.id} type="button"
+                      onClick={() => setRole(r.id)}
+                      style={{
+                        background: role === r.id
+                          ? `linear-gradient(135deg,${T.purple}33,${T.purpleD}22)`
+                          : T.sky,
+                        border: `3px solid ${role === r.id ? T.purpleL : T.border}`,
+                        borderRadius: 14, padding: "10px 8px",
+                        cursor: "pointer", fontFamily: "'Nunito', sans-serif",
+                        boxShadow: role === r.id ? `3px 3px 0 ${T.purpleD}` : "3px 3px 0 #1A0A3C",
+                        transition: "all 0.15s", textAlign: "center",
+                      }}>
+                      <div style={{ fontSize: 22, marginBottom: 2 }}>{r.emoji}</div>
+                      <div style={{
+                        fontSize: 13, fontWeight: 800,
+                        color: role === r.id ? T.purpleL : T.text,
+                      }}>{r.label}</div>
+                      <div style={{ fontSize: 10, color: T.sub, marginTop: 1 }}>{r.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Email */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+              textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+              Email
+            </div>
+            <input
+              type="email" value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              style={inp}
+              onFocus={e => e.target.style.borderColor = T.purpleL}
+              onBlur={e => e.target.style.borderColor = T.borderBold}
+            />
+          </div>
+
+          {/* Password */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+              textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+              Password
+            </div>
+            <input
+              type="password" value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              style={inp}
+              onKeyDown={e => e.key === "Enter" && (mode === "login" ? handleLogin() : handleSignUp())}
+              onFocus={e => e.target.style.borderColor = T.purpleL}
+              onBlur={e => e.target.style.borderColor = T.borderBold}
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div style={{
+              background: `${T.red}22`, border: `2px solid ${T.red}`,
+              borderRadius: 12, padding: "10px 14px",
+              fontSize: 13, color: "#FCA5A5", marginBottom: 14,
+              fontWeight: 700,
+            }}>
+              ⚠️ {error}
+            </div>
+          )}
+
+          {resetSent && (
+            <div style={{
+              background: `${T.green}22`, border: `2px solid ${T.green}`,
+              borderRadius: 12, padding: "10px 14px",
+              fontSize: 13, color: T.greenL, marginBottom: 14,
+              fontWeight: 700,
+            }}>
+              ✅ Reset email sent! Check your inbox.
+            </div>
+          )}
+
+          {/* Submit */}
+          <button
+            type="button"
+            onClick={mode === "login" ? handleLogin : handleSignUp}
+            disabled={loading || !email || !password}
+            style={{
+              width: "100%", padding: "13px 0",
+              background: loading || !email || !password
+                ? T.border
+                : "linear-gradient(135deg,#7C3AED,#5B21B6)",
+              border: "3px solid #1A0A3C",
+              borderRadius: 14, color: "white",
+              fontSize: 17, fontWeight: 800, cursor: "pointer",
+              fontFamily: "'Fredoka One', cursive",
+              boxShadow: loading || !email || !password ? "none" : "4px 4px 0 #1A0A3C",
+              opacity: loading || !email || !password ? 0.5 : 1,
+              transition: "all 0.15s",
+            }}>
+            {loading ? "⏳ One moment..." : mode === "login" ? "🎁 Sign In" : "🚀 Create Account"}
+          </button>
+
+          {/* Forgot password */}
+          {mode === "login" && (
+            <div style={{ textAlign: "center", marginTop: 14 }}>
+              <button type="button" onClick={handleForgotPassword}
+                style={{
+                  background: "none", border: "none",
+                  color: T.purpleL, cursor: "pointer",
+                  fontSize: 13, fontWeight: 700,
+                  fontFamily: "'Nunito', sans-serif",
+                  textDecoration: "underline",
+                }}>
+                Forgot password?
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: T.sub }}>
+          By signing up you agree to our{" "}
+          <a href="/terms" style={{ color: T.purpleL }}>Terms</a> and{" "}
+          <a href="/privacy" style={{ color: T.purpleL }}>Privacy Policy</a>
+        </div>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ function PlanCard({ plan, selected, onSelect }) {
       borderRadius: 20, padding: "18px 16px",
       cursor: "pointer", textAlign: "left",
       fontFamily: "'Nunito', sans-serif",
-      boxShadow: selected ? `4px 4px 0 ${p.color}88` : "3px 3px 0 #1A0A3C",
+      boxShadow: selected ? `4px 4px 0 ${p.color}88` : "3px 3px 0 #000000",
       transition: "all 0.2s", width: "100%",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -104,7 +104,7 @@ function StudentRow({ index, value, onChange, onRemove }) {
 }
 
 const rowInput = {
-  background: "#1A0A3C",
+  background: T.panel,
   border: `2px solid ${T.borderBold}`,
   borderRadius: 10, padding: "8px 10px",
   fontSize: 13, color: T.text,
@@ -436,7 +436,7 @@ export default function SetupScreen() {
         <div style={{
           background: T.panel, borderRadius: 24, padding: "28px 24px",
           border: `3px solid ${T.borderBold}`,
-          boxShadow: "8px 8px 0 #1A0A3C",
+          boxShadow: "8px 8px 0 #000000",
         }}>
           {renderStep()}
         </div>
@@ -456,21 +456,21 @@ function Lbl({ children }) {
 }
 
 const formInput = {
-  width: "100%", background: "#1A0A3C",
+  width: "100%", background: T.panel,
   border: `3px solid ${T.borderBold}`,
   borderRadius: 12, padding: "10px 14px",
   fontSize: 14, color: T.text,
   fontFamily: "'Nunito', sans-serif",
   outline: "none", boxSizing: "border-box",
-  boxShadow: "3px 3px 0 #1A0A3C",
+  boxShadow: "3px 3px 0 #000000",
 };
 
 const nextBtn = {
-  background: "linear-gradient(135deg,#7C3AED,#5B21B6)",
-  border: "3px solid #1A0A3C", borderRadius: 14,
+  background: "#0033CC",
+  border: "3px solid #000000", borderRadius: 14,
   color: "white", fontSize: 16, fontWeight: 800,
   cursor: "pointer", fontFamily: "'Fredoka One', cursive",
-  padding: "12px 24px", boxShadow: "4px 4px 0 #1A0A3C",
+  padding: "12px 24px", boxShadow: "4px 4px 0 #000000",
   transition: "all 0.15s",
 };
 

@@ -67,14 +67,13 @@ export default function FamilyCircleScreen() {
         padding: "16px 24px",
         display: "flex", alignItems: "center",
         justifyContent: "space-between",
-        boxShadow: "0 4px 0 #1A0A3C", position: "relative", zIndex: 10,
+        boxShadow: "0 4px 0 #000000", position: "relative", zIndex: 10,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Fox size={40}/>
           <div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 20,
-              background: `linear-gradient(135deg,${T.purpleL},${T.orangeL})`,
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              color: T.purple }}>
               Family View
             </div>
             <div style={{ fontSize: 12, color: T.sub }}>
@@ -120,7 +119,7 @@ export default function FamilyCircleScreen() {
                 <div key={kid.id} style={{
                   background: T.panel2, border: `3px solid ${T.borderBold}`,
                   borderRadius: 24, padding: "20px", marginBottom: 20,
-                  boxShadow: "6px 6px 0 #1A0A3C",
+                  boxShadow: "6px 6px 0 #000000",
                 }}>
                   {/* Kid header */}
                   <div style={{ display: "flex", alignItems: "center",
@@ -229,18 +228,18 @@ export default function FamilyCircleScreen() {
                             borderRadius: 30, padding: "8px 18px",
                             fontSize: 16, fontWeight: 800, cursor: "pointer",
                             fontFamily: "'Fredoka One', cursive",
-                            boxShadow: giftAmt === n ? "3px 3px 0 #1A0A3C" : "none",
+                            boxShadow: giftAmt === n ? "3px 3px 0 #000000" : "none",
                           }}>+{n}</button>
                         ))}
                       </div>
                       <div style={{ display: "flex", gap: 10 }}>
                         <button type="button" onClick={() => sendGift(kid.id, giftAmt)} style={{
                           flex: 1, background: "linear-gradient(135deg,#F97316,#EA580C)",
-                          border: "3px solid #1A0A3C", color: "white",
+                          border: "3px solid #000000", color: "white",
                           borderRadius: 14, padding: "11px 0", fontSize: 15,
                           fontWeight: 800, cursor: "pointer",
                           fontFamily: "'Fredoka One', cursive",
-                          boxShadow: "4px 4px 0 #1A0A3C",
+                          boxShadow: "4px 4px 0 #000000",
                         }}>
                           🎁 Send {giftAmt} Orange!
                         </button>
@@ -255,11 +254,11 @@ export default function FamilyCircleScreen() {
                     <button type="button" onClick={() => setGifting(kid.id)} style={{
                       width: "100%",
                       background: "linear-gradient(135deg,#F97316,#EA580C)",
-                      border: "3px solid #1A0A3C", color: "white",
+                      border: "3px solid #000000", color: "white",
                       borderRadius: 14, padding: "12px 0",
                       fontSize: 16, fontWeight: 800, cursor: "pointer",
                       fontFamily: "'Fredoka One', cursive",
-                      boxShadow: "4px 4px 0 #1A0A3C",
+                      boxShadow: "4px 4px 0 #000000",
                     }}>
                       🎁 Send Orange Gift
                     </button>

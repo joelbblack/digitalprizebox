@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth, supabase }   from "../lib/auth";
 import { LoadingScreen, Owl, StarField, Toast } from "../lib/animals";
-import { fontCSS, T, DISTRICT_TIERS } from "../lib/theme";
+import { fontCSS, T, DISTRICT_TIERS, benday } from "../lib/theme";
 
 // ── useDistrictData hook ──────────────────────────────────────────────────────
 function useDistrictData(userId) {
@@ -115,19 +115,19 @@ function DistrictSurveyModal({ onComplete }) {
     border: `3px solid ${T.borderBold}`, borderRadius: 12,
     padding: "10px 14px", fontSize: 15, color: T.text,
     fontFamily: "'Nunito', sans-serif", outline: "none",
-    boxSizing: "border-box", boxShadow: "3px 3px 0 #1A0A3C",
+    boxSizing: "border-box", boxShadow: "3px 3px 0 #000000",
   };
 
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 2000,
-      background: "rgba(10,5,30,0.97)",
+      background: "rgba(0,0,0,0.7)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{
         background: T.panel, borderRadius: 28, padding: "36px 32px",
         border: `3px solid ${T.borderBold}`, width: "100%", maxWidth: 520,
-        boxShadow: "8px 8px 0 #1A0A3C",
+        boxShadow: "8px 8px 0 #000000",
       }}>
 
         {/* Step 0: District info */}
@@ -170,12 +170,12 @@ function DistrictSurveyModal({ onComplete }) {
               style={{
                 width: "100%", padding: "13px 0",
                 background: !form.districtName.trim() ? T.border
-                  : "linear-gradient(135deg,#3B82F6,#1D4ED8)",
-                border: "3px solid #1A0A3C", borderRadius: 14,
+                  : "#3B82F6",
+                border: "3px solid #000000", borderRadius: 14,
                 color: "white", fontSize: 17, fontWeight: 800,
                 cursor: !form.districtName.trim() ? "not-allowed" : "pointer",
                 fontFamily: "'Fredoka One', cursive",
-                boxShadow: !form.districtName.trim() ? "none" : "4px 4px 0 #1A0A3C",
+                boxShadow: !form.districtName.trim() ? "none" : "4px 4px 0 #000000",
                 opacity: !form.districtName.trim() ? 0.5 : 1,
               }}>Next →</button>
           </>
@@ -224,7 +224,7 @@ function DistrictSurveyModal({ onComplete }) {
             {/* Tier preview */}
             {form.studentCount && (
               <div style={{
-                background: `${T.blue}18`, border: `2px solid ${T.blue}`,
+                background: "#FFFFFF", border: `2px solid ${T.blue}`,
                 borderRadius: 14, padding: "12px 16px", marginBottom: 16,
               }}>
                 <div style={{ fontSize: 12, color: T.blueL, fontWeight: 700, marginBottom: 4 }}>
@@ -250,12 +250,12 @@ function DistrictSurveyModal({ onComplete }) {
                 style={{
                   flex: 1, padding: "13px 0",
                   background: !form.studentCount ? T.border
-                    : "linear-gradient(135deg,#3B82F6,#1D4ED8)",
-                  border: "3px solid #1A0A3C", borderRadius: 14,
+                    : "#3B82F6",
+                  border: "3px solid #000000", borderRadius: 14,
                   color: "white", fontSize: 17, fontWeight: 800,
                   cursor: !form.studentCount ? "not-allowed" : "pointer",
                   fontFamily: "'Fredoka One', cursive",
-                  boxShadow: !form.studentCount ? "none" : "4px 4px 0 #1A0A3C",
+                  boxShadow: !form.studentCount ? "none" : "4px 4px 0 #000000",
                   opacity: !form.studentCount ? 0.5 : 1,
                 }}>See My Quote →</button>
             </div>
@@ -271,9 +271,9 @@ function DistrictSurveyModal({ onComplete }) {
                 color: T.text }}>Your District Plan</div>
             </div>
             <div style={{
-              background: `${T.blue}18`, border: `3px solid ${T.blue}`,
+              background: "#FFFFFF", border: `3px solid ${T.blue}`,
               borderRadius: 20, padding: "24px", textAlign: "center",
-              marginBottom: 20, boxShadow: "4px 4px 0 #1A0A3C",
+              marginBottom: 20, boxShadow: "4px 4px 0 #000000",
             }}>
               <div style={{ fontSize: 13, color: T.blueL, fontWeight: 700, marginBottom: 4 }}>
                 {quote.label} District
@@ -286,7 +286,7 @@ function DistrictSurveyModal({ onComplete }) {
               </div>
               {quote.id === "enterprise" && (
                 <div style={{
-                  background: `${T.pink}22`, border: `2px solid ${T.pink}`,
+                  background: "#FFFFFF", border: `2px solid ${T.pink}`,
                   borderRadius: 12, padding: "10px 14px", marginTop: 16,
                   fontSize: 13, color: T.pink, fontWeight: 700,
                 }}>
@@ -296,7 +296,7 @@ function DistrictSurveyModal({ onComplete }) {
               )}
             </div>
             <div style={{
-              background: `${T.gold}18`, border: `2px solid ${T.gold}44`,
+              background: "#FFFFFF", border: `2px solid ${T.gold}`,
               borderRadius: 14, padding: "12px 16px", marginBottom: 20,
               fontSize: 12, color: T.goldL, lineHeight: 1.6,
             }}>
@@ -304,12 +304,12 @@ function DistrictSurveyModal({ onComplete }) {
             </div>
             <button type="button" onClick={finish} disabled={saving} style={{
               width: "100%", padding: "13px 0",
-              background: saving ? T.border : "linear-gradient(135deg,#7C3AED,#5B21B6)",
-              border: "3px solid #1A0A3C", borderRadius: 14,
+              background: saving ? T.border : "#0033CC",
+              border: "3px solid #000000", borderRadius: 14,
               color: "white", fontSize: 17, fontWeight: 800,
               cursor: saving ? "not-allowed" : "pointer",
               fontFamily: "'Fredoka One', cursive",
-              boxShadow: saving ? "none" : "4px 4px 0 #1A0A3C",
+              boxShadow: saving ? "none" : "4px 4px 0 #000000",
             }}>
               {saving ? "⏳ Setting up..." : "🚀 Open District Dashboard"}
             </button>
@@ -353,20 +353,19 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
 
       {/* Header */}
       <div style={{
-        background: `linear-gradient(135deg,${T.panel},${T.sky})`,
+        background: "rgba(255,255,255,0.95)",
         borderBottom: `3px solid ${T.borderBold}`,
         padding: "14px 24px",
         display: "flex", alignItems: "center",
         justifyContent: "space-between", flexWrap: "wrap", gap: 12,
-        position: "relative", zIndex: 10, boxShadow: "0 4px 0 #1A0A3C",
+        position: "relative", zIndex: 10, boxShadow: "0 3px 0 #000000",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Owl size={44}/>
           <div>
             <div style={{
               fontFamily: "'Fredoka One', cursive", fontSize: 22,
-              background: `linear-gradient(135deg,${T.blueL},${T.purpleL})`,
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              color: T.purple,
             }}>
               🎓 Superintendent Dashboard
             </div>
@@ -380,7 +379,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
           <div style={{
             background: T.panel2, border: `2px solid ${T.border}`,
             borderRadius: 12, padding: "8px 14px", textAlign: "center",
-            boxShadow: "3px 3px 0 #1A0A3C",
+            boxShadow: "3px 3px 0 #000000",
           }}>
             <div style={{ fontSize: 10, color: T.sub }}>Schools</div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.blueL }}>
@@ -398,7 +397,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
 
       {/* Read-only banner */}
       <div style={{
-        background: `${T.blue}18`, borderBottom: `2px solid ${T.blue}44`,
+        background: "#FFFFFF", borderBottom: `2px solid ${T.blue}`,
         padding: "8px 24px", fontSize: 12, color: T.blueL, fontWeight: 700,
         position: "relative", zIndex: 10, textAlign: "center",
       }}>
@@ -417,7 +416,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
             color: tab === t.id ? "white" : T.sub,
             borderRadius: 14, padding: "8px 16px", fontSize: 13,
             fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-            boxShadow: tab === t.id ? "3px 3px 0 #1A0A3C" : "none",
+            boxShadow: tab === t.id ? "3px 3px 0 #000000" : "none",
             transition: "all 0.2s",
           }}>{t.emoji} {t.label}</button>
         ))}
@@ -426,7 +425,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "24px 20px", position: "relative", zIndex: 5 }}>
         {error && (
           <div style={{
-            background: `${T.red}22`, border: `2px solid ${T.red}`,
+            background: "#FFFFFF", border: `2px solid ${T.red}`,
             borderRadius: 12, padding: "10px 14px",
             fontSize: 13, color: "#FCA5A5", marginBottom: 16, fontWeight: 700,
           }}>⚠️ {error}</div>
@@ -449,7 +448,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
               ].map(m => (
                 <div key={m.label} style={{
                   background: T.panel2, borderRadius: 16, padding: "16px",
-                  border: `3px solid ${T.borderBold}`, boxShadow: "3px 3px 0 #1A0A3C",
+                  border: `3px solid ${T.borderBold}`, boxShadow: "3px 3px 0 #000000",
                 }}>
                   <div style={{ fontSize: 10, color: T.sub, fontWeight: 700,
                     textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>{m.label}</div>
@@ -464,7 +463,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
             {/* District info card */}
             <div style={{
               background: T.panel2, borderRadius: 20, padding: "20px",
-              border: `3px solid ${T.borderBold}`, boxShadow: "4px 4px 0 #1A0A3C",
+              border: `3px solid ${T.borderBold}`, boxShadow: "4px 4px 0 #000000",
             }}>
               <div style={{ display: "flex", justifyContent: "space-between",
                 alignItems: "center", flexWrap: "wrap", gap: 12 }}>
@@ -505,10 +504,18 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
                 <div style={{ fontSize: 56, marginBottom: 12 }}>🏫</div>
                 <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22,
                   color: T.text, marginBottom: 8 }}>No schools linked yet</div>
-                <div style={{ fontSize: 13, color: T.sub }}>
-                  Share your district join code{" "}
-                  <strong style={{ color: T.blueL }}>{district?.join_code}</strong>{" "}
-                  with principals during their school setup.
+                <div style={{ fontSize: 13, color: T.sub, marginBottom: 16 }}>
+                  Share your district join code with principals during their school setup.
+                </div>
+                <div style={{
+                  display: "inline-block", background: "#FFFFFF",
+                  border: `3px solid ${T.borderBold}`, borderRadius: 14,
+                  padding: "14px 28px", boxShadow: "4px 4px 0 #000000",
+                }}>
+                  <div style={{ fontSize: 11, color: T.sub, fontWeight: 700,
+                    textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 4 }}>Join Code</div>
+                  <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28,
+                    color: T.purple, letterSpacing: 2 }}>{district?.join_code}</div>
                 </div>
               </div>
             ) : schools.map(school => {
@@ -520,8 +527,9 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
               return (
                 <div key={school.id} style={{
                   background: T.panel2, border: `3px solid ${T.borderBold}`,
+                  borderLeft: `8px solid ${T.blue}`,
                   borderRadius: 20, padding: "18px", marginBottom: 14,
-                  boxShadow: "4px 4px 0 #1A0A3C",
+                  boxShadow: "4px 4px 0 #000000",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between",
                     alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 14 }}>
@@ -597,7 +605,7 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
                   <div key={s.label} style={{
                     background: T.panel2, border: `3px solid ${T.borderBold}`,
                     borderRadius: 18, padding: "18px 16px", textAlign: "center",
-                    boxShadow: "4px 4px 0 #1A0A3C",
+                    boxShadow: "4px 4px 0 #000000",
                   }}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>{s.emoji}</div>
                     <div style={{ fontFamily: "'Fredoka One', cursive",
@@ -608,9 +616,9 @@ function SuperintendentDashboard({ profile, onSignOut, district, schools, error,
               </div>
             )}
             <div style={{
-              background: T.panel2, border: `3px dashed ${T.border}`,
+              background: T.panel2, border: `3px dashed #000000`,
               borderRadius: 18, padding: "24px", marginTop: 20, textAlign: "center",
-              boxShadow: "4px 4px 0 #1A0A3C",
+              boxShadow: "4px 4px 0 #000000",
             }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📤</div>
               <div style={{ fontWeight: 800, fontSize: 14, color: T.text, marginBottom: 4 }}>

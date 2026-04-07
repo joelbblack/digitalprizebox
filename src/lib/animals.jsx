@@ -1,7 +1,8 @@
 // ─── src/lib/animals.jsx ─────────────────────────────────────────────────────
-// Origami folded-paper SVG animals.
-// Each animal is built from flat polygon faces + dashed crease/fold lines.
-// No gradients. No blur. Sharp geometric planes. Saturday Morning Cartoon style.
+// Low-poly triangle-based SVG animals.
+// Every shape is a <polygon> with exactly 3 points (triangle).
+// Bold black outlines, flat color fields, faceted geometric depth.
+// Inspired by low-poly 3D art + Ellsworth Kelly's hard-edge color planes.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useState } from "react";
@@ -18,124 +19,118 @@ const AnimalSVG = ({ size, children, viewBox = "0 0 100 100" }) => (
   </svg>
 );
 
-// ── Crease line (dashed fold mark) ────────────────────────────────────────────
-const Crease = ({ x1, y1, x2, y2, opacity = 0.5 }) => (
-  <line
-    x1={x1} y1={y1} x2={x2} y2={y2}
-    stroke="#1A0A00" strokeWidth="1.2"
-    strokeDasharray="3,2.5"
-    opacity={opacity}
+// ── Crease (no-op for backward compat) ───────────────────────────────────────
+const Crease = () => null;
+
+// ── Triangle helper: shorthand for consistent stroke styling ─────────────────
+const Tri = ({ points, fill, stroke = "#000000", sw = 2.5 }) => (
+  <polygon
+    points={points} fill={fill}
+    stroke={stroke} strokeWidth={sw} strokeLinejoin="miter"
   />
 );
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ORIGAMI ANIMALS
+// LOW-POLY TRIANGLE ANIMALS
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ── Fox ───────────────────────────────────────────────────────────────────────
 export const Fox = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Ears — sharp origami triangles */}
-    <polygon points="14,52 26,20 40,52" fill="#E8621A" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <polygon points="60,52 74,20 86,52" fill="#E8621A" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    {/* Inner ear fold plane */}
-    <polygon points="18,50 26,26 36,50" fill="#F9A875"/>
-    <polygon points="64,50 74,26 82,50" fill="#F9A875"/>
-    {/* Main face diamond */}
-    <polygon points="50,16 84,52 50,84 16,52" fill="#E8621A" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    {/* Fold crease lines */}
-    <Crease x1="50" y1="16" x2="50" y2="84"/>
-    <Crease x1="16" y1="52" x2="84" y2="52"/>
-    {/* White muzzle fold planes */}
-    <polygon points="16,52 36,52 26,72" fill="#FEF0DC" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
-    <polygon points="64,52 84,52 74,72" fill="#FEF0DC" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
-    <polygon points="50,84 36,52 64,52" fill="#FEF0DC" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
-    {/* Eyes */}
-    <circle cx="37" cy="46" r="5.5" fill="#1A0A00"/>
-    <circle cx="63" cy="46" r="5.5" fill="#1A0A00"/>
-    <circle cx="38.8" cy="44.5" r="2" fill="white"/>
-    <circle cx="64.8" cy="44.5" r="2" fill="white"/>
+    {/* Left ear */}
+    <Tri points="14,52 26,18 40,52" fill="#E8621A"/>
+    <Tri points="18,50 26,24 34,50" fill="#F9A875" sw={0}/>
+    {/* Right ear */}
+    <Tri points="60,52 74,18 86,52" fill="#E8621A"/>
+    <Tri points="64,50 74,24 82,50" fill="#F9A875" sw={0}/>
+    {/* Face — diamond split into 4 triangles */}
+    <Tri points="50,16 84,52 16,52" fill="#E8621A"/>
+    <Tri points="16,52 84,52 50,84" fill="#D4540F"/>
+    {/* Muzzle — 3 white triangles */}
+    <Tri points="36,52 50,84 16,52" fill="#FEF0DC"/>
+    <Tri points="64,52 50,84 84,52" fill="#FEF0DC"/>
+    <Tri points="36,52 64,52 50,72" fill="#FEF3E0" sw={1.5}/>
+    {/* Eyes — small dark triangles */}
+    <Tri points="33,42 41,42 37,50" fill="#000000" sw={0}/>
+    <Tri points="59,42 67,42 63,50" fill="#000000" sw={0}/>
     {/* Nose */}
-    <ellipse cx="50" cy="64" rx="4.5" ry="3.5" fill="#1A0A00"/>
+    <Tri points="46,62 54,62 50,67" fill="#000000" sw={0}/>
   </AnimalSVG>
 );
 
 // ── Panda ─────────────────────────────────────────────────────────────────────
 export const Panda = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Ears */}
-    <circle cx="27" cy="22" r="14" fill="#2D2D3A" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="73" cy="22" r="14" fill="#2D2D3A" stroke="#1A0A00" strokeWidth="2.5"/>
-    {/* Main face */}
-    <circle cx="50" cy="54" r="34" fill="#F8F8F8" stroke="#1A0A00" strokeWidth="2.5"/>
-    {/* Fold crease */}
-    <Crease x1="16" y1="54" x2="84" y2="54" opacity={0.3}/>
-    <Crease x1="50" y1="20" x2="50" y2="88" opacity={0.3}/>
-    {/* Eye patches — flat dark planes */}
-    <ellipse cx="36" cy="47" rx="12" ry="10" fill="#2D2D3A" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="64" cy="47" rx="12" ry="10" fill="#2D2D3A" stroke="#1A0A00" strokeWidth="1.5"/>
-    {/* Eyes */}
-    <circle cx="36" cy="47" r="5.5" fill="white"/>
-    <circle cx="64" cy="47" r="5.5" fill="white"/>
-    <circle cx="36" cy="47" r="3.5" fill="#1A0A00"/>
-    <circle cx="64" cy="47" r="3.5" fill="#1A0A00"/>
-    <circle cx="37.2" cy="45.8" r="1.3" fill="white"/>
-    <circle cx="65.2" cy="45.8" r="1.3" fill="white"/>
-    {/* Muzzle */}
-    <ellipse cx="50" cy="62" rx="12" ry="9" fill="#F0F0F0" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="50" cy="59" rx="5" ry="4" fill="#2D2D3A"/>
-    <path d="M 45 64 Q 50 70 55 64" stroke="#2D2D3A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    {/* Ears — dark triangles */}
+    <Tri points="18,30 28,10 38,30" fill="#2D2D3A"/>
+    <Tri points="62,30 72,10 82,30" fill="#2D2D3A"/>
+    {/* Head — 6 triangles forming hexagonal face */}
+    <Tri points="50,18 80,38 50,52" fill="#F8F8F8"/>
+    <Tri points="50,18 20,38 50,52" fill="#ECECEC"/>
+    <Tri points="20,38 20,68 50,52" fill="#F0F0F0"/>
+    <Tri points="80,38 80,68 50,52" fill="#E8E8E8"/>
+    <Tri points="20,68 50,86 50,52" fill="#F5F5F5"/>
+    <Tri points="80,68 50,86 50,52" fill="#EBEBEB"/>
+    {/* Eye patches — dark triangles */}
+    <Tri points="28,38 44,38 36,52" fill="#2D2D3A" sw={1.5}/>
+    <Tri points="56,38 72,38 64,52" fill="#2D2D3A" sw={1.5}/>
+    {/* Eyes — white triangles inside patches */}
+    <Tri points="33,41 39,41 36,47" fill="#FFFFFF" sw={0}/>
+    <Tri points="61,41 67,41 64,47" fill="#FFFFFF" sw={0}/>
+    {/* Pupils */}
+    <Tri points="35,42 38,42 36,46" fill="#000000" sw={0}/>
+    <Tri points="63,42 66,42 64,46" fill="#000000" sw={0}/>
+    {/* Nose */}
+    <Tri points="46,58 54,58 50,63" fill="#2D2D3A" sw={0}/>
   </AnimalSVG>
 );
 
 // ── Butterfly ─────────────────────────────────────────────────────────────────
 export const Butterfly = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Upper wings — flat origami folds */}
-    <polygon points="50,46 6,10 8,54" fill="#9B5DE5" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <polygon points="50,46 94,10 92,54" fill="#9B5DE5" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    {/* Wing fold planes */}
-    <polygon points="50,46 8,14 12,42" fill="#C77DFF"/>
-    <polygon points="50,46 92,14 88,42" fill="#C77DFF"/>
-    {/* Lower wings */}
-    <polygon points="50,56 8,56 20,86" fill="#C77DFF" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="50,56 92,56 80,86" fill="#C77DFF" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    {/* Wing crease lines */}
-    <Crease x1="50" y1="46" x2="10" y2="20"/>
-    <Crease x1="50" y1="46" x2="90" y2="20"/>
-    {/* Wing spots */}
-    <circle cx="24" cy="30" r="8" fill="#FFE600" stroke="#1A0A00" strokeWidth="1.5"/>
-    <circle cx="76" cy="30" r="8" fill="#FFE600" stroke="#1A0A00" strokeWidth="1.5"/>
-    {/* Body */}
-    <ellipse cx="50" cy="51" rx="4.5" ry="22" fill="#1A0A00" stroke="#1A0A00" strokeWidth="1"/>
-    {/* Antennae */}
-    <line x1="48" y1="30" x2="36" y2="14" stroke="#1A0A00" strokeWidth="2" strokeLinecap="round"/>
-    <line x1="52" y1="30" x2="64" y2="14" stroke="#1A0A00" strokeWidth="2" strokeLinecap="round"/>
-    <circle cx="36" cy="14" r="3.5" fill="#9B5DE5" stroke="#1A0A00" strokeWidth="1.5"/>
-    <circle cx="64" cy="14" r="3.5" fill="#9B5DE5" stroke="#1A0A00" strokeWidth="1.5"/>
+    {/* Upper left wing — 2 triangles */}
+    <Tri points="50,46 6,10 8,46" fill="#9B5DE5"/>
+    <Tri points="50,46 6,10 28,10" fill="#C77DFF"/>
+    {/* Upper right wing */}
+    <Tri points="50,46 94,10 92,46" fill="#9B5DE5"/>
+    <Tri points="50,46 94,10 72,10" fill="#C77DFF"/>
+    {/* Lower left wing */}
+    <Tri points="50,56 8,56 20,86" fill="#C77DFF"/>
+    {/* Lower right wing */}
+    <Tri points="50,56 92,56 80,86" fill="#C77DFF"/>
+    {/* Wing spots — small accent triangles */}
+    <Tri points="18,24 30,24 24,34" fill="#FFDD00" sw={1.5}/>
+    <Tri points="70,24 82,24 76,34" fill="#FFDD00" sw={1.5}/>
+    {/* Body — tall narrow triangle */}
+    <Tri points="46,28 54,28 50,78" fill="#000000" sw={1}/>
+    {/* Antennae tips */}
+    <Tri points="33,12 39,12 36,18" fill="#9B5DE5" sw={1.5}/>
+    <Tri points="61,12 67,12 64,18" fill="#9B5DE5" sw={1.5}/>
   </AnimalSVG>
 );
 
 // ── Frog ──────────────────────────────────────────────────────────────────────
 export const Frog = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Body diamond */}
-    <polygon points="50,14 86,48 50,76 14,48" fill="#3EBD6E" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <Crease x1="50" y1="14" x2="50" y2="76"/>
-    <Crease x1="14" y1="48" x2="86" y2="48"/>
-    {/* Big round eyes on top */}
-    <circle cx="28" cy="34" r="14" fill="#3EBD6E" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="72" cy="34" r="14" fill="#3EBD6E" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="28" cy="34" r="9" fill="white" stroke="#1A0A00" strokeWidth="1.5"/>
-    <circle cx="72" cy="34" r="9" fill="white" stroke="#1A0A00" strokeWidth="1.5"/>
-    <circle cx="28" cy="34" r="5.5" fill="#1A0A00"/>
-    <circle cx="72" cy="34" r="5.5" fill="#1A0A00"/>
-    <circle cx="29.5" cy="32.5" r="2" fill="white"/>
-    <circle cx="73.5" cy="32.5" r="2" fill="white"/>
-    {/* Smile */}
-    <path d="M 30 60 Q 50 74 70 60" stroke="#1A0A00" strokeWidth="3" fill="none" strokeLinecap="round"/>
-    {/* Belly fold plane */}
-    <ellipse cx="50" cy="57" rx="16" ry="11" fill="#A8EDBC" stroke="#1A0A00" strokeWidth="1.5"/>
+    {/* Body — diamond as 4 triangles */}
+    <Tri points="50,14 86,48 50,48" fill="#3EBD6E"/>
+    <Tri points="50,14 14,48 50,48" fill="#34A85E"/>
+    <Tri points="14,48 50,76 50,48" fill="#2D9652"/>
+    <Tri points="86,48 50,76 50,48" fill="#3EBD6E"/>
+    {/* Eyes — triangulated circles */}
+    <Tri points="18,36 38,36 28,20" fill="#3EBD6E" sw={2}/>
+    <Tri points="62,36 82,36 72,20" fill="#3EBD6E" sw={2}/>
+    {/* Eye whites */}
+    <Tri points="22,34 34,34 28,24" fill="#FFFFFF" sw={1}/>
+    <Tri points="66,34 78,34 72,24" fill="#FFFFFF" sw={1}/>
+    {/* Pupils */}
+    <Tri points="26,32 32,32 28,26" fill="#000000" sw={0}/>
+    <Tri points="70,32 76,32 72,26" fill="#000000" sw={0}/>
+    {/* Belly */}
+    <Tri points="36,48 64,48 50,66" fill="#A8EDBC" sw={1.5}/>
+    {/* Smile — two small triangles */}
+    <Tri points="34,60 50,68 42,60" fill="#2D9652" sw={0}/>
+    <Tri points="66,60 50,68 58,60" fill="#2D9652" sw={0}/>
   </AnimalSVG>
 );
 
@@ -143,23 +138,24 @@ export const Frog = ({ size = 64, animate = false }) => (
 export const Bear = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
     {/* Ears */}
-    <circle cx="26" cy="22" r="14" fill="#A78BFA" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="74" cy="22" r="14" fill="#A78BFA" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="26" cy="22" r="8" fill="#C4B5FD"/>
-    <circle cx="74" cy="22" r="8" fill="#C4B5FD"/>
-    {/* Face */}
-    <circle cx="50" cy="54" r="33" fill="#A78BFA" stroke="#1A0A00" strokeWidth="2.5"/>
-    <Crease x1="17" y1="54" x2="83" y2="54" opacity={0.35}/>
+    <Tri points="18,30 28,10 38,30" fill="#A78BFA"/>
+    <Tri points="22,28 28,16 34,28" fill="#C4B5FD" sw={0}/>
+    <Tri points="62,30 72,10 82,30" fill="#A78BFA"/>
+    <Tri points="66,28 72,16 78,28" fill="#C4B5FD" sw={0}/>
+    {/* Head — 6 triangles */}
+    <Tri points="50,18 80,40 50,52" fill="#A78BFA"/>
+    <Tri points="50,18 20,40 50,52" fill="#9575E6"/>
+    <Tri points="20,40 20,68 50,52" fill="#A78BFA"/>
+    <Tri points="80,40 80,68 50,52" fill="#9575E6"/>
+    <Tri points="20,68 50,86 50,52" fill="#B09AEE"/>
+    <Tri points="80,68 50,86 50,52" fill="#A78BFA"/>
     {/* Muzzle */}
-    <ellipse cx="50" cy="64" rx="15" ry="11" fill="#C4B5FD" stroke="#1A0A00" strokeWidth="1.8"/>
+    <Tri points="36,56 64,56 50,74" fill="#C4B5FD" sw={1.5}/>
     {/* Eyes */}
-    <circle cx="37" cy="48" r="6" fill="#1A0A00"/>
-    <circle cx="63" cy="48" r="6" fill="#1A0A00"/>
-    <circle cx="38.8" cy="46.5" r="2.2" fill="white"/>
-    <circle cx="64.8" cy="46.5" r="2.2" fill="white"/>
-    {/* Nose & smile */}
-    <ellipse cx="50" cy="60" rx="5" ry="4" fill="#1A0A00"/>
-    <path d="M 45 65 Q 50 71 55 65" stroke="#1A0A00" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <Tri points="33,42 41,42 37,50" fill="#000000" sw={0}/>
+    <Tri points="59,42 67,42 63,50" fill="#000000" sw={0}/>
+    {/* Nose */}
+    <Tri points="46,58 54,58 50,63" fill="#000000" sw={0}/>
   </AnimalSVG>
 );
 
@@ -167,284 +163,302 @@ export const Bear = ({ size = 64, animate = false }) => (
 export const Tiger = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
     {/* Ears */}
-    <polygon points="22,50 14,20 38,44" fill="#F97316" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <polygon points="78,50 86,20 62,44" fill="#F97316" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <polygon points="24,48 18,26 34,44" fill="#FDE68A"/>
-    <polygon points="76,48 82,26 66,44" fill="#FDE68A"/>
-    {/* Face */}
-    <polygon points="50,14 86,50 70,82 30,82 14,50" fill="#F97316" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    {/* Stripes — flat painted planes */}
-    <line x1="34" y1="24" x2="42" y2="38" stroke="#1A0A00" strokeWidth="3.5" strokeLinecap="round"/>
-    <line x1="66" y1="24" x2="58" y2="38" stroke="#1A0A00" strokeWidth="3.5" strokeLinecap="round"/>
-    <line x1="26" y1="50" x2="36" y2="46" stroke="#1A0A00" strokeWidth="3" strokeLinecap="round"/>
-    <line x1="74" y1="50" x2="64" y2="46" stroke="#1A0A00" strokeWidth="3" strokeLinecap="round"/>
-    {/* Muzzle fold */}
-    <polygon points="50,82 36,58 64,58" fill="#FDE68A" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
-    <Crease x1="50" y1="14" x2="50" y2="82"/>
-    {/* Eyes */}
-    <ellipse cx="37" cy="47" rx="6" ry="7" fill="#84CC16" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="63" cy="47" rx="6" ry="7" fill="#84CC16" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="37" cy="47" rx="2.5" ry="5.5" fill="#1A0A00"/>
-    <ellipse cx="63" cy="47" rx="2.5" ry="5.5" fill="#1A0A00"/>
-    <circle cx="38" cy="45" r="1.3" fill="white"/>
-    <circle cx="64" cy="45" r="1.3" fill="white"/>
-    <ellipse cx="50" cy="68" rx="5" ry="3.5" fill="#1A0A00"/>
+    <Tri points="14,44 24,16 38,44" fill="#F97316"/>
+    <Tri points="18,42 24,22 34,42" fill="#FDE68A" sw={0}/>
+    <Tri points="62,44 76,16 86,44" fill="#F97316"/>
+    <Tri points="66,42 76,22 82,42" fill="#FDE68A" sw={0}/>
+    {/* Face — 5 triangles forming pentagon */}
+    <Tri points="50,14 86,50 50,50" fill="#F97316"/>
+    <Tri points="50,14 14,50 50,50" fill="#E56A0A"/>
+    <Tri points="14,50 30,82 50,50" fill="#F97316"/>
+    <Tri points="86,50 70,82 50,50" fill="#E56A0A"/>
+    <Tri points="30,82 70,82 50,50" fill="#F08030"/>
+    {/* Stripes — thin dark triangles */}
+    <Tri points="34,22 38,22 36,36" fill="#000000" sw={0}/>
+    <Tri points="62,22 66,22 64,36" fill="#000000" sw={0}/>
+    <Tri points="22,48 26,48 24,56" fill="#000000" sw={0}/>
+    <Tri points="74,48 78,48 76,56" fill="#000000" sw={0}/>
+    {/* Muzzle */}
+    <Tri points="36,56 64,56 50,76" fill="#FDE68A" sw={1.5}/>
+    {/* Eyes — green with dark pupils */}
+    <Tri points="30,42 42,42 36,50" fill="#84CC16" sw={1}/>
+    <Tri points="58,42 70,42 64,50" fill="#84CC16" sw={1}/>
+    <Tri points="34,43 38,43 36,48" fill="#000000" sw={0}/>
+    <Tri points="62,43 66,43 64,48" fill="#000000" sw={0}/>
+    {/* Nose */}
+    <Tri points="46,60 54,60 50,66" fill="#000000" sw={0}/>
   </AnimalSVG>
 );
 
 // ── Owl ───────────────────────────────────────────────────────────────────────
 export const Owl = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Wings — flat side planes */}
-    <polygon points="20,40 4,58 14,74" fill="#1D4ED8" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="80,40 96,58 86,74" fill="#1D4ED8" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    {/* Body */}
-    <polygon points="50,92 14,72 20,38 50,26 80,38 86,72" fill="#3B82F6" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <Crease x1="50" y1="26" x2="50" y2="92"/>
-    <Crease x1="14" y1="72" x2="86" y2="72" opacity={0.4}/>
+    {/* Left wing */}
+    <Tri points="20,40 4,58 14,74" fill="#1D4ED8"/>
+    {/* Right wing */}
+    <Tri points="80,40 96,58 86,74" fill="#1D4ED8"/>
+    {/* Body — 4 triangles */}
+    <Tri points="50,26 80,38 50,60" fill="#3B82F6"/>
+    <Tri points="50,26 20,38 50,60" fill="#2563EB"/>
+    <Tri points="20,38 14,72 50,60" fill="#3B82F6"/>
+    <Tri points="80,38 86,72 50,60" fill="#2563EB"/>
+    <Tri points="14,72 50,92 50,60" fill="#3B82F6"/>
+    <Tri points="86,72 50,92 50,60" fill="#2563EB"/>
     {/* Ear tufts */}
-    <polygon points="34,30 28,8" stroke="#1A0A00" strokeWidth="0" fill="none"/>
-    <polygon points="36,28 28,8 42,22" fill="#1D4ED8" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="64,28 72,8 58,22" fill="#1D4ED8" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    {/* Belly fold */}
-    <ellipse cx="50" cy="66" rx="20" ry="24" fill="#BFDBFE" stroke="#1A0A00" strokeWidth="1.5"/>
-    {/* Big eyes */}
-    <circle cx="38" cy="44" r="13" fill="#FEF3C7" stroke="#1A0A00" strokeWidth="2"/>
-    <circle cx="62" cy="44" r="13" fill="#FEF3C7" stroke="#1A0A00" strokeWidth="2"/>
-    <circle cx="38" cy="44" r="8" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1"/>
-    <circle cx="62" cy="44" r="8" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1"/>
-    <circle cx="38" cy="44" r="4.5" fill="#1A0A00"/>
-    <circle cx="62" cy="44" r="4.5" fill="#1A0A00"/>
-    <circle cx="39.5" cy="42.5" r="1.8" fill="white"/>
-    <circle cx="63.5" cy="42.5" r="1.8" fill="white"/>
+    <Tri points="36,28 28,8 42,22" fill="#1D4ED8"/>
+    <Tri points="64,28 72,8 58,22" fill="#1D4ED8"/>
+    {/* Belly — lighter triangles */}
+    <Tri points="34,56 66,56 50,86" fill="#BFDBFE" sw={1.5}/>
+    <Tri points="34,56 50,56 42,72" fill="#D4E8FC" sw={0}/>
+    <Tri points="50,56 66,56 58,72" fill="#C8DFFA" sw={0}/>
+    {/* Eyes — large triangulated circles */}
+    <Tri points="26,38 50,38 38,52" fill="#FEF3C7" sw={1.5}/>
+    <Tri points="50,38 74,38 62,52" fill="#FEF3C7" sw={1.5}/>
+    {/* Iris */}
+    <Tri points="32,40 44,40 38,48" fill="#F59E0B" sw={0}/>
+    <Tri points="56,40 68,40 62,48" fill="#F59E0B" sw={0}/>
+    {/* Pupils */}
+    <Tri points="36,42 42,42 38,46" fill="#000000" sw={0}/>
+    <Tri points="60,42 66,42 62,46" fill="#000000" sw={0}/>
     {/* Beak */}
-    <polygon points="44,52 56,52 50,60" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
+    <Tri points="44,52 56,52 50,60" fill="#F59E0B" sw={1.5}/>
   </AnimalSVG>
 );
 
 // ── Penguin ───────────────────────────────────────────────────────────────────
 export const Penguin = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Body */}
-    <ellipse cx="50" cy="63" rx="28" ry="32" fill="#1E293B" stroke="#1A0A00" strokeWidth="2.5"/>
-    {/* White belly fold plane */}
-    <ellipse cx="50" cy="67" rx="17" ry="23" fill="#F8F8F8" stroke="#1A0A00" strokeWidth="1.5"/>
-    <Crease x1="50" y1="44" x2="50" y2="90" opacity={0.2}/>
-    {/* Head */}
-    <circle cx="50" cy="28" r="22" fill="#1E293B" stroke="#1A0A00" strokeWidth="2.5"/>
-    {/* Face white fold */}
-    <ellipse cx="50" cy="30" rx="13" ry="11" fill="#F8F8F8" stroke="#1A0A00" strokeWidth="1.5"/>
+    {/* Body — dark triangles */}
+    <Tri points="50,30 22,55 50,90" fill="#1E293B"/>
+    <Tri points="50,30 78,55 50,90" fill="#151E2B"/>
+    <Tri points="22,55 50,90 22,90" fill="#1E293B"/>
+    <Tri points="78,55 50,90 78,90" fill="#151E2B"/>
+    {/* White belly */}
+    <Tri points="50,40 34,60 50,86" fill="#F8F8F8" sw={1.5}/>
+    <Tri points="50,40 66,60 50,86" fill="#EEEEEE" sw={1.5}/>
+    {/* Head — triangulated */}
+    <Tri points="50,6 28,28 50,36" fill="#1E293B"/>
+    <Tri points="50,6 72,28 50,36" fill="#151E2B"/>
+    <Tri points="28,28 72,28 50,36" fill="#1E293B"/>
+    {/* Face white */}
+    <Tri points="38,20 62,20 50,32" fill="#F8F8F8" sw={1}/>
     {/* Eyes */}
-    <circle cx="44" cy="25" r="5" fill="white" stroke="#1A0A00" strokeWidth="1"/>
-    <circle cx="56" cy="25" r="5" fill="white" stroke="#1A0A00" strokeWidth="1"/>
-    <circle cx="44" cy="25" r="3" fill="#1A0A00"/>
-    <circle cx="56" cy="25" r="3" fill="#1A0A00"/>
-    <circle cx="44.9" cy="24.1" r="1.1" fill="white"/>
-    <circle cx="56.9" cy="24.1" r="1.1" fill="white"/>
+    <Tri points="40,20 46,20 43,26" fill="#000000" sw={0}/>
+    <Tri points="54,20 60,20 57,26" fill="#000000" sw={0}/>
     {/* Beak */}
-    <polygon points="44,33 56,33 50,41" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
+    <Tri points="44,28 56,28 50,36" fill="#F59E0B" sw={1.5}/>
     {/* Wings */}
-    <polygon points="22,52 10,68 22,80" fill="#1E293B" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="78,52 90,68 78,80" fill="#1E293B" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
+    <Tri points="22,50 10,68 22,78" fill="#1E293B"/>
+    <Tri points="78,50 90,68 78,78" fill="#151E2B"/>
     {/* Feet */}
-    <ellipse cx="40" cy="93" rx="10" ry="5" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="60" cy="93" rx="10" ry="5" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1.5"/>
+    <Tri points="34,88 46,88 40,96" fill="#F59E0B" sw={1.5}/>
+    <Tri points="54,88 66,88 60,96" fill="#F59E0B" sw={1.5}/>
   </AnimalSVG>
 );
 
 // ── Koala ─────────────────────────────────────────────────────────────────────
 export const Koala = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Big fluffy ears */}
-    <circle cx="21" cy="24" r="19" fill="#94A3B8" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="79" cy="24" r="19" fill="#94A3B8" stroke="#1A0A00" strokeWidth="2.5"/>
-    <circle cx="21" cy="24" r="12" fill="#CBD5E1"/>
-    <circle cx="79" cy="24" r="12" fill="#CBD5E1"/>
-    {/* Face */}
-    <circle cx="50" cy="56" r="32" fill="#94A3B8" stroke="#1A0A00" strokeWidth="2.5"/>
-    <Crease x1="18" y1="56" x2="82" y2="56" opacity={0.3}/>
+    {/* Left ear — triangulated circle */}
+    <Tri points="6,14 22,4 34,20" fill="#94A3B8"/>
+    <Tri points="6,14 34,20 20,32" fill="#94A3B8"/>
+    <Tri points="12,18 24,10 28,26" fill="#CBD5E1" sw={0}/>
+    {/* Right ear */}
+    <Tri points="66,20 78,4 94,14" fill="#94A3B8"/>
+    <Tri points="66,20 94,14 80,32" fill="#94A3B8"/>
+    <Tri points="72,26 76,10 88,18" fill="#CBD5E1" sw={0}/>
+    {/* Head — 6 triangles */}
+    <Tri points="50,22 80,40 50,52" fill="#94A3B8"/>
+    <Tri points="50,22 20,40 50,52" fill="#869AAD"/>
+    <Tri points="20,40 20,70 50,52" fill="#94A3B8"/>
+    <Tri points="80,40 80,70 50,52" fill="#869AAD"/>
+    <Tri points="20,70 50,88 50,52" fill="#9CAEBF"/>
+    <Tri points="80,70 50,88 50,52" fill="#94A3B8"/>
     {/* Big nose */}
-    <ellipse cx="50" cy="55" rx="13" ry="10" fill="#475569" stroke="#1A0A00" strokeWidth="2"/>
-    <ellipse cx="50" cy="53" rx="9" ry="6" fill="#64748B"/>
+    <Tri points="38,50 62,50 50,62" fill="#475569" sw={2}/>
+    <Tri points="42,52 58,52 50,58" fill="#64748B" sw={0}/>
     {/* Eyes */}
-    <circle cx="35" cy="46" r="6.5" fill="#1A0A00"/>
-    <circle cx="65" cy="46" r="6.5" fill="#1A0A00"/>
-    <circle cx="36.8" cy="44.5" r="2.3" fill="white"/>
-    <circle cx="66.8" cy="44.5" r="2.3" fill="white"/>
-    {/* Smile */}
-    <path d="M 42 66 Q 50 72 58 66" stroke="#475569" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+    <Tri points="30,40 40,40 35,48" fill="#000000" sw={0}/>
+    <Tri points="60,40 70,40 65,48" fill="#000000" sw={0}/>
   </AnimalSVG>
 );
 
 // ── Deer ──────────────────────────────────────────────────────────────────────
 export const Deer = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Antlers — origami branch shapes */}
-    <line x1="36" y1="18" x2="22" y2="4" stroke="#92400E" strokeWidth="4.5" strokeLinecap="round"/>
-    <line x1="36" y1="18" x2="16" y2="14" stroke="#92400E" strokeWidth="4" strokeLinecap="round"/>
-    <line x1="36" y1="18" x2="28" y2="6" stroke="#92400E" strokeWidth="3.5" strokeLinecap="round"/>
-    <line x1="64" y1="18" x2="78" y2="4" stroke="#92400E" strokeWidth="4.5" strokeLinecap="round"/>
-    <line x1="64" y1="18" x2="84" y2="14" stroke="#92400E" strokeWidth="4" strokeLinecap="round"/>
-    <line x1="64" y1="18" x2="72" y2="6" stroke="#92400E" strokeWidth="3.5" strokeLinecap="round"/>
-    {/* Face polygon */}
-    <polygon points="50,18 80,48 68,80 50,86 32,80 20,48" fill="#D97706" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <Crease x1="50" y1="18" x2="50" y2="86"/>
-    {/* White chin fold */}
-    <ellipse cx="50" cy="74" rx="14" ry="10" fill="#FDE68A" stroke="#1A0A00" strokeWidth="1.8"/>
-    {/* Spots */}
-    <circle cx="38" cy="38" r="3.5" fill="#F59E0B" opacity="0.6"/>
-    <circle cx="62" cy="38" r="3.5" fill="#F59E0B" opacity="0.6"/>
+    {/* Left antler — branching triangles */}
+    <Tri points="36,20 20,2 26,20" fill="#92400E"/>
+    <Tri points="36,20 14,12 24,20" fill="#92400E"/>
+    <Tri points="32,16 26,4 36,12" fill="#7A3508" sw={1.5}/>
+    {/* Right antler */}
+    <Tri points="64,20 80,2 74,20" fill="#92400E"/>
+    <Tri points="64,20 86,12 76,20" fill="#92400E"/>
+    <Tri points="68,16 74,4 64,12" fill="#7A3508" sw={1.5}/>
+    {/* Face — 4 triangles */}
+    <Tri points="50,18 80,48 50,52" fill="#D97706"/>
+    <Tri points="50,18 20,48 50,52" fill="#C06B05"/>
+    <Tri points="20,48 50,86 50,52" fill="#D97706"/>
+    <Tri points="80,48 50,86 50,52" fill="#C06B05"/>
+    {/* Chin */}
+    <Tri points="36,66 64,66 50,84" fill="#FDE68A" sw={1.5}/>
+    {/* Spots — small light triangles */}
+    <Tri points="34,34 42,34 38,40" fill="#F59E0B" sw={0}/>
+    <Tri points="58,34 66,34 62,40" fill="#F59E0B" sw={0}/>
     {/* Eyes */}
-    <circle cx="36" cy="46" r="6.5" fill="#1A0A00"/>
-    <circle cx="64" cy="46" r="6.5" fill="#1A0A00"/>
-    <circle cx="37.8" cy="44.5" r="2.3" fill="white"/>
-    <circle cx="65.8" cy="44.5" r="2.3" fill="white"/>
-    <ellipse cx="50" cy="68" rx="5" ry="3.5" fill="#92400E"/>
+    <Tri points="32,44 40,44 36,52" fill="#000000" sw={0}/>
+    <Tri points="60,44 68,44 64,52" fill="#000000" sw={0}/>
+    {/* Nose */}
+    <Tri points="46,68 54,68 50,74" fill="#92400E" sw={0}/>
   </AnimalSVG>
 );
 
 // ── Whale ─────────────────────────────────────────────────────────────────────
 export const Whale = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size} viewBox="0 0 120 80">
-    {/* Tail fluke — flat origami fold */}
-    <polygon points="100,35 118,18 118,52 100,35" fill="#2563EB" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <Crease x1="100" y1="35" x2="118" y2="35" opacity={0.4}/>
-    {/* Body */}
-    <ellipse cx="55" cy="38" rx="48" ry="28" fill="#3B82F6" stroke="#1A0A00" strokeWidth="2.5"/>
-    <Crease x1="8" y1="38" x2="102" y2="38" opacity={0.35}/>
-    {/* Belly fold plane */}
-    <ellipse cx="52" cy="44" rx="32" ry="16" fill="#BFDBFE" stroke="#1A0A00" strokeWidth="1.5"/>
+    {/* Tail fluke */}
+    <Tri points="100,35 118,18 110,35" fill="#2563EB"/>
+    <Tri points="100,35 118,52 110,35" fill="#1D4ED8"/>
+    {/* Body — 6 triangles forming oval */}
+    <Tri points="55,10 100,35 55,38" fill="#3B82F6"/>
+    <Tri points="55,10 10,35 55,38" fill="#2563EB"/>
+    <Tri points="10,35 55,66 55,38" fill="#3B82F6"/>
+    <Tri points="100,35 55,66 55,38" fill="#2563EB"/>
+    <Tri points="10,35 10,45 55,38" fill="#3576E0"/>
+    <Tri points="100,35 100,45 55,38" fill="#2A62CC"/>
+    {/* Belly */}
+    <Tri points="20,42 55,42 38,62" fill="#BFDBFE" sw={1.5}/>
+    <Tri points="55,42 72,42 55,62" fill="#D1E6FD" sw={1.5}/>
     {/* Dorsal fin */}
-    <polygon points="58,10 48,26 68,26" fill="#2563EB" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
+    <Tri points="58,10 48,26 68,26" fill="#2563EB"/>
     {/* Pectoral fin */}
-    <polygon points="30,48 14,62 28,58" fill="#2563EB" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
+    <Tri points="30,48 14,62 28,56" fill="#2563EB"/>
     {/* Eye */}
-    <circle cx="22" cy="32" r="7" fill="white" stroke="#1A0A00" strokeWidth="1.8"/>
-    <circle cx="22" cy="32" r="4" fill="#1A0A00"/>
-    <circle cx="23.2" cy="30.8" r="1.5" fill="white"/>
-    {/* Smile */}
-    <path d="M 14 40 Q 24 48 34 42" stroke="#1A0A00" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-    {/* Spout */}
-    <path d="M 18 18 Q 14 8 18 4 M 22 16 Q 22 6 26 2 M 26 18 Q 30 8 28 3" stroke="#3B82F6" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7"/>
-  </AnimalSVG>
-);
-
-// ── Dragon ────────────────────────────────────────────────────────────────────
-export const Dragon = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
-    {/* Wings — dramatic origami folds */}
-    <polygon points="50,36 8,6 16,50" fill="#10B981" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="50,36 92,6 84,50" fill="#10B981" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    {/* Wing fold planes */}
-    <polygon points="50,36 10,10 14,38" fill="#34D399"/>
-    <polygon points="50,36 90,10 86,38" fill="#34D399"/>
-    <Crease x1="50" y1="36" x2="10" y2="14"/>
-    <Crease x1="50" y1="36" x2="90" y2="14"/>
-    {/* Body */}
-    <polygon points="50,10 82,44 72,80 50,88 28,80 18,44" fill="#10B981" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    <Crease x1="50" y1="10" x2="50" y2="88"/>
-    {/* Horns */}
-    <polygon points="36,20 28,2 40,16" fill="#059669" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="64,20 72,2 60,16" fill="#059669" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    {/* Spine ridge */}
-    <polygon points="50,10 54,22 50,18 46,22" fill="#059669" stroke="#1A0A00" strokeWidth="1.5" strokeLinejoin="round"/>
-    <polygon points="50,24 54,34 50,30 46,34" fill="#059669" stroke="#1A0A00" strokeWidth="1.5" strokeLinejoin="round"/>
-    {/* Eyes — slit pupils */}
-    <ellipse cx="37" cy="44" rx="6.5" ry="7.5" fill="#FCD34D" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="63" cy="44" rx="6.5" ry="7.5" fill="#FCD34D" stroke="#1A0A00" strokeWidth="1.5"/>
-    <ellipse cx="37" cy="44" rx="2.2" ry="5.5" fill="#1A0A00"/>
-    <ellipse cx="63" cy="44" rx="2.2" ry="5.5" fill="#1A0A00"/>
-    <circle cx="37.8" cy="42" r="1.2" fill="white"/>
-    <circle cx="63.8" cy="42" r="1.2" fill="white"/>
-    {/* Fire breath! */}
-    <polygon points="40,84 50,100 60,84 50,90" fill="#FF4E1A" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
-    <polygon points="44,88 50,102 56,88" fill="#FFE600"/>
-  </AnimalSVG>
-);
-
-// ── Octopus ───────────────────────────────────────────────────────────────────
-export const Octopus = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
-    {/* Tentacles — flat curved origami folds */}
-    <path d="M 28,66 Q 16,76 18,90" stroke="#EC4899" strokeWidth="9" fill="none" strokeLinecap="round"/>
-    <path d="M 36,70 Q 28,82 26,96" stroke="#EC4899" strokeWidth="9" fill="none" strokeLinecap="round"/>
-    <path d="M 44,72 Q 42,84 40,98" stroke="#EC4899" strokeWidth="9" fill="none" strokeLinecap="round"/>
-    <path d="M 56,72 Q 58,84 60,98" stroke="#EC4899" strokeWidth="9" fill="none" strokeLinecap="round"/>
-    <path d="M 64,70 Q 72,82 74,96" stroke="#EC4899" strokeWidth="9" fill="none" strokeLinecap="round"/>
-    <path d="M 72,66 Q 84,76 82,90" stroke="#EC4899" strokeWidth="9" fill="none" strokeLinecap="round"/>
-    {/* Tentacle outlines */}
-    <path d="M 28,66 Q 16,76 18,90" stroke="#1A0A00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M 36,70 Q 28,82 26,96" stroke="#1A0A00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M 44,72 Q 42,84 40,98" stroke="#1A0A00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M 56,72 Q 58,84 60,98" stroke="#1A0A00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M 64,70 Q 72,82 74,96" stroke="#1A0A00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    <path d="M 72,66 Q 84,76 82,90" stroke="#1A0A00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-    {/* Mantle (head) */}
-    <ellipse cx="50" cy="42" rx="30" ry="34" fill="#EC4899" stroke="#1A0A00" strokeWidth="2.5"/>
-    <Crease x1="50" y1="8" x2="50" y2="76" opacity={0.4}/>
-    {/* Mantle top fold */}
-    <ellipse cx="50" cy="22" rx="20" ry="14" fill="#DB2777" stroke="#1A0A00" strokeWidth="2"/>
-    {/* Eyes */}
-    <circle cx="37" cy="44" r="9" fill="white" stroke="#1A0A00" strokeWidth="2"/>
-    <circle cx="63" cy="44" r="9" fill="white" stroke="#1A0A00" strokeWidth="2"/>
-    <circle cx="37" cy="44" r="5.5" fill="#1A0A00"/>
-    <circle cx="63" cy="44" r="5.5" fill="#1A0A00"/>
-    <circle cx="38.5" cy="42.5" r="2" fill="white"/>
-    <circle cx="64.5" cy="42.5" r="2" fill="white"/>
+    <Tri points="18,28 30,28 24,36" fill="#FFFFFF" sw={1.5}/>
+    <Tri points="22,30 28,30 24,34" fill="#000000" sw={0}/>
+    {/* Spout — small upward triangles */}
+    <Tri points="16,16 20,16 18,6" fill="#93C5FD" sw={1}/>
+    <Tri points="22,14 26,14 24,4" fill="#93C5FD" sw={1}/>
   </AnimalSVG>
 );
 
 // ── Crane ─────────────────────────────────────────────────────────────────────
 export const Crane = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Wings — the classic origami crane fold */}
-    <polygon points="50,42 4,24 18,52" fill="#E0F2FE" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="50,42 96,24 82,52" fill="#E0F2FE" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    {/* Wing crease lines — essential origami detail */}
-    <Crease x1="50" y1="42" x2="8" y2="26"/>
-    <Crease x1="50" y1="42" x2="92" y2="26"/>
-    <Crease x1="18" y1="52" x2="50" y2="42"/>
-    <Crease x1="82" y1="52" x2="50" y2="42"/>
-    {/* Body fold */}
-    <polygon points="50,42 18,52 50,76 82,52" fill="#BAE6FD" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <Crease x1="50" y1="42" x2="50" y2="76"/>
-    {/* Neck */}
-    <line x1="50" y1="42" x2="50" y2="18" stroke="#E0F2FE" strokeWidth="7" strokeLinecap="round"/>
-    <line x1="50" y1="42" x2="50" y2="18" stroke="#1A0A00" strokeWidth="1.5" strokeLinecap="round"/>
+    {/* Left wing — 2 triangles */}
+    <Tri points="50,42 4,24 18,52" fill="#E0F2FE"/>
+    <Tri points="50,42 4,24 22,30" fill="#BAE6FD"/>
+    {/* Right wing */}
+    <Tri points="50,42 96,24 82,52" fill="#E0F2FE"/>
+    <Tri points="50,42 96,24 78,30" fill="#BAE6FD"/>
+    {/* Body — diamond as 2 triangles */}
+    <Tri points="50,42 18,52 50,76" fill="#BAE6FD"/>
+    <Tri points="50,42 82,52 50,76" fill="#A8D8F8"/>
+    {/* Neck — thin tall triangle */}
+    <Tri points="46,42 54,42 50,18" fill="#E0F2FE"/>
     {/* Head */}
-    <circle cx="50" cy="14" r="9" fill="#E0F2FE" stroke="#1A0A00" strokeWidth="2"/>
+    <Tri points="40,18 60,18 50,6" fill="#E0F2FE"/>
+    <Tri points="40,18 60,18 50,22" fill="#D0E8FA" sw={1.5}/>
     {/* Beak */}
-    <polygon points="50,8 56,14 50,18" fill="#F59E0B" stroke="#1A0A00" strokeWidth="1.5" strokeLinejoin="round"/>
+    <Tri points="50,8 58,14 50,18" fill="#F59E0B" sw={1.5}/>
     {/* Eye */}
-    <circle cx="47" cy="13" r="3" fill="#1A0A00"/>
-    <circle cx="47.8" cy="12.2" r="1.1" fill="white"/>
-    {/* Tail */}
-    <polygon points="50,76 42,90 50,82 58,90" fill="#E0F2FE" stroke="#1A0A00" strokeWidth="1.8" strokeLinejoin="round"/>
-    <Crease x1="50" y1="76" x2="50" y2="90"/>
+    <Tri points="44,12 48,12 46,16" fill="#000000" sw={0}/>
+    {/* Tail feathers */}
+    <Tri points="50,76 42,92 50,82" fill="#E0F2FE"/>
+    <Tri points="50,76 58,92 50,82" fill="#BAE6FD"/>
+  </AnimalSVG>
+);
+
+// ── Dragon ────────────────────────────────────────────────────────────────────
+export const Dragon = ({ size = 64, animate = false }) => (
+  <AnimalSVG size={size}>
+    {/* Left wing — 2 triangles */}
+    <Tri points="50,36 8,6 16,50" fill="#10B981"/>
+    <Tri points="50,36 8,6 24,18" fill="#34D399"/>
+    {/* Right wing */}
+    <Tri points="50,36 92,6 84,50" fill="#10B981"/>
+    <Tri points="50,36 92,6 76,18" fill="#34D399"/>
+    {/* Body — 4 triangles */}
+    <Tri points="50,10 82,44 50,44" fill="#10B981"/>
+    <Tri points="50,10 18,44 50,44" fill="#0D9668"/>
+    <Tri points="18,44 50,88 50,44" fill="#10B981"/>
+    <Tri points="82,44 50,88 50,44" fill="#0D9668"/>
+    {/* Horns */}
+    <Tri points="36,18 28,2 42,14" fill="#059669"/>
+    <Tri points="64,18 72,2 58,14" fill="#059669"/>
+    {/* Spine ridge triangles */}
+    <Tri points="46,10 54,10 50,20" fill="#059669" sw={1.5}/>
+    <Tri points="46,24 54,24 50,34" fill="#059669" sw={1.5}/>
+    {/* Eyes — golden with slit pupils */}
+    <Tri points="30,38 44,38 37,48" fill="#FCD34D" sw={1.5}/>
+    <Tri points="56,38 70,38 63,48" fill="#FCD34D" sw={1.5}/>
+    <Tri points="35,40 39,40 37,46" fill="#000000" sw={0}/>
+    <Tri points="61,40 65,40 63,46" fill="#000000" sw={0}/>
+    {/* Fire breath */}
+    <Tri points="40,84 60,84 50,100" fill="#FF3333"/>
+    <Tri points="44,86 56,86 50,98" fill="#FFDD00" sw={0}/>
+  </AnimalSVG>
+);
+
+// ── Octopus ───────────────────────────────────────────────────────────────────
+export const Octopus = ({ size = 64, animate = false }) => (
+  <AnimalSVG size={size}>
+    {/* Tentacles — chains of small triangles */}
+    <Tri points="24,66 14,80 20,80" fill="#EC4899" sw={1.5}/>
+    <Tri points="14,80 12,94 20,80" fill="#DB2777" sw={1.5}/>
+    <Tri points="32,68 24,84 30,84" fill="#EC4899" sw={1.5}/>
+    <Tri points="24,84 22,98 30,84" fill="#DB2777" sw={1.5}/>
+    <Tri points="42,70 38,86 44,86" fill="#EC4899" sw={1.5}/>
+    <Tri points="38,86 36,100 44,86" fill="#DB2777" sw={1.5}/>
+    <Tri points="58,70 56,86 62,86" fill="#EC4899" sw={1.5}/>
+    <Tri points="56,86 58,100 62,86" fill="#DB2777" sw={1.5}/>
+    <Tri points="68,68 70,84 76,84" fill="#EC4899" sw={1.5}/>
+    <Tri points="70,84 72,98 76,84" fill="#DB2777" sw={1.5}/>
+    <Tri points="76,66 80,80 86,80" fill="#EC4899" sw={1.5}/>
+    <Tri points="80,80 82,94 86,80" fill="#DB2777" sw={1.5}/>
+    {/* Head — 6 triangles forming dome */}
+    <Tri points="50,8 80,36 50,42" fill="#EC4899"/>
+    <Tri points="50,8 20,36 50,42" fill="#DB2777"/>
+    <Tri points="20,36 20,62 50,42" fill="#EC4899"/>
+    <Tri points="80,36 80,62 50,42" fill="#DB2777"/>
+    <Tri points="20,62 50,72 50,42" fill="#F472B6"/>
+    <Tri points="80,62 50,72 50,42" fill="#EC4899"/>
+    {/* Crown fold */}
+    <Tri points="32,16 50,8 50,28" fill="#DB2777" sw={1.5}/>
+    <Tri points="68,16 50,8 50,28" fill="#BE185D" sw={1.5}/>
+    {/* Eyes — large white triangles */}
+    <Tri points="28,36 46,36 37,50" fill="#FFFFFF" sw={1.5}/>
+    <Tri points="54,36 72,36 63,50" fill="#FFFFFF" sw={1.5}/>
+    {/* Pupils */}
+    <Tri points="34,38 42,38 37,46" fill="#000000" sw={0}/>
+    <Tri points="58,38 66,38 63,46" fill="#000000" sw={0}/>
   </AnimalSVG>
 );
 
 // ── Prize Box (logo icon) ─────────────────────────────────────────────────────
 export const PrizeBox = ({ size = 64, animate = false }) => (
   <AnimalSVG size={size}>
-    {/* Box body */}
-    <polygon points="14,48 50,38 86,48 86,90 14,90" fill="#7B2FFF" stroke="#1A0A00" strokeWidth="3" strokeLinejoin="round"/>
+    {/* Box body — 2 triangles */}
+    <Tri points="14,48 86,48 14,90" fill="#0033CC"/>
+    <Tri points="86,48 86,90 14,90" fill="#002299"/>
     {/* Right side face */}
-    <polygon points="86,48 86,90 96,82 96,40" fill="#5B21B6" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    {/* Bottom face */}
-    <polygon points="14,90 86,90 96,82 24,82" fill="#6D28D9" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
+    <Tri points="86,48 96,40 96,82" fill="#001A73"/>
+    <Tri points="86,48 86,90 96,82" fill="#001A73" sw={2}/>
     {/* Ribbon vertical */}
-    <polygon points="44,38 56,38 58,90 42,90" fill="#FFE600" stroke="#1A0A00" strokeWidth="1.5" strokeLinejoin="round"/>
+    <Tri points="44,48 56,48 44,90" fill="#FFDD00" sw={1.5}/>
+    <Tri points="56,48 56,90 44,90" fill="#E6C700" sw={1.5}/>
     {/* Ribbon horizontal */}
-    <polygon points="14,60 86,60 86,68 14,68" fill="#FFE600" stroke="#1A0A00" strokeWidth="1.5" strokeLinejoin="round"/>
-    {/* Lid */}
-    <polygon points="10,38 50,24 90,38 86,48 50,38 14,48" fill="#A78BFA" stroke="#1A0A00" strokeWidth="3" strokeLinejoin="round"/>
+    <Tri points="14,60 86,60 14,68" fill="#FFDD00" sw={1}/>
+    <Tri points="86,60 86,68 14,68" fill="#E6C700" sw={1}/>
+    {/* Lid — 2 triangles */}
+    <Tri points="10,38 90,38 50,24" fill="#3366FF"/>
+    <Tri points="10,38 90,38 50,48" fill="#0033CC" sw={2}/>
     {/* Lid right face */}
-    <polygon points="90,38 90,48 100,42 100,30" fill="#7B2FFF" stroke="#1A0A00" strokeWidth="2.5" strokeLinejoin="round"/>
-    {/* Bow */}
-    <polygon points="38,32 50,24 44,38" fill="#FCD34D" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <polygon points="62,32 50,24 56,38" fill="#FCD34D" stroke="#1A0A00" strokeWidth="2" strokeLinejoin="round"/>
-    <circle cx="50" cy="30" r="6" fill="#FFE600" stroke="#1A0A00" strokeWidth="2"/>
+    <Tri points="90,38 100,30 100,42" fill="#002299"/>
+    {/* Bow — 2 triangles */}
+    <Tri points="38,32 50,24 44,38" fill="#FCD34D"/>
+    <Tri points="62,32 50,24 56,38" fill="#FCD34D"/>
+    {/* Bow center */}
+    <Tri points="46,28 54,28 50,34" fill="#FFDD00" sw={1.5}/>
   </AnimalSVG>
 );
 
@@ -476,30 +490,31 @@ export const unlockedAnimals = (totalChores) =>
   ANIMALS.filter(a => a.choreThreshold <= totalChores);
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SHARED UI COMPONENTS — Saturday Morning Cartoon style
+// SHARED UI COMPONENTS — Pop-art geometric style
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ── Loading screen ────────────────────────────────────────────────────────────
 export const LoadingScreen = ({ message = "Loading…" }) => (
   <div style={{
-    minHeight: "100vh", background: T.bg,
+    minHeight: "100vh", background: T.sky,
     display: "flex", flexDirection: "column",
     alignItems: "center", justifyContent: "center",
-    gap: 20, fontFamily: T.body,
+    gap: 20, fontFamily: "'Nunito', sans-serif",
   }}>
     <style>{fontCSS}</style>
     <div style={{ animation: "bounce 1.2s ease-in-out infinite" }}>
       <PrizeBox size={80}/>
     </div>
     <div style={{
-      fontFamily: T.display, fontSize: 18, color: T.ink,
+      fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.text,
     }}>{message}</div>
     <div style={{ display: "flex", gap: 8 }}>
       {[0,1,2].map(i => (
         <div key={i} style={{
-          width: 12, height: 12, borderRadius: "50%",
-          background: [T.red, T.yellow, T.green][i],
-          border: T.outlineThin,
+          width: 0, height: 0,
+          borderLeft: "6px solid transparent",
+          borderRight: "6px solid transparent",
+          borderBottom: `12px solid ${[T.red, T.yellow, T.green][i]}`,
           animation: `bounce 0.8s ${i * 0.2}s ease-in-out infinite`,
         }}/>
       ))}
@@ -523,13 +538,13 @@ export const Toast = ({ msg }) => {
     <div style={{
       position: "fixed", bottom: 24, left: "50%",
       transform: "translateX(-50%)",
-      background: T.ink, color: "white",
-      border: T.outline,
-      borderRadius: T.pill,
+      background: T.ink, color: "#FFFFFF",
+      border: "3px solid #000000",
+      borderRadius: 50,
       padding: "12px 24px",
-      fontFamily: T.body, fontWeight: 800, fontSize: 15,
+      fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 15,
       zIndex: 9999,
-      boxShadow: T.shadow,
+      boxShadow: "5px 5px 0 #000000",
       animation: "pop 0.3s ease",
       whiteSpace: "nowrap",
     }}>
@@ -543,20 +558,19 @@ export const Confetti = ({ active }) => {
   if (!active) return null;
   const pieces = Array.from({ length: 28 }, (_, i) => ({
     left: `${Math.random() * 100}%`,
-    color: [T.red, T.yellow, T.green, T.purple, T.orange, T.pink, T.blue][i % 7],
+    color: [T.red, T.sunshine, T.green, T.purple, T.orange, T.pink, T.blue][i % 7],
     delay: `${Math.random() * 0.5}s`,
-    size: `${8 + Math.random() * 10}px`,
-    shape: Math.random() > 0.5 ? "50%" : "2px",
+    size: 8 + Math.random() * 10,
   }));
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9998, overflow: "hidden" }}>
       {pieces.map((p, i) => (
         <div key={i} style={{
           position: "absolute", top: "-20px", left: p.left,
-          width: p.size, height: p.size,
-          background: p.color,
-          borderRadius: p.shape,
-          border: "2px solid #1A0A00",
+          width: 0, height: 0,
+          borderLeft: `${p.size / 2}px solid transparent`,
+          borderRight: `${p.size / 2}px solid transparent`,
+          borderBottom: `${p.size}px solid ${p.color}`,
           animation: `confetti 1.8s ${p.delay} ease-in forwards`,
         }}/>
       ))}
@@ -564,26 +578,25 @@ export const Confetti = ({ active }) => {
   );
 };
 
-// ── Star field (floating paper stars on cream bg) ─────────────────────────────
+// ── Triangle field (floating geometric triangles) ─────────────────────────────
 export const StarField = ({ count = 20 }) => {
-  const stars = Array.from({ length: count }, (_, i) => ({
+  const tris = Array.from({ length: count }, (_, i) => ({
     left:    `${Math.random() * 100}%`,
     top:     `${Math.random() * 100}%`,
     size:    6 + Math.random() * 8,
-    color:   [T.yellow, T.orange, T.red, T.purple, T.green][i % 5],
+    color:   [T.sunshine, T.orange, T.coral, T.purple, T.green][i % 5],
     delay:   `${Math.random() * 4}s`,
-    opacity: 0.2 + Math.random() * 0.3,
+    opacity: 0.15 + Math.random() * 0.2,
   }));
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-      {stars.map((s, i) => (
+      {tris.map((s, i) => (
         <div key={i} style={{
           position: "absolute", left: s.left, top: s.top,
-          width: s.size, height: s.size,
-          background: s.color,
-          border: "1.5px solid #1A0A0022",
-          borderRadius: "2px",
-          transform: "rotate(45deg)",
+          width: 0, height: 0,
+          borderLeft: `${s.size / 2}px solid transparent`,
+          borderRight: `${s.size / 2}px solid transparent`,
+          borderBottom: `${s.size}px solid ${s.color}`,
           opacity: s.opacity,
           animation: `float ${3 + Math.random() * 3}s ${s.delay} ease-in-out infinite`,
         }}/>

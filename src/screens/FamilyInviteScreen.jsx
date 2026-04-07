@@ -76,10 +76,10 @@ export default function FamilyInviteScreen() {
           color: T.text, marginBottom: 8 }}>This invite didn't work</div>
         <div style={{ fontSize: 14, color: T.sub, marginBottom: 24 }}>{error}</div>
         <button type="button" onClick={() => navigate("/")} style={{
-          background: T.purple, border: "3px solid #1A0A3C", color: "white",
+          background: T.purple, border: "3px solid #000000", color: "white",
           borderRadius: 30, padding: "12px 28px", fontSize: 16,
           fontWeight: 800, cursor: "pointer",
-          fontFamily: "'Fredoka One', cursive", boxShadow: "4px 4px 0 #1A0A3C",
+          fontFamily: "'Fredoka One', cursive", boxShadow: "4px 4px 0 #000000",
         }}>Go Home</button>
       </div>
     </div>
@@ -105,7 +105,7 @@ export default function FamilyInviteScreen() {
 
   return (
     <div style={{ minHeight: "100vh",
-      background: "linear-gradient(160deg,#1A0A3C,#2D1B69,#0F4C75)",
+      background: T.sky,
       fontFamily: "'Nunito', sans-serif",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <style>{fontCSS}</style>
@@ -120,15 +120,14 @@ export default function FamilyInviteScreen() {
             <Butterfly size={72}/>
           </div>
           <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 26,
-            background: "linear-gradient(135deg,#A78BFA,#EC4899)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            color: T.purple }}>
             Family Circle Invite 💌
           </div>
         </div>
 
         <div style={{
           background: T.panel2, borderRadius: 24, padding: "28px 24px",
-          border: `3px solid ${T.borderBold}`, boxShadow: "8px 8px 0 #1A0A3C",
+          border: `3px solid ${T.borderBold}`, boxShadow: "8px 8px 0 #000000",
         }}>
           <div style={{ fontSize: 15, color: T.text, lineHeight: 1.7, marginBottom: 20 }}>
             <strong style={{ color: T.purpleL }}>{inviterName}</strong> has invited you to be part of{" "}
@@ -167,12 +166,12 @@ export default function FamilyInviteScreen() {
 
           <button type="button" onClick={accept} disabled={accepting} style={{
             width: "100%",
-            background: accepting ? T.border : "linear-gradient(135deg,#EC4899,#BE185D)",
-            border: "3px solid #1A0A3C", color: "white",
+            background: accepting ? T.border : "#0033CC",
+            border: "3px solid #000000", color: "white",
             borderRadius: 14, padding: "14px 0", fontSize: 17,
             fontWeight: 800, cursor: accepting ? "not-allowed" : "pointer",
             fontFamily: "'Fredoka One', cursive",
-            boxShadow: accepting ? "none" : "5px 5px 0 #1A0A3C",
+            boxShadow: accepting ? "none" : "5px 5px 0 #000000",
             opacity: accepting ? 0.7 : 1,
           }}>
             {accepting ? "⏳ Accepting…"

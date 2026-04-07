@@ -100,7 +100,7 @@ export default function RolePicker() {
                   fontFamily: "'Nunito', sans-serif",
                   boxShadow: isHovered
                     ? `6px 6px 0 ${opt.color}66`
-                    : "4px 4px 0 #1A0A3C",
+                    : "4px 4px 0 #000000",
                   transition: "all 0.2s",
                   transform: isHovered ? "translateY(-4px)" : "translateY(0)",
                 }}>

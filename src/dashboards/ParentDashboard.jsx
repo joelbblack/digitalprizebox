@@ -35,7 +35,7 @@ const Field = ({ value, onChange, placeholder, type = "text", style = {} }) => (
       fontSize: 14, color: T.text,
       fontFamily: "'Nunito', sans-serif",
       outline: "none", boxSizing: "border-box",
-      boxShadow: "3px 3px 0 #1A0A3C", ...style,
+      boxShadow: "3px 3px 0 #000000", ...style,
     }}/>
 );
 
@@ -49,7 +49,7 @@ const Btn = ({ onClick, children, color = T.purple, small = false,
     fontSize: small ? 12 : 14, fontWeight: 800,
     cursor: disabled ? "not-allowed" : "pointer",
     fontFamily: "'Nunito', sans-serif",
-    boxShadow: disabled ? "none" : `3px 3px 0 #1A0A3C`,
+    boxShadow: disabled ? "none" : `3px 3px 0 #000000`,
     opacity: disabled ? 0.5 : 1,
     width: full ? "100%" : undefined,
     whiteSpace: "nowrap",
@@ -60,7 +60,7 @@ const Card = ({ children, style = {} }) => (
   <div style={{
     background: T.panel2, borderRadius: 20,
     padding: "20px", border: `3px solid ${T.borderBold}`,
-    boxShadow: "4px 4px 0 #1A0A3C",
+    boxShadow: "4px 4px 0 #000000",
     marginBottom: 16, animation: "fadeIn 0.3s ease", ...style,
   }}>{children}</div>
 );
@@ -362,7 +362,7 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
             borderRadius: 16, padding: "14px 18px", marginBottom: 10,
             display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap",
             opacity: chore.status === "rejected" ? 0.45 : 1,
-            boxShadow: isDone ? `0 0 12px ${T.gold}44, 3px 3px 0 #1A0A3C` : "3px 3px 0 #1A0A3C",
+            boxShadow: isDone ? `0 0 12px ${T.gold}44, 3px 3px 0 #000000` : "3px 3px 0 #000000",
             animation: "slideIn 0.25s ease",
           }}>
             <div style={{ fontSize: 28 }}>{chore.emoji}</div>
@@ -437,7 +437,7 @@ function JarsTab({ kids, proposals, showToast, onApproveProposal, onDeclinePropo
           background: `${T.gold}18`, border: `3px solid ${T.gold}`,
           borderRadius: 16, padding: "14px 18px", marginBottom: 16,
           display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
-          boxShadow: "3px 3px 0 #1A0A3C",
+          boxShadow: "3px 3px 0 #000000",
         }}>
           <div style={{ fontSize: 24 }}>⏳</div>
           <div style={{ flex: 1 }}>
@@ -539,7 +539,7 @@ function JarsTab({ kids, proposals, showToast, onApproveProposal, onDeclinePropo
 
               return (
                 <Card key={jar.id} style={{ border: `3px solid ${isFull ? T.green : T.borderBold}`,
-                  boxShadow: isFull ? `0 0 16px ${T.green}44, 4px 4px 0 #1A0A3C` : "4px 4px 0 #1A0A3C" }}>
+                  boxShadow: isFull ? `0 0 16px ${T.green}44, 4px 4px 0 #000000` : "4px 4px 0 #000000" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
                     <div style={{ fontSize: 40 }}>{jar.item?.emoji}</div>
                     <div style={{ flex: 1 }}>
@@ -608,10 +608,10 @@ function JarsTab({ kids, proposals, showToast, onApproveProposal, onDeclinePropo
                     <a href={jar.item?.amazonUrl} target="_blank" rel="noopener noreferrer"
                       style={{
                         display: "block", textAlign: "center",
-                        background: `linear-gradient(135deg,${T.green},#059669)`,
+                        background: T.green,
                         color: "white", borderRadius: 14, padding: "11px 0",
                         fontSize: 15, fontWeight: 800, textDecoration: "none",
-                        border: "3px solid #1A0A3C", boxShadow: "4px 4px 0 #1A0A3C",
+                        border: "3px solid #000000", boxShadow: "4px 4px 0 #000000",
                       }}>
                       🛒 Buy on Amazon →
                     </a>
@@ -667,7 +667,7 @@ function AwardTab({ kids, showToast, onAwardOrange }) {
           background: `${T.orange}22`, border: `3px solid ${T.orange}`,
           borderRadius: 18, padding: "18px 24px", marginBottom: 20,
           display: "flex", alignItems: "center", gap: 16,
-          animation: "pop 0.5s ease", boxShadow: "4px 4px 0 #1A0A3C",
+          animation: "pop 0.5s ease", boxShadow: "4px 4px 0 #000000",
         }}>
           <div style={{ fontSize: 44 }}>{justAwarded.avatar}</div>
           <div>
@@ -710,7 +710,7 @@ function AwardTab({ kids, showToast, onAwardOrange }) {
               borderRadius: 30, padding: "8px 20px", fontSize: 18,
               fontWeight: 800, cursor: "pointer",
               fontFamily: "'Fredoka One', cursive",
-              boxShadow: amount === n ? "3px 3px 0 #1A0A3C" : "none",
+              boxShadow: amount === n ? "3px 3px 0 #000000" : "none",
             }}>+{n}</button>
           ))}
           <input type="number" value={amount} onChange={e => setAmount(e.target.value)}
@@ -747,7 +747,7 @@ function AwardTab({ kids, showToast, onAwardOrange }) {
                 background: T.panel, border: `2px solid ${T.border}`,
                 borderRadius: 14, padding: "12px", cursor: "pointer",
                 fontFamily: "'Nunito', sans-serif", textAlign: "left",
-                boxShadow: "3px 3px 0 #1A0A3C",
+                boxShadow: "3px 3px 0 #000000",
               }}>
               <div style={{ fontSize: 26, marginBottom: 4 }}>{q.emoji}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 2 }}>
@@ -826,7 +826,7 @@ function RewardsTab({ rewards, showToast, onAddReward, onDeleteReward }) {
             <div key={r.id} style={{
               background: T.panel2, border: `3px solid ${T.borderBold}`,
               borderRadius: 18, padding: "18px 16px", textAlign: "center",
-              animation: "pop 0.3s ease", boxShadow: "4px 4px 0 #1A0A3C",
+              animation: "pop 0.3s ease", boxShadow: "4px 4px 0 #000000",
             }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>{r.emoji}</div>
               <div style={{ fontWeight: 800, fontSize: 14, color: T.text,
@@ -1052,19 +1052,18 @@ export default function ParentDashboard({
 
       {/* Header */}
       <div style={{
-        background: `linear-gradient(135deg,${T.panel},${T.sky})`,
+        background: T.panel,
         borderBottom: `3px solid ${T.borderBold}`,
         padding: "14px 24px",
         display: "flex", alignItems: "center",
         justifyContent: "space-between", flexWrap: "wrap", gap: 12,
         position: "relative", zIndex: 10,
-        boxShadow: "0 4px 0 #1A0A3C",
+        boxShadow: "0 4px 0 #000000",
       }}>
         <div>
           <div style={{
             fontFamily: "'Fredoka One', cursive", fontSize: 26,
-            background: `linear-gradient(135deg,${T.greenL},${T.orangeL})`,
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            color: T.purple,
           }}>
             🏠 Parent Console
           </div>
@@ -1076,7 +1075,7 @@ export default function ParentDashboard({
           <div style={{
             background: T.panel2, border: `2px solid ${T.green}44`,
             borderRadius: 12, padding: "8px 14px", textAlign: "center",
-            boxShadow: "3px 3px 0 #1A0A3C",
+            boxShadow: "3px 3px 0 #000000",
           }}>
             <div style={{ fontSize: 10, color: T.sub }}>🟢 Total</div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.greenL }}>
@@ -1087,7 +1086,7 @@ export default function ParentDashboard({
             <div style={{
               background: T.panel2, border: `2px solid ${T.gold}66`,
               borderRadius: 12, padding: "8px 14px", textAlign: "center",
-              boxShadow: "3px 3px 0 #1A0A3C",
+              boxShadow: "3px 3px 0 #000000",
             }}>
               <div style={{ fontSize: 10, color: T.sub }}>⏳ Waiting</div>
               <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.goldL }}>
@@ -1130,7 +1129,7 @@ export default function ParentDashboard({
             borderRadius: 14, padding: "8px 16px", fontSize: 13,
             fontWeight: 700, cursor: "pointer",
             fontFamily: "'Nunito', sans-serif",
-            boxShadow: tab === t.id ? "3px 3px 0 #1A0A3C" : "none",
+            boxShadow: tab === t.id ? "3px 3px 0 #000000" : "none",
             transition: "all 0.2s", position: "relative",
           }}>
             {t.emoji} {t.label}
@@ -1139,7 +1138,7 @@ export default function ParentDashboard({
                 position: "absolute", top: -8, right: -8,
                 background: T.gold, color: "white",
                 borderRadius: "50%", width: 18, height: 18,
-                fontSize: 10, fontWeight: 900, border: "2px solid #1A0A3C",
+                fontSize: 10, fontWeight: 900, border: "2px solid #000000",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>{t.badge}</span>
             )}

@@ -16,14 +16,14 @@ const css = `
 ${fontCSS}
 .land-btn-primary {
   display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg,#7C3AED,#5B21B6);
-  color: white; border: 3px solid #1A0A3C;
+  background: #0033CC;
+  color: white; border: 3px solid #000000;
   border-radius: 50px; padding: 16px 36px;
   font-family: 'Fredoka One', cursive; font-size: 20px;
-  cursor: pointer; box-shadow: 6px 6px 0 #1A0A3C;
+  cursor: pointer; box-shadow: 6px 6px 0 #000000;
   transition: all 0.15s; text-decoration: none;
 }
-.land-btn-primary:hover { transform: translateY(-3px); box-shadow: 8px 8px 0 #1A0A3C; }
+.land-btn-primary:hover { transform: translateY(-3px); box-shadow: 8px 8px 0 #000000; }
 .land-btn-secondary {
   display: inline-flex; align-items: center; gap: 8px;
   background: transparent; color: ${T.sub};
@@ -36,27 +36,26 @@ ${fontCSS}
 .land-card {
   background: ${T.panel2}; border: 3px solid ${T.borderBold};
   border-radius: 24px; padding: 32px 28px;
-  box-shadow: 6px 6px 0 #1A0A3C; transition: all 0.2s;
+  box-shadow: 6px 6px 0 #000000; transition: all 0.2s;
 }
-.land-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 #1A0A3C; }
+.land-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 #000000; }
 `;
 
 function Nav({ onGetStarted }) {
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      background: "rgba(26,10,60,0.92)", backdropFilter: "blur(12px)",
+      background: "rgba(0,0,0,0.92)", backdropFilter: "blur(12px)",
       borderBottom: `3px solid ${T.borderBold}`,
       padding: "14px 40px",
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      boxShadow: "0 4px 0 #1A0A3C",
+      boxShadow: "0 4px 0 #000000",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <PrizeBox size={36}/>
         <div style={{
           fontFamily: "'Fredoka One', cursive", fontSize: 20,
-          background: "linear-gradient(135deg,#A78BFA,#F59E0B)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          color: T.purple,
         }}>Digital Prize Box</div>
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -65,11 +64,11 @@ function Nav({ onGetStarted }) {
           textDecoration: "none", fontFamily: "'Nunito', sans-serif",
         }}>Pricing</a>
         <button type="button" onClick={onGetStarted} style={{
-          background: "linear-gradient(135deg,#7C3AED,#5B21B6)",
-          border: "3px solid #1A0A3C", color: "white", borderRadius: 50,
+          background: "#0033CC",
+          border: "3px solid #000000", color: "white", borderRadius: 50,
           padding: "8px 20px", fontSize: 14, fontWeight: 800,
           cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-          boxShadow: "3px 3px 0 #1A0A3C",
+          boxShadow: "3px 3px 0 #000000",
         }}>Sign In →</button>
       </div>
     </nav>
@@ -88,8 +87,7 @@ function Hero({ onGetStarted }) {
         <h1 style={{
           fontFamily: "'Fredoka One', cursive",
           fontSize: "clamp(48px,8vw,88px)", lineHeight: 1.05,
-          background: "linear-gradient(135deg,#FFD700 0%,#FF6B6B 40%,#A78BFA 80%)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          color: T.purple,
           marginBottom: 20,
         }}>
           Kids Earn It.<br/>Parents Control It.
@@ -125,7 +123,7 @@ function Hero({ onGetStarted }) {
           <div key={b.label} style={{
             background: `${b.color}18`, border: `3px solid ${b.color}44`,
             borderRadius: 18, padding: "12px 20px", textAlign: "center",
-            minWidth: 140, boxShadow: "4px 4px 0 #1A0A3C",
+            minWidth: 140, boxShadow: "4px 4px 0 #000000",
           }}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{b.emoji}</div>
             <div style={{ fontFamily: "'Fredoka One', cursive",
@@ -276,7 +274,7 @@ function Pricing({ onGetStarted }) {
             border: p.featured ? `3px solid ${p.color}` : `3px solid ${T.borderBold}`,
             position: "relative",
             animation: `reveal 0.5s ${i * 0.1}s ease both`,
-            boxShadow: p.featured ? `6px 6px 0 ${p.color}88` : "6px 6px 0 #1A0A3C",
+            boxShadow: p.featured ? `6px 6px 0 ${p.color}88` : "6px 6px 0 #000000",
           }}>
             {p.featured && (
               <div style={{
@@ -285,7 +283,7 @@ function Pricing({ onGetStarted }) {
                 background: p.color, color: "white", borderRadius: 50,
                 padding: "4px 16px", fontSize: 12,
                 fontFamily: "'Fredoka One', cursive",
-                border: "3px solid #1A0A3C", whiteSpace: "nowrap",
+                border: "3px solid #000000", whiteSpace: "nowrap",
               }}>Most Popular</div>
             )}
             <div style={{ marginBottom: 12 }}><p.Animal size={52}/></div>
@@ -317,7 +315,7 @@ function Pricing({ onGetStarted }) {
               borderRadius: 50, padding: "12px 0",
               fontSize: 16, fontWeight: 800, cursor: "pointer",
               fontFamily: "'Fredoka One', cursive",
-              boxShadow: p.featured ? "4px 4px 0 #1A0A3C" : "none",
+              boxShadow: p.featured ? "4px 4px 0 #000000" : "none",
             }}>
               {p.name === "School" ? "Contact Us" : "Get Started →"}
             </button>
@@ -343,7 +341,7 @@ function Pricing({ onGetStarted }) {
               background: tier.id === "enterprise" ? `${T.pink}18` : `${T.blue}18`,
               border: `3px solid ${tier.id === "enterprise" ? T.pink : T.blue}44`,
               borderRadius: 18, padding: "16px", textAlign: "center",
-              boxShadow: "4px 4px 0 #1A0A3C",
+              boxShadow: "4px 4px 0 #000000",
             }}>
               <div style={{ fontFamily: "'Fredoka One', cursive",
                 fontSize: 18, color: tier.id === "enterprise" ? T.pink : T.blueL,
@@ -396,7 +394,7 @@ function Waitlist({ onGetStarted }) {
         border: `3px solid ${T.borderBold}`,
         borderRadius: 32, padding: "60px 40px",
         maxWidth: 640, margin: "0 auto",
-        boxShadow: "8px 8px 0 #1A0A3C",
+        boxShadow: "8px 8px 0 #000000",
       }}>
         <div style={{ marginBottom: 16, animation: "bounce 2s ease-in-out infinite",
           display: "inline-block" }}>
@@ -417,7 +415,7 @@ function Waitlist({ onGetStarted }) {
             background: `${T.green}22`, border: `3px solid ${T.green}`,
             borderRadius: 18, padding: "20px 24px",
             fontFamily: "'Fredoka One', cursive", fontSize: 20,
-            color: T.greenL, boxShadow: "4px 4px 0 #1A0A3C",
+            color: T.greenL, boxShadow: "4px 4px 0 #000000",
           }}>
             ✅ You're on the list! We'll be in touch.
           </div>
@@ -433,15 +431,15 @@ function Waitlist({ onGetStarted }) {
                 border: `3px solid ${T.borderBold}`, borderRadius: 50,
                 padding: "14px 24px", fontSize: 16, color: T.text,
                 fontFamily: "'Nunito', sans-serif", outline: "none",
-                width: 280, boxShadow: "3px 3px 0 #1A0A3C",
+                width: 280, boxShadow: "3px 3px 0 #000000",
               }}/>
             <button type="submit" disabled={loading} style={{
-              background: "linear-gradient(135deg,#7C3AED,#5B21B6)",
-              border: "3px solid #1A0A3C", color: "white",
+              background: "#0033CC",
+              border: "3px solid #000000", color: "white",
               borderRadius: 50, padding: "14px 28px",
               fontFamily: "'Fredoka One', cursive", fontSize: 18,
               cursor: loading ? "not-allowed" : "pointer",
-              boxShadow: "4px 4px 0 #1A0A3C", opacity: loading ? 0.7 : 1,
+              boxShadow: "4px 4px 0 #000000", opacity: loading ? 0.7 : 1,
             }}>
               {loading ? "⏳" : "Join Waitlist →"}
             </button>

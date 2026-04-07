@@ -44,7 +44,7 @@ function PinScreen({ kidName, kidAnimal, onSuccess, onBack }) {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(160deg,#1A0A3C,#2D1B69,#0F4C75)",
+      background: T.sky,
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
       fontFamily: "'Nunito', sans-serif",
@@ -66,11 +66,11 @@ function PinScreen({ kidName, kidAnimal, onSuccess, onBack }) {
 
         <div style={{
           fontFamily: "'Fredoka One', cursive", fontSize: 28,
-          color: "white", marginBottom: 4,
+          color: T.text, marginBottom: 4,
         }}>
           Hi {kidName}! 👋
         </div>
-        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", marginBottom: 32 }}>
+        <div style={{ fontSize: 14, color: T.sub, marginBottom: 32 }}>
           Enter your PIN to open your Prize Box
         </div>
 
@@ -85,10 +85,10 @@ function PinScreen({ kidName, kidAnimal, onSuccess, onBack }) {
               width: 18, height: 18, borderRadius: "50%",
               background: pin.length > i
                 ? (error ? T.red : T.purpleL)
-                : "rgba(255,255,255,0.2)",
+                : "rgba(0,0,0,0.1)",
               border: `3px solid ${pin.length > i
                 ? (error ? T.red : T.purpleL)
-                : "rgba(255,255,255,0.3)"}`,
+                : "rgba(0,0,0,0.15)"}`,
               transition: "all 0.15s",
               boxShadow: pin.length > i ? `0 0 12px ${T.purpleL}88` : "none",
             }}/>
@@ -104,16 +104,16 @@ function PinScreen({ kidName, kidAnimal, onSuccess, onBack }) {
             <button key={i} type="button" onClick={() => press(d)}
               style={{
                 background: d === "✓"
-                  ? "linear-gradient(135deg,#7C3AED,#5B21B6)"
+                  ? "#0033CC"
                   : d === "⌫"
-                    ? "rgba(255,255,255,0.08)"
-                    : "rgba(255,255,255,0.12)",
-                border: `3px solid ${d === "✓" ? T.purpleL : "rgba(255,255,255,0.2)"}`,
+                    ? "rgba(0,0,0,0.05)"
+                    : "rgba(0,0,0,0.08)",
+                border: `3px solid ${d === "✓" ? T.purpleL : "rgba(0,0,0,0.15)"}`,
                 borderRadius: 16, padding: "18px 0",
                 fontFamily: d === "✓" || d === "⌫" ? "'Nunito', sans-serif" : "'Fredoka One', cursive",
                 fontSize: d === "⌫" ? 20 : d === "✓" ? 22 : 26,
-                color: "white", cursor: "pointer",
-                boxShadow: d === "✓" ? "4px 4px 0 #1A0A3C" : "3px 3px 0 rgba(0,0,0,0.3)",
+                color: d === "✓" ? "white" : T.text, cursor: "pointer",
+                boxShadow: d === "✓" ? "4px 4px 0 #000000" : "3px 3px 0 rgba(0,0,0,0.15)",
                 transition: "all 0.1s",
                 fontWeight: 800,
               }}>
@@ -133,7 +133,7 @@ function PinScreen({ kidName, kidAnimal, onSuccess, onBack }) {
 
         <button type="button" onClick={onBack} style={{
           marginTop: 24, background: "none", border: "none",
-          color: "rgba(255,255,255,0.4)", cursor: "pointer",
+          color: T.sub, cursor: "pointer",
           fontSize: 13, fontFamily: "'Nunito', sans-serif",
         }}>
           ← Not {kidName}?
@@ -149,6 +149,7 @@ export default function KidScreen() {
   const navigate             = useNavigate();
   const [kid,     setKid]    = useState(null);
   const [loading, setLoading]= useState(true);
+  const [error,   setError]  = useState(null);
   const [unlocked,setUnlocked]= useState(false);
 
   // Load kid data
@@ -165,11 +166,18 @@ export default function KidScreen() {
       `)
       .eq("id", kidId)
       .single()
-      .then(({ data, error }) => {
-        if (error || !data) { navigate("/"); return; }
+      .then(({ data, error: fetchError }) => {
+        if (fetchError || !data) {
+          setError(fetchError?.message || "Could not load kid data");
+          setLoading(false);
+          return;
+        }
         setKid(data);
-        // If kid has no PIN set, skip PIN screen
         if (!data.pin) setUnlocked(true);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Something went wrong loading your Prize Box");
         setLoading(false);
       });
   }, [kidId]);
@@ -180,8 +188,38 @@ export default function KidScreen() {
     if (callback) callback(ok);
   };
 
-  if (loading) return <LoadingScreen message="Opening your Prize Box…"/>;
-  if (!kid)    return null;
+  if (loading) return <LoadingScreen message="Opening your Prize Box..."/>;
+  if (error) return (
+    <div style={{
+      minHeight: "100vh",
+      background: T.sky,
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      fontFamily: "'Nunito', sans-serif",
+    }}>
+      <style>{fontCSS}</style>
+      <StarField count={20}/>
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px" }}>
+        <div style={{ fontSize: 56, marginBottom: 12 }}>😿</div>
+        <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: T.text, marginBottom: 8 }}>
+          Oops! Something went wrong
+        </div>
+        <div style={{ fontSize: 14, color: T.sub, marginBottom: 24 }}>
+          {error}
+        </div>
+        <button type="button" onClick={() => navigate("/")} style={{
+          background: "#0033CC",
+          border: "3px solid #000000", borderRadius: 14,
+          padding: "12px 28px", color: "white",
+          fontFamily: "'Fredoka One', cursive", fontSize: 16,
+          cursor: "pointer", boxShadow: "4px 4px 0 #000000",
+        }}>
+          Go Back
+        </button>
+      </div>
+    </div>
+  );
+  if (!kid) return null;
 
   if (!unlocked) {
     return (
@@ -197,6 +235,10 @@ export default function KidScreen() {
   return <KidDashboard kid={kid} onRefresh={() => {
     supabase.from("kids").select(`*, teachers(*), jars(*), chores(*)`)
       .eq("id", kidId).single()
-      .then(({ data }) => { if (data) setKid(data); });
+      .then(({ data, error: refreshError }) => {
+        if (refreshError) { console.error("Refresh failed:", refreshError); return; }
+        if (data) setKid(data);
+      })
+      .catch((err) => console.error("Refresh failed:", err));
   }}/>;
 }

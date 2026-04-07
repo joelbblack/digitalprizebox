@@ -58,13 +58,13 @@ function ClassGoal({ teacher }) {
 
   return (
     <div style={{
-      background: "rgba(255,255,255,0.08)",
-      border: "1px solid rgba(255,255,255,0.12)",
+      background: T.panel,
+      border: `1px solid ${T.border}`,
       borderRadius: 16, padding: "12px 16px",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between",
         alignItems: "center", marginBottom: 6 }}>
-        <span style={{ color: "white", fontSize: 13, fontWeight: 700 }}>
+        <span style={{ color: T.text, fontSize: 13, fontWeight: 700 }}>
           🏫 {label}
         </span>
         <span style={{ color: T.goldL, fontSize: 13, fontWeight: 800 }}>
@@ -72,7 +72,7 @@ function ClassGoal({ teacher }) {
         </span>
       </div>
       <div style={{
-        background: "rgba(255,255,255,0.12)", borderRadius: 20,
+        background: T.panel, borderRadius: 20,
         height: 10, overflow: "hidden",
       }}>
         <div style={{
@@ -82,7 +82,7 @@ function ClassGoal({ teacher }) {
           transition: "width 0.6s ease",
         }}/>
       </div>
-      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, marginTop: 4 }}>
+      <div style={{ color: T.sub, fontSize: 11, marginTop: 4 }}>
         🎯 {target - current} orange until {label}!
       </div>
     </div>
@@ -106,7 +106,7 @@ function JarCard({ jar, orange, onPropose }) {
       background: T.panel2,
       border: `3px solid ${isFull ? T.green : T.borderBold}`,
       borderRadius: 20, padding: "16px",
-      boxShadow: isFull ? `0 0 20px ${T.green}44, 4px 4px 0 #1A0A3C` : "4px 4px 0 #1A0A3C",
+      boxShadow: isFull ? `0 0 20px ${T.green}44, 4px 4px 0 #000000` : "4px 4px 0 #000000",
       animation: "pop 0.3s ease",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
@@ -193,7 +193,7 @@ function JarCard({ jar, orange, onPropose }) {
               onClick={() => { onPropose(jar.id, Number(amount)); setShowing(false); setAmount(""); }}
               disabled={!amount || Number(amount) <= 0 || Number(amount) > orange}
               style={{
-                background: T.orange, border: "2px solid #1A0A3C",
+                background: T.orange, border: "2px solid #000000",
                 borderRadius: 10, padding: "8px 14px", color: "white",
                 fontWeight: 800, cursor: "pointer", fontSize: 13,
                 opacity: !amount || Number(amount) <= 0 || Number(amount) > orange ? 0.4 : 1,
@@ -234,7 +234,7 @@ function RewardCard({ reward, orange, onRedeem }) {
       background: T.panel2,
       border: `3px solid ${canAfford ? T.borderBold : T.border}`,
       borderRadius: 20, padding: "16px", textAlign: "center",
-      boxShadow: "4px 4px 0 #1A0A3C", opacity: canAfford ? 1 : 0.6,
+      boxShadow: "4px 4px 0 #000000", opacity: canAfford ? 1 : 0.6,
       animation: "pop 0.3s ease",
     }}>
       <div style={{ fontSize: 40, marginBottom: 8 }}>{reward.emoji || "🎁"}</div>
@@ -256,11 +256,11 @@ function RewardCard({ reward, orange, onRedeem }) {
           background: canAfford
             ? "linear-gradient(135deg,#F97316,#EA580C)"
             : T.border,
-          border: "2px solid #1A0A3C", borderRadius: 12,
+          border: "2px solid #000000", borderRadius: 12,
           padding: "10px 0", color: "white",
           fontFamily: "'Fredoka One', cursive", fontSize: 14,
           cursor: canAfford ? "pointer" : "not-allowed",
-          boxShadow: canAfford ? "3px 3px 0 #1A0A3C" : "none",
+          boxShadow: canAfford ? "3px 3px 0 #000000" : "none",
         }}>
         {canAfford ? "🎉 Redeem!" : "Need more 🟠"}
       </button>
@@ -276,14 +276,14 @@ function AnimalPicker({ current, totalChores, onSelect, onClose }) {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(10,5,30,0.92)",
+      background: "rgba(0,0,0,0.7)",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: 24,
     }}>
       <div style={{
         background: T.panel, borderRadius: 24, padding: "24px",
         border: `3px solid ${T.borderBold}`, width: "100%", maxWidth: 480,
-        boxShadow: "8px 8px 0 #1A0A3C", maxHeight: "80vh", overflowY: "auto",
+        boxShadow: "8px 8px 0 #000000", maxHeight: "80vh", overflowY: "auto",
       }}>
         <div style={{ display: "flex", justifyContent: "space-between",
           alignItems: "center", marginBottom: 20 }}>
@@ -320,7 +320,7 @@ function AnimalPicker({ current, totalChores, onSelect, onClose }) {
                   border: `3px solid ${isCurrent ? a.color : T.border}`,
                   borderRadius: 16, padding: "12px 8px",
                   cursor: "pointer", textAlign: "center",
-                  boxShadow: isCurrent ? `3px 3px 0 ${a.color}` : "3px 3px 0 #1A0A3C",
+                  boxShadow: isCurrent ? `3px 3px 0 ${a.color}` : "3px 3px 0 #000000",
                   transition: "all 0.2s",
                 }}>
                 <a.Component size={50}/>
@@ -480,7 +480,7 @@ export default function KidDashboard({ kid, onRefresh }) {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(160deg,#1A0A3C,#2D1B69,#0F4C75)",
+      background: "#FFFFFF",
       fontFamily: "'Nunito', sans-serif",
       overflowX: "hidden",
     }}>
@@ -504,8 +504,7 @@ export default function KidDashboard({ kid, onRefresh }) {
       }}>
         <div style={{
           fontFamily: "'Fredoka One', cursive", fontSize: 38,
-          background: "linear-gradient(135deg,#FFD700,#FF6B6B,#4ECDC4)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          color: "#0033CC",
           lineHeight: 1, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
           marginBottom: 8,
         }}>
@@ -517,16 +516,16 @@ export default function KidDashboard({ kid, onRefresh }) {
           title="Change your animal"
           style={{
             display: "inline-flex", alignItems: "center", gap: 10,
-            background: "rgba(255,255,255,0.1)",
-            border: "2px solid rgba(255,255,255,0.2)",
+            background: T.panel,
+            border: `2px solid ${T.border}`,
             borderRadius: 30, padding: "6px 16px",
             cursor: "pointer", transition: "all 0.2s",
           }}>
           <AnimalCmp size={36}/>
-          <span style={{ color: "white", fontWeight: 800, fontSize: 15 }}>
+          <span style={{ color: T.text, fontWeight: 800, fontSize: 15 }}>
             {kid.name}
           </span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+          <span style={{ fontSize: 11, color: T.sub }}>
             ✏️
           </span>
         </button>
@@ -535,8 +534,8 @@ export default function KidDashboard({ kid, onRefresh }) {
         <div style={{ marginTop: 8 }}>
           <span style={{
             display: "inline-flex", alignItems: "center", gap: 4,
-            background: "rgba(249,115,22,0.2)",
-            border: "1px solid rgba(249,115,22,0.4)",
+            background: `${T.orange}22`,
+            border: `1px solid ${T.orange}66`,
             borderRadius: 20, padding: "3px 12px",
             fontSize: 12, color: T.orangeL, fontWeight: 700,
           }}>
@@ -570,12 +569,12 @@ export default function KidDashboard({ kid, onRefresh }) {
             <AnimalCmp size={80} animate/>
           </div>
           <button type="button" onClick={handleOpen} style={{
-            background: "linear-gradient(135deg,#7C3AED,#5B21B6)",
+            background: "#0033CC",
             border: "4px solid #FFD700", borderRadius: 50,
-            padding: "16px 40px", color: "white",
+            padding: "16px 40px", color: "#FFFFFF",
             fontFamily: "'Fredoka One', cursive", fontSize: 22,
             cursor: "pointer",
-            boxShadow: "0 0 30px rgba(124,58,237,0.6), 6px 6px 0 #1A0A3C",
+            boxShadow: "0 0 30px rgba(0,51,204,0.6), 6px 6px 0 #000000",
             animation: "pulse 2s ease-in-out infinite",
           }}>
             🎁 Open Prize Box!
@@ -594,10 +593,10 @@ export default function KidDashboard({ kid, onRefresh }) {
                 onClick={() => setActiveTab(t.id)}
                 style={{
                   background: activeTab === t.id
-                    ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.07)",
+                    ? `${T.purple}22` : T.panel,
                   border: `3px solid ${activeTab === t.id
-                    ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.15)"}`,
-                  color: "white", borderRadius: 30, padding: "10px 28px",
+                    ? T.borderBold : T.border}`,
+                  color: T.text, borderRadius: 30, padding: "10px 28px",
                   fontSize: 16, fontWeight: 800, cursor: "pointer",
                   fontFamily: "'Fredoka One', cursive",
                   boxShadow: activeTab === t.id ? "4px 4px 0 rgba(0,0,0,0.3)" : "none",
@@ -611,7 +610,7 @@ export default function KidDashboard({ kid, onRefresh }) {
                     borderRadius: "50%", width: 20, height: 20,
                     fontSize: 11, fontWeight: 900,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid #1A0A3C",
+                    border: "2px solid #000000",
                   }}>{jars.length}</span>
                 )}
               </button>
@@ -626,9 +625,9 @@ export default function KidDashboard({ kid, onRefresh }) {
                   <div style={{ fontSize: 56, marginBottom: 12 }}>⭐</div>
                   <div style={{
                     fontFamily: "'Fredoka One', cursive", fontSize: 22,
-                    color: "white", marginBottom: 8,
+                    color: T.text, marginBottom: 8,
                   }}>Your wishlist is empty!</div>
-                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>
+                  <div style={{ fontSize: 14, color: T.sub }}>
                     Ask a parent to add prizes to your wishlist jar.
                   </div>
                 </div>
@@ -658,9 +657,9 @@ export default function KidDashboard({ kid, onRefresh }) {
                   <div style={{ fontSize: 56, marginBottom: 12 }}>🎉</div>
                   <div style={{
                     fontFamily: "'Fredoka One', cursive", fontSize: 22,
-                    color: "white", marginBottom: 8,
+                    color: T.text, marginBottom: 8,
                   }}>No rewards set up yet!</div>
-                  <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>
+                  <div style={{ fontSize: 14, color: T.sub }}>
                     Ask a parent or teacher to add rewards.
                   </div>
                 </div>
@@ -668,7 +667,7 @@ export default function KidDashboard({ kid, onRefresh }) {
                 <>
                   {rewards.some(r => r.source === "home") && (
                     <div style={{
-                      fontSize: 13, color: "rgba(255,255,255,0.6)",
+                      fontSize: 13, color: T.sub,
                       fontWeight: 700, marginBottom: 10,
                     }}>🏠 Home Rewards</div>
                   )}
@@ -683,7 +682,7 @@ export default function KidDashboard({ kid, onRefresh }) {
                   </div>
                   {rewards.some(r => r.source === "classroom") && (
                     <div style={{
-                      fontSize: 13, color: "rgba(255,255,255,0.6)",
+                      fontSize: 13, color: T.sub,
                       fontWeight: 700, marginBottom: 10,
                     }}>🏫 Classroom Rewards</div>
                   )}

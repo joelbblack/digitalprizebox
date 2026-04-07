@@ -10,7 +10,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState }         from "react";
-import { fontCSS, T, PBIS_CATEGORIES } from "../lib/theme";
+import { fontCSS, T } from "../lib/theme";
+
+const PBIS_CATEGORIES = [
+  { id: "respect", label: "Respect", emoji: "🤝", color: "#3B82F6" },
+  { id: "responsibility", label: "Responsibility", emoji: "📋", color: "#10B981" },
+  { id: "safety", label: "Safety", emoji: "🛡️", color: "#F59E0B" },
+  { id: "kindness", label: "Kindness", emoji: "💛", color: "#EC4899" },
+];
 import { Bear, StarField, Toast, Owl } from "../lib/animals";
 
 const PBIS_CATS = [
@@ -32,7 +39,7 @@ const Field = ({ value, onChange, placeholder, type = "text", style = {} }) => (
       border: `3px solid ${T.borderBold}`, borderRadius: 12,
       padding: "9px 12px", fontSize: 14, color: T.text,
       fontFamily: "'Nunito', sans-serif", outline: "none",
-      boxSizing: "border-box", boxShadow: "3px 3px 0 #1A0A3C", ...style,
+      boxSizing: "border-box", boxShadow: "3px 3px 0 #000000", ...style,
     }}/>
 );
 
@@ -46,7 +53,7 @@ const Btn = ({ onClick, children, color = T.purple, small = false,
     fontSize: small ? 12 : 14, fontWeight: 800,
     cursor: disabled ? "not-allowed" : "pointer",
     fontFamily: "'Nunito', sans-serif",
-    boxShadow: disabled ? "none" : "3px 3px 0 #1A0A3C",
+    boxShadow: disabled ? "none" : "3px 3px 0 #000000",
     opacity: disabled ? 0.5 : 1,
     width: full ? "100%" : undefined, whiteSpace: "nowrap",
   }}>{children}</button>
@@ -55,7 +62,7 @@ const Btn = ({ onClick, children, color = T.purple, small = false,
 const Card = ({ children, style = {} }) => (
   <div style={{
     background: T.panel2, borderRadius: 20, padding: "20px",
-    border: `3px solid ${T.borderBold}`, boxShadow: "4px 4px 0 #1A0A3C",
+    border: `3px solid ${T.borderBold}`, boxShadow: "4px 4px 0 #000000",
     marginBottom: 16, animation: "fadeIn 0.3s ease", ...style,
   }}>{children}</div>
 );
@@ -76,13 +83,13 @@ function CreateSchoolModal({ onCreate }) {
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 2000,
-      background: "rgba(10,5,30,0.95)",
+      background: "rgba(0,0,0,0.7)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{
         background: T.panel, borderRadius: 28, padding: "36px 32px",
         border: `3px solid ${T.borderBold}`, width: "100%", maxWidth: 480,
-        boxShadow: "8px 8px 0 #1A0A3C",
+        boxShadow: "8px 8px 0 #000000",
       }}>
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <Owl size={72} animate/>
@@ -147,7 +154,7 @@ function OverviewTab({ school, teachers }) {
         {metrics.map(m => (
           <div key={m.label} style={{
             background: T.panel, borderRadius: 16, padding: "16px",
-            border: `3px solid ${T.borderBold}`, boxShadow: "3px 3px 0 #1A0A3C",
+            border: `3px solid ${T.borderBold}`, boxShadow: "3px 3px 0 #000000",
           }}>
             <div style={{ fontSize: 10, color: T.sub, fontWeight: 700,
               textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>{m.label}</div>
@@ -203,8 +210,8 @@ function OverviewTab({ school, teachers }) {
                 width: 32, height: 32, borderRadius: "50%",
                 background: T.purple, color: "white", fontWeight: 800, fontSize: 14,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto 8px", border: "3px solid #1A0A3C",
-                boxShadow: "2px 2px 0 #1A0A3C",
+                margin: "0 auto 8px", border: "3px solid #000000",
+                boxShadow: "2px 2px 0 #000000",
               }}>{s.step}</div>
               <div style={{ fontSize: 24, marginBottom: 6 }}>{s.emoji}</div>
               <div style={{ fontWeight: 800, fontSize: 13, color: T.text, marginBottom: 4 }}>{s.title}</div>
@@ -253,7 +260,7 @@ function DistributeTab({ school, teachers, distHistory, showToast, onDistribute 
         <div style={{
           background: `${T.green}18`, border: `3px solid ${T.green}`,
           borderRadius: 14, padding: "12px 18px", textAlign: "center",
-          boxShadow: "3px 3px 0 #1A0A3C",
+          boxShadow: "3px 3px 0 #000000",
         }}>
           <div style={{ fontSize: 10, color: T.greenL, fontWeight: 700,
             textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
@@ -266,7 +273,7 @@ function DistributeTab({ school, teachers, distHistory, showToast, onDistribute 
         <div style={{
           background: T.panel, border: `2px solid ${T.border}`,
           borderRadius: 14, padding: "12px 18px", textAlign: "center",
-          boxShadow: "3px 3px 0 #1A0A3C",
+          boxShadow: "3px 3px 0 #000000",
         }}>
           <div style={{ fontSize: 10, color: T.sub, fontWeight: 700,
             textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Classrooms</div>
@@ -292,7 +299,7 @@ function DistributeTab({ school, teachers, distHistory, showToast, onDistribute 
               background: distType === t.id ? `${T.blue}22` : T.panel,
               border: `3px solid ${distType === t.id ? T.blue : T.border}`,
               borderRadius: 14, padding: "14px", cursor: "pointer",
-              boxShadow: distType === t.id ? `3px 3px 0 ${T.blue}88` : "3px 3px 0 #1A0A3C",
+              boxShadow: distType === t.id ? `3px 3px 0 ${T.blue}88` : "3px 3px 0 #000000",
               transition: "all 0.2s",
             }}>
               <div style={{ fontSize: 24, marginBottom: 6 }}>{t.emoji}</div>
@@ -315,7 +322,7 @@ function DistributeTab({ school, teachers, distHistory, showToast, onDistribute 
                   color: toTeacher === t.id ? "white" : T.sub,
                   borderRadius: 30, padding: "8px 16px", fontSize: 13,
                   fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-                  boxShadow: toTeacher === t.id ? "3px 3px 0 #1A0A3C" : "none",
+                  boxShadow: toTeacher === t.id ? "3px 3px 0 #000000" : "none",
                 }}>
                   {t.teacher_name} — {t.class_name || "Class"}
                 </button>
@@ -366,7 +373,7 @@ function DistributeTab({ school, teachers, distHistory, showToast, onDistribute 
               borderRadius: 30, padding: "7px 18px", fontSize: 15,
               fontWeight: 800, cursor: "pointer",
               fontFamily: "'Fredoka One', cursive",
-              boxShadow: amtNum === n ? "3px 3px 0 #1A0A3C" : "none",
+              boxShadow: amtNum === n ? "3px 3px 0 #000000" : "none",
             }}>${n}</button>
           ))}
         </div>
@@ -516,7 +523,7 @@ function ClassroomsTab({ school, teachers, showToast }) {
           background: T.panel2, border: `3px solid ${T.borderBold}`,
           borderRadius: 16, padding: "16px 18px", marginBottom: 10,
           display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
-          boxShadow: "3px 3px 0 #1A0A3C",
+          boxShadow: "3px 3px 0 #000000",
         }}>
           <div style={{ fontSize: 32 }}>🍎</div>
           <div style={{ flex: 1 }}>
@@ -614,7 +621,7 @@ function SettingsTab({ school, showToast, onUpdateSchool }) {
             fontFamily: "'Fredoka One', cursive", fontSize: 28,
             color: T.purpleL, letterSpacing: 6, background: T.panel,
             borderRadius: 14, padding: "12px 20px",
-            border: `3px solid ${T.borderBold}`, boxShadow: "3px 3px 0 #1A0A3C",
+            border: `3px solid ${T.borderBold}`, boxShadow: "3px 3px 0 #000000",
           }}>
             {school?.join_code}
           </div>
@@ -661,20 +668,19 @@ export default function PrincipalDashboard({
 
       {/* Header */}
       <div style={{
-        background: `linear-gradient(135deg,${T.panel},${T.sky})`,
+        background: T.panel,
         borderBottom: `3px solid ${T.borderBold}`,
         padding: "14px 24px",
         display: "flex", alignItems: "center",
         justifyContent: "space-between", flexWrap: "wrap", gap: 12,
-        position: "relative", zIndex: 10, boxShadow: "0 4px 0 #1A0A3C",
+        position: "relative", zIndex: 10, boxShadow: "0 4px 0 #000000",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Bear size={44}/>
           <div>
             <div style={{
               fontFamily: "'Fredoka One', cursive", fontSize: 22,
-              background: `linear-gradient(135deg,${T.blueL},${T.greenL})`,
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              color: T.purple,
             }}>
               🏫 Principal Dashboard
             </div>
@@ -687,7 +693,7 @@ export default function PrincipalDashboard({
           <div style={{
             background: T.panel2, border: `2px solid ${T.green}44`,
             borderRadius: 12, padding: "8px 14px", textAlign: "center",
-            boxShadow: "3px 3px 0 #1A0A3C",
+            boxShadow: "3px 3px 0 #000000",
           }}>
             <div style={{ fontSize: 10, color: T.sub }}>🟢 PBIS Pool</div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.greenL }}>
@@ -697,7 +703,7 @@ export default function PrincipalDashboard({
           <div style={{
             background: T.panel2, border: `2px solid ${T.border}`,
             borderRadius: 12, padding: "8px 14px", textAlign: "center",
-            boxShadow: "3px 3px 0 #1A0A3C",
+            boxShadow: "3px 3px 0 #000000",
           }}>
             <div style={{ fontSize: 10, color: T.sub }}>Teachers</div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.purpleL }}>
@@ -725,7 +731,7 @@ export default function PrincipalDashboard({
             color: tab === t.id ? "white" : T.sub,
             borderRadius: 14, padding: "8px 16px", fontSize: 13,
             fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-            boxShadow: tab === t.id ? "3px 3px 0 #1A0A3C" : "none",
+            boxShadow: tab === t.id ? "3px 3px 0 #000000" : "none",
             transition: "all 0.2s",
           }}>{t.emoji} {t.label}</button>
         ))}

@@ -905,7 +905,7 @@ const DEFAULT_CFG = {
   delivery:"home", orangePerDollar:100,
 };
 
-export default function PrizeBox({cfg=DEFAULT_CFG}) {
+export default function PrizeBox({cfg=DEFAULT_CFG, kidId="", kidName=""}) {
   const [avatar,   setAvatar]   = useState(null);
   const [interests,setInterests]= useState(null);   // array of interest ids, or []
   const [phase,    setPhase]    = useState("closed");
@@ -948,7 +948,7 @@ export default function PrizeBox({cfg=DEFAULT_CFG}) {
       greenContributed:  0,
     };
     setJars(prev=>[...prev,jar]);
-    addToWishlist("kid_alex", item).catch(console.error);
+    addToWishlist(kidId, item).catch(console.error);
   };
 
   const handleContribute = (jarId, currency, amount) => {
@@ -963,7 +963,7 @@ export default function PrizeBox({cfg=DEFAULT_CFG}) {
         return {...j, greenContributed: j.greenContributed + contributed};
       }
     }));
-    contributeToJar("kid_alex", jarId, currency, amount).catch(console.error);
+    contributeToJar(kidId, jarId, currency, amount).catch(console.error);
     setConfetti(true);
     setTimeout(()=>setConfetti(false),2000);
   };
@@ -1100,7 +1100,7 @@ export default function PrizeBox({cfg=DEFAULT_CFG}) {
                     {jars.map(jar=>(
                       <WishlistJarCard key={jar.id} jar={jar}
                         orange={orange} green={green}
-                        kidId="kid_alex" kidName="Alex"
+                        kidId={kidId} kidName={kidName}
                         onUnlock={handleUnlock}
                         onContribute={handleContribute}/>
                     ))}
@@ -1118,7 +1118,7 @@ export default function PrizeBox({cfg=DEFAULT_CFG}) {
 
           {activeTab==="digital"&&cfg.greenEnabled&&(
             <DigitalStore
-              green={green} kidId="kid_alex" kidName="Alex"
+              green={green} kidId={kidId} kidName={kidName}
               onPurchase={amt=>setGreen(p=>p-amt)}/>
           )}
 

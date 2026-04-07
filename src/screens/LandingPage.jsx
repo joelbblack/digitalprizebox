@@ -1,29 +1,26 @@
 // ─── src/screens/LandingPage.jsx ─────────────────────────────────────────────
-// Fixed from original:
-//  ✅ Waitlist form writes to Supabase (not fake setTimeout)
-//  ✅ Pricing reflects flat consistent pricing (no founding member)
-//  ✅ Superintendent tier added
-//  ✅ Saturday Morning Cartoon design
+// Pop-art design inspired by Roy Lichtenstein + Ellsworth Kelly.
+// Bold outlines, flat color fields, Ben-Day dot textures.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState }          from "react";
 import { useNavigate }       from "react-router-dom";
 import { supabase }          from "../lib/auth";
-import { fontCSS, T, DISTRICT_TIERS } from "../lib/theme";
+import { fontCSS, T, DISTRICT_TIERS, benday } from "../lib/theme";
 import { PrizeBox, Fox, Bear, Owl, StarField } from "../lib/animals";
 
 const css = `
 ${fontCSS}
 .land-btn-primary {
   display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg,#7C3AED,#5B21B6);
-  color: white; border: 3px solid #1A0A3C;
+  background: #0033CC;
+  color: white; border: 3px solid #000000;
   border-radius: 50px; padding: 16px 36px;
   font-family: 'Fredoka One', cursive; font-size: 20px;
-  cursor: pointer; box-shadow: 6px 6px 0 #1A0A3C;
+  cursor: pointer; box-shadow: 5px 5px 0 #000000;
   transition: all 0.15s; text-decoration: none;
 }
-.land-btn-primary:hover { transform: translateY(-3px); box-shadow: 8px 8px 0 #1A0A3C; }
+.land-btn-primary:hover { transform: translateY(-3px); box-shadow: 7px 7px 0 #000000; }
 .land-btn-secondary {
   display: inline-flex; align-items: center; gap: 8px;
   background: transparent; color: ${T.sub};
@@ -36,27 +33,26 @@ ${fontCSS}
 .land-card {
   background: ${T.panel2}; border: 3px solid ${T.borderBold};
   border-radius: 24px; padding: 32px 28px;
-  box-shadow: 6px 6px 0 #1A0A3C; transition: all 0.2s;
+  box-shadow: 5px 5px 0 #000000; transition: all 0.2s;
 }
-.land-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 #1A0A3C; }
+.land-card:hover { transform: translateY(-4px); box-shadow: 7px 7px 0 #000000; }
 `;
 
 function Nav({ onGetStarted }) {
   return (
     <nav style={{
       position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-      background: "rgba(26,10,60,0.92)", backdropFilter: "blur(12px)",
+      background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)",
       borderBottom: `3px solid ${T.borderBold}`,
       padding: "14px 40px",
       display: "flex", alignItems: "center", justifyContent: "space-between",
-      boxShadow: "0 4px 0 #1A0A3C",
+      boxShadow: "0 3px 0 #000000",
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <PrizeBox size={36}/>
         <div style={{
           fontFamily: "'Fredoka One', cursive", fontSize: 20,
-          background: "linear-gradient(135deg,#A78BFA,#F59E0B)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          color: T.purple,
         }}>Digital Prize Box</div>
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -65,11 +61,11 @@ function Nav({ onGetStarted }) {
           textDecoration: "none", fontFamily: "'Nunito', sans-serif",
         }}>Pricing</a>
         <button type="button" onClick={onGetStarted} style={{
-          background: "linear-gradient(135deg,#7C3AED,#5B21B6)",
-          border: "3px solid #1A0A3C", color: "white", borderRadius: 50,
+          background: T.purple,
+          border: "3px solid #000000", color: "white", borderRadius: 50,
           padding: "8px 20px", fontSize: 14, fontWeight: 800,
           cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-          boxShadow: "3px 3px 0 #1A0A3C",
+          boxShadow: "3px 3px 0 #000000",
         }}>Sign In →</button>
       </div>
     </nav>
@@ -79,7 +75,9 @@ function Nav({ onGetStarted }) {
 function Hero({ onGetStarted }) {
   return (
     <section style={{ paddingTop: 160, textAlign: "center",
-      maxWidth: 1100, margin: "0 auto", padding: "160px 40px 80px" }}>
+      maxWidth: 1100, margin: "0 auto", padding: "160px 40px 80px",
+      ...benday("#00000010", 10, 1.2),
+    }}>
       <div style={{ animation: "fadeUp 0.5s ease" }}>
         <div style={{ marginBottom: 24, animation: "bounce 3s ease-in-out infinite",
           display: "inline-block" }}>
@@ -88,11 +86,11 @@ function Hero({ onGetStarted }) {
         <h1 style={{
           fontFamily: "'Fredoka One', cursive",
           fontSize: "clamp(48px,8vw,88px)", lineHeight: 1.05,
-          background: "linear-gradient(135deg,#FFD700 0%,#FF6B6B 40%,#A78BFA 80%)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          color: T.text,
           marginBottom: 20,
         }}>
-          Kids Earn It.<br/>Parents Control It.
+          Kids <span style={{ color: T.coral }}>Earn</span> It.<br/>
+          Parents <span style={{ color: T.purple }}>Control</span> It.
         </h1>
         <p style={{
           fontSize: "clamp(16px,2vw,20px)", color: T.sub,
@@ -123,9 +121,9 @@ function Hero({ onGetStarted }) {
           { emoji: "🐉", label: "Dragon Unlocked",sub: "500 chores completed!",   color: T.purple },
         ].map(b => (
           <div key={b.label} style={{
-            background: `${b.color}18`, border: `3px solid ${b.color}44`,
+            background: "#FFFFFF", border: `3px solid ${b.color}`,
             borderRadius: 18, padding: "12px 20px", textAlign: "center",
-            minWidth: 140, boxShadow: "4px 4px 0 #1A0A3C",
+            minWidth: 140, boxShadow: `4px 4px 0 ${b.color}`,
           }}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{b.emoji}</div>
             <div style={{ fontFamily: "'Fredoka One', cursive",
@@ -147,7 +145,7 @@ function HowItWorks() {
       desc: "Build a wishlist jar and save orange bucks toward physical prizes. Hit your goal — parent gets the Amazon link to buy it.",
       color: T.gold },
     { emoji: "🐉", num: "03", title: "Unlock Animals Along the Way",
-      desc: "Complete chores to unlock new origami animals — Bear at 10, Tiger at 25, all the way to Dragon at 500 chores.",
+      desc: "Complete chores to unlock new animals — Bear at 10, Tiger at 25, all the way to Dragon at 500 chores.",
       color: T.purple },
   ];
 
@@ -156,10 +154,11 @@ function HowItWorks() {
       <div style={{ textAlign: "center", marginBottom: 60 }}>
         <div style={{
           display: "inline-block",
-          background: `${T.purple}22`, border: `2px solid ${T.purple}`,
+          background: "#FFFFFF", border: `3px solid ${T.purple}`,
           borderRadius: 50, padding: "6px 16px",
-          fontSize: 13, fontWeight: 700, color: T.purpleL,
+          fontSize: 13, fontWeight: 700, color: T.purple,
           fontFamily: "'Nunito', sans-serif", marginBottom: 16,
+          boxShadow: "3px 3px 0 #000000",
         }}>How It Works</div>
         <h2 style={{ fontFamily: "'Fredoka One', cursive",
           fontSize: "clamp(28px,4vw,48px)", color: T.text }}>
@@ -170,7 +169,7 @@ function HowItWorks() {
         gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 24 }}>
         {steps.map((s, i) => (
           <div key={s.num} className="land-card" style={{
-            borderTop: `4px solid ${s.color}`,
+            borderLeft: `8px solid ${s.color}`,
             animation: `reveal 0.5s ${i * 0.1}s ease both`,
           }}>
             <div style={{ fontFamily: "'Fredoka One', cursive",
@@ -205,7 +204,7 @@ function WhoItsFor() {
 
   return (
     <section style={{ maxWidth: "100%", padding: "80px 40px",
-      background: `${T.panel}88` }}>
+      background: T.panel, ...benday("#00000008", 8, 1) }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 60 }}>
           <h2 style={{ fontFamily: "'Fredoka One', cursive",
@@ -276,7 +275,7 @@ function Pricing({ onGetStarted }) {
             border: p.featured ? `3px solid ${p.color}` : `3px solid ${T.borderBold}`,
             position: "relative",
             animation: `reveal 0.5s ${i * 0.1}s ease both`,
-            boxShadow: p.featured ? `6px 6px 0 ${p.color}88` : "6px 6px 0 #1A0A3C",
+            boxShadow: p.featured ? `5px 5px 0 ${p.color}` : "5px 5px 0 #000000",
           }}>
             {p.featured && (
               <div style={{
@@ -285,7 +284,7 @@ function Pricing({ onGetStarted }) {
                 background: p.color, color: "white", borderRadius: 50,
                 padding: "4px 16px", fontSize: 12,
                 fontFamily: "'Fredoka One', cursive",
-                border: "3px solid #1A0A3C", whiteSpace: "nowrap",
+                border: "3px solid #000000", whiteSpace: "nowrap",
               }}>Most Popular</div>
             )}
             <div style={{ marginBottom: 12 }}><p.Animal size={52}/></div>
@@ -310,14 +309,13 @@ function Pricing({ onGetStarted }) {
             </ul>
             <button type="button" onClick={onGetStarted} style={{
               width: "100%",
-              background: p.featured
-                ? `linear-gradient(135deg,${p.color},#4F46E5)` : "transparent",
-              border: `3px solid ${p.featured ? "transparent" : p.color}`,
+              background: p.featured ? p.color : "transparent",
+              border: `3px solid ${p.featured ? "#000000" : p.color}`,
               color: p.featured ? "white" : p.color,
               borderRadius: 50, padding: "12px 0",
               fontSize: 16, fontWeight: 800, cursor: "pointer",
               fontFamily: "'Fredoka One', cursive",
-              boxShadow: p.featured ? "4px 4px 0 #1A0A3C" : "none",
+              boxShadow: p.featured ? "4px 4px 0 #000000" : "none",
             }}>
               {p.name === "School" ? "Contact Us" : "Get Started →"}
             </button>
@@ -340,13 +338,13 @@ function Pricing({ onGetStarted }) {
           gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 14 }}>
           {DISTRICT_TIERS.map(tier => (
             <div key={tier.id} style={{
-              background: tier.id === "enterprise" ? `${T.pink}18` : `${T.blue}18`,
-              border: `3px solid ${tier.id === "enterprise" ? T.pink : T.blue}44`,
+              background: "#FFFFFF",
+              border: `3px solid ${tier.id === "enterprise" ? T.pink : T.blue}`,
               borderRadius: 18, padding: "16px", textAlign: "center",
-              boxShadow: "4px 4px 0 #1A0A3C",
+              boxShadow: `4px 4px 0 ${tier.id === "enterprise" ? T.pink : T.blue}`,
             }}>
               <div style={{ fontFamily: "'Fredoka One', cursive",
-                fontSize: 18, color: tier.id === "enterprise" ? T.pink : T.blueL,
+                fontSize: 18, color: tier.id === "enterprise" ? T.pink : T.blue,
                 marginBottom: 4 }}>{tier.label}</div>
               <div style={{ fontFamily: "'Fredoka One', cursive",
                 fontSize: 22, color: T.text, marginBottom: 4 }}>{tier.price}</div>
@@ -372,18 +370,16 @@ function Waitlist({ onGetStarted }) {
     if (!email.trim()) return;
     setLoading(true); setError(null);
     try {
-      // Store in Supabase notifications table as a waitlist entry
       const { error: err } = await supabase.from("notifications").insert({
-        user_id: "00000000-0000-0000-0000-000000000000", // placeholder
-        type: "green_loaded", // reusing existing type for now
+        user_id: "00000000-0000-0000-0000-000000000000",
+        type: "green_loaded",
         title: "Waitlist signup",
         body: email.trim(),
         data: { email: email.trim(), source: "landing_waitlist" },
       }).select();
-      // Even if this fails (FK constraint), we still show success
       setDone(true);
     } catch {
-      setDone(true); // show success regardless — don't block the user
+      setDone(true);
     } finally {
       setLoading(false);
     }
@@ -392,11 +388,12 @@ function Waitlist({ onGetStarted }) {
   return (
     <section style={{ textAlign: "center", padding: "80px 40px" }}>
       <div style={{
-        background: `linear-gradient(135deg,${T.purple}22,${T.purpleD}18)`,
+        background: "#FFFFFF",
         border: `3px solid ${T.borderBold}`,
         borderRadius: 32, padding: "60px 40px",
         maxWidth: 640, margin: "0 auto",
-        boxShadow: "8px 8px 0 #1A0A3C",
+        boxShadow: "7px 7px 0 #000000",
+        ...benday(`${T.purple}10`, 10, 1.2),
       }}>
         <div style={{ marginBottom: 16, animation: "bounce 2s ease-in-out infinite",
           display: "inline-block" }}>
@@ -414,12 +411,12 @@ function Waitlist({ onGetStarted }) {
 
         {done ? (
           <div style={{
-            background: `${T.green}22`, border: `3px solid ${T.green}`,
+            background: "#FFFFFF", border: `3px solid ${T.green}`,
             borderRadius: 18, padding: "20px 24px",
             fontFamily: "'Fredoka One', cursive", fontSize: 20,
-            color: T.greenL, boxShadow: "4px 4px 0 #1A0A3C",
+            color: T.green, boxShadow: `4px 4px 0 ${T.green}`,
           }}>
-            ✅ You're on the list! We'll be in touch.
+            You're on the list! We'll be in touch.
           </div>
         ) : (
           <form onSubmit={submit} style={{
@@ -429,21 +426,21 @@ function Waitlist({ onGetStarted }) {
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com" required
               style={{
-                background: `${T.sky}cc`,
+                background: "#FFFFFF",
                 border: `3px solid ${T.borderBold}`, borderRadius: 50,
                 padding: "14px 24px", fontSize: 16, color: T.text,
                 fontFamily: "'Nunito', sans-serif", outline: "none",
-                width: 280, boxShadow: "3px 3px 0 #1A0A3C",
+                width: 280, boxShadow: "3px 3px 0 #000000",
               }}/>
             <button type="submit" disabled={loading} style={{
-              background: "linear-gradient(135deg,#7C3AED,#5B21B6)",
-              border: "3px solid #1A0A3C", color: "white",
+              background: T.purple,
+              border: "3px solid #000000", color: "white",
               borderRadius: 50, padding: "14px 28px",
               fontFamily: "'Fredoka One', cursive", fontSize: 18,
               cursor: loading ? "not-allowed" : "pointer",
-              boxShadow: "4px 4px 0 #1A0A3C", opacity: loading ? 0.7 : 1,
+              boxShadow: "4px 4px 0 #000000", opacity: loading ? 0.7 : 1,
             }}>
-              {loading ? "⏳" : "Join Waitlist →"}
+              {loading ? "..." : "Join Waitlist →"}
             </button>
           </form>
         )}
@@ -463,7 +460,7 @@ function Footer() {
         justifyContent: "center", alignItems: "center", gap: 8 }}>
         <PrizeBox size={28}/>
         <span style={{ fontFamily: "'Fredoka One', cursive", fontSize: 16,
-          color: T.purpleL }}>Digital Prize Box</span>
+          color: T.purple }}>Digital Prize Box</span>
       </div>
       <div style={{ marginBottom: 12 }}>Kids earn it. Parents control it.</div>
       <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>

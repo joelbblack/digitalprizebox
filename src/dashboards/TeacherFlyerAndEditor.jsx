@@ -6,10 +6,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/auth";
+import { T } from "../lib/theme";
 
 const C = {
-  bg:"#0F172A", panel:"#1E293B", panel2:"#162032", border:"#334155",
-  text:"#F1F5F9", sub:"#94A3B8", accent:"#6366F1",
+  bg:"#FFFFFF", panel:"#F5F5F5", panel2:"#FFFFFF", border:"#222222",
+  text:"#111111", sub:"#555555", accent:"#0033CC",
   green:"#10B981", orange:"#F97316", gold:"#F59E0B",
 };
 
@@ -28,7 +29,7 @@ const Field = ({label, value, onChange, placeholder, type="text"}) => (
 // ── QR Code generator (pure JS, no library needed) ────────────────────────────
 // Uses Google Charts API to generate QR code image
 function QRCode({ url, size=200 }) {
-  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}&bgcolor=FFFFFF&color=1E293B&margin=10`;
+  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}&bgcolor=FFFFFF&color=000000&margin=10`;
   return (
     <img src={src} alt="QR Code" width={size} height={size}
       style={{ borderRadius:12, display:"block" }}/>
@@ -50,21 +51,20 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
     <div id="printable-flyer" style={{
       background:"white", width:"100%", maxWidth:560,
       margin:"0 auto", padding:"40px 36px",
-      fontFamily:"Nunito, sans-serif", color:"#1E293B",
-      border:"1px solid #E2E8F0", borderRadius:16,
+      fontFamily:"Nunito, sans-serif", color:"#111111",
+      border:"1px solid #222222", borderRadius:16,
     }}>
       <style>{flyerCSS}</style>
 
       {/* Header */}
       <div style={{ textAlign:"center", marginBottom:28,
-        paddingBottom:24, borderBottom:"2px solid #F1F5F9" }}>
+        paddingBottom:24, borderBottom:"2px solid #222222" }}>
         <div style={{ fontFamily:"Fredoka One, cursive", fontSize:32,
-          background:"linear-gradient(135deg,#6366F1,#F59E0B)",
-          WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
+          color:"#0033CC",
           marginBottom:4 }}>
           🎁 Digital Prize Box
         </div>
-        <div style={{ fontSize:14, color:"#64748B" }}>
+        <div style={{ fontSize:14, color:"#555555" }}>
           Kids earn it. Parents control it.
         </div>
       </div>
@@ -72,10 +72,10 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
       {/* Headline */}
       <div style={{ textAlign:"center", marginBottom:24 }}>
         <div style={{ fontFamily:"Fredoka One, cursive", fontSize:26,
-          color:"#1E293B", marginBottom:6 }}>
+          color:"#111111", marginBottom:6 }}>
           Join Our Classroom!
         </div>
-        <div style={{ fontSize:15, color:"#475569", lineHeight:1.6 }}>
+        <div style={{ fontSize:15, color:"#555555", lineHeight:1.6 }}>
           {teacher.teacher_name} · {teacher.class_name}
           {teacher.school_name && ` · ${teacher.school_name}`}
         </div>
@@ -84,25 +84,25 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
       {/* QR Code + join code */}
       <div style={{ display:"flex", gap:24, alignItems:"center",
         marginBottom:28, background:"#F8FAFC", borderRadius:16,
-        padding:20, border:"1px solid #E2E8F0" }}>
+        padding:20, border:"1px solid #222222" }}>
         <div style={{ flexShrink:0 }}>
           <QRCode url={joinUrl} size={140}/>
         </div>
         <div style={{ flex:1 }}>
-          <div style={{ fontSize:13, color:"#64748B", marginBottom:8 }}>
+          <div style={{ fontSize:13, color:"#555555", marginBottom:8 }}>
             Scan to join our class, or visit:
           </div>
-          <div style={{ fontSize:12, color:"#6366F1", fontWeight:700,
+          <div style={{ fontSize:12, color:"#0033CC", fontWeight:700,
             wordBreak:"break-all", marginBottom:12 }}>
             {joinUrl}
           </div>
           <div style={{ background:"white", borderRadius:10,
-            padding:"10px 14px", border:"2px solid #6366F1",
+            padding:"10px 14px", border:"2px solid #0033CC",
             display:"inline-block" }}>
-            <div style={{ fontSize:10, color:"#94A3B8", fontWeight:700,
+            <div style={{ fontSize:10, color:"#555555", fontWeight:700,
               textTransform:"uppercase", letterSpacing:1 }}>Join Code</div>
             <div style={{ fontFamily:"Fredoka One, cursive", fontSize:28,
-              color:"#6366F1", letterSpacing:4 }}>{teacher.join_code}</div>
+              color:"#0033CC", letterSpacing:4 }}>{teacher.join_code}</div>
           </div>
         </div>
       </div>
@@ -110,7 +110,7 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
       {/* How it works */}
       <div style={{ marginBottom:24 }}>
         <div style={{ fontFamily:"Fredoka One, cursive", fontSize:16,
-          color:"#1E293B", marginBottom:12 }}>How It Works:</div>
+          color:"#111111", marginBottom:12 }}>How It Works:</div>
         <div style={{ display:"grid", gap:10 }}>
           {[
             { emoji:"🟠", text:"Your child earns Orange Bucks at school for good behavior and effort" },
@@ -120,9 +120,9 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
           ].map((s,i) => (
             <div key={i} style={{ display:"flex", gap:12, alignItems:"flex-start",
               background:"#F8FAFC", borderRadius:10, padding:"10px 14px",
-              border:"1px solid #E2E8F0" }}>
+              border:"1px solid #222222" }}>
               <span style={{ fontSize:20, flexShrink:0 }}>{s.emoji}</span>
-              <div style={{ fontSize:13, color:"#475569", lineHeight:1.5 }}>{s.text}</div>
+              <div style={{ fontSize:13, color:"#555555", lineHeight:1.5 }}>{s.text}</div>
             </div>
           ))}
         </div>
@@ -134,11 +134,11 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
           { label:"Download on the App Store",   sub:"iPhone & iPad", emoji:"🍎" },
           { label:"Get it on Google Play",        sub:"Android",       emoji:"▶️" },
         ].map(s => (
-          <div key={s.label} style={{ background:"#1E293B", borderRadius:10,
+          <div key={s.label} style={{ background:"#000000", borderRadius:10,
             padding:"10px 16px", display:"flex", alignItems:"center", gap:10, flex:1 }}>
             <span style={{ fontSize:22 }}>{s.emoji}</span>
             <div>
-              <div style={{ fontSize:9, color:"#94A3B8" }}>{s.label}</div>
+              <div style={{ fontSize:9, color:"#555555" }}>{s.label}</div>
               <div style={{ fontSize:12, fontWeight:700, color:"white" }}>{s.sub}</div>
             </div>
           </div>
@@ -146,12 +146,12 @@ function PrintableFlyer({ teacher, joinUrl, contactEmail }) {
       </div>
 
       {/* Contact + footer */}
-      <div style={{ borderTop:"2px solid #F1F5F9", paddingTop:16,
-        textAlign:"center", fontSize:12, color:"#94A3B8" }}>
+      <div style={{ borderTop:"2px solid #222222", paddingTop:16,
+        textAlign:"center", fontSize:12, color:"#555555" }}>
         {contactEmail && (
           <div style={{ marginBottom:6 }}>
             Questions? Email {teacher.teacher_name} at{" "}
-            <span style={{ color:"#6366F1", fontWeight:700 }}>{contactEmail}</span>
+            <span style={{ color:"#0033CC", fontWeight:700 }}>{contactEmail}</span>
           </div>
         )}
         <div>digitalprizebox.com · Free for families</div>
@@ -236,10 +236,10 @@ export default function TeacherFlyerAndEditor({ teacherId, userId }) {
       {/* Toast */}
       {toast && (
         <div style={{ position:"fixed", bottom:30, left:"50%", transform:"translateX(-50%)",
-          background:`linear-gradient(135deg,${C.accent},#8B5CF6)`,
+          background:C.accent,
           color:"white", borderRadius:30, padding:"12px 28px",
           fontFamily:"Fredoka One, cursive", fontSize:16,
-          boxShadow:"0 8px 30px rgba(99,102,241,0.5)",
+          boxShadow:"0 8px 30px rgba(0,51,204,0.5)",
           zIndex:9999, whiteSpace:"nowrap" }}>{toast}</div>
       )}
 
@@ -327,7 +327,7 @@ export default function TeacherFlyerAndEditor({ teacherId, userId }) {
           placeholder="teacher@school.edu"
           type="email"/>
         <button type="button" onClick={save} disabled={saving} style={{
-          background:saving?"#334155":C.green, border:"none", color:"white",
+          background:saving?"#222222":C.green, border:"none", color:"white",
           borderRadius:10, padding:"10px 24px", fontSize:14, fontWeight:800,
           cursor:saving?"not-allowed":"pointer", fontFamily:"Nunito, sans-serif",
           opacity:saving?0.6:1 }}>

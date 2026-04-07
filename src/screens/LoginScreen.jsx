@@ -1,11 +1,5 @@
 // ─── src/screens/LoginScreen.jsx ─────────────────────────────────────────────
-// Fixed from original:
-//  ✅ join code from URL query param is preserved through signup and stored
-//  ✅ GitHub OAuth removed (no role assignment possible)
-//  ✅ users row created with correct role before navigating
-//  ✅ teachers row auto-created on teacher signup
-//  ✅ Full Saturday Morning Cartoon design
-//  ✅ "both" role option added
+// Pop-art design: bold outlines, flat colors, Ben-Day dot textures.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState }              from "react";
@@ -59,7 +53,6 @@ export default function LoginScreen() {
       const accountType = role === "teacher" || role === "principal" ? "classroom"
                         : role === "both" ? "both" : "family";
 
-      // Create users row
       const { data: userRow, error: profileError } = await supabase
         .from("users")
         .insert({
@@ -80,7 +73,6 @@ export default function LoginScreen() {
         return;
       }
 
-      // Auto-create teachers row for teacher/both/principal roles
       if (role === "teacher" || role === "both" || role === "principal") {
         await supabase.from("teachers").insert({
           user_id:      userRow.id,
@@ -89,7 +81,6 @@ export default function LoginScreen() {
         });
       }
 
-      // If they came from a join link, store the join code for setup to consume
       if (joinCode) {
         sessionStorage.setItem("pendingJoinCode", joinCode);
       }
@@ -108,13 +99,13 @@ export default function LoginScreen() {
   };
 
   const inp = {
-    width: "100%", background: T.sky,
+    width: "100%", background: "#FFFFFF",
     border: `3px solid ${T.borderBold}`,
     borderRadius: 14, padding: "12px 16px",
     fontSize: 15, color: T.text,
     fontFamily: "'Nunito', sans-serif",
     outline: "none", boxSizing: "border-box",
-    boxShadow: "3px 3px 0 #1A0A3C",
+    boxShadow: "3px 3px 0 #000000",
     transition: "border-color 0.2s",
   };
 
@@ -140,8 +131,7 @@ export default function LoginScreen() {
           </div>
           <div style={{
             fontFamily: "'Fredoka One', cursive", fontSize: 32,
-            background: "linear-gradient(135deg,#A78BFA,#F59E0B,#EC4899)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            color: T.purple,
             lineHeight: 1.1,
           }}>
             Digital Prize Box
@@ -152,12 +142,13 @@ export default function LoginScreen() {
           {joinCode && (
             <div style={{
               marginTop: 12,
-              background: `${T.green}22`, border: `2px solid ${T.green}`,
+              background: "#FFFFFF", border: `3px solid ${T.green}`,
               borderRadius: 30, padding: "6px 16px",
-              fontSize: 13, color: T.greenL, fontWeight: 700,
+              fontSize: 13, color: T.green, fontWeight: 700,
               display: "inline-block",
+              boxShadow: `3px 3px 0 ${T.green}`,
             }}>
-              🔑 Joining class: <strong>{joinCode}</strong>
+              Joining class: <strong>{joinCode}</strong>
             </div>
           )}
         </div>
@@ -166,14 +157,14 @@ export default function LoginScreen() {
         <div style={{
           background: T.panel, borderRadius: 24, padding: "28px 24px",
           border: `3px solid ${T.borderBold}`,
-          boxShadow: "8px 8px 0 #1A0A3C",
+          boxShadow: "7px 7px 0 #000000",
           animation: "pop 0.35s ease",
         }}>
 
           {/* Mode toggle */}
           <div style={{
             display: "flex", marginBottom: 24,
-            background: T.sky, borderRadius: 14,
+            background: "#FFFFFF", borderRadius: 14,
             padding: 4, border: `2px solid ${T.border}`,
           }}>
             {[
@@ -184,13 +175,11 @@ export default function LoginScreen() {
                 onClick={() => { setMode(m.id); setError(null); setResetSent(false); }}
                 style={{
                   flex: 1, padding: "9px 0", borderRadius: 10, border: "none",
-                  background: mode === m.id
-                    ? "linear-gradient(135deg,#7C3AED,#5B21B6)"
-                    : "transparent",
+                  background: mode === m.id ? T.purple : "transparent",
                   color: mode === m.id ? "white" : T.sub,
                   fontSize: 14, fontWeight: 800, cursor: "pointer",
                   fontFamily: "'Nunito', sans-serif",
-                  boxShadow: mode === m.id ? "3px 3px 0 #1A0A3C" : "none",
+                  boxShadow: mode === m.id ? "3px 3px 0 #000000" : "none",
                   transition: "all 0.2s",
                 }}>
                 {m.label}
@@ -201,7 +190,6 @@ export default function LoginScreen() {
           {/* Signup-only fields */}
           {mode === "signup" && (
             <>
-              {/* Name */}
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
                   textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
@@ -217,7 +205,6 @@ export default function LoginScreen() {
                 />
               </div>
 
-              {/* Role picker */}
               <div style={{ marginBottom: 18 }}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
                   textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 8 }}>
@@ -228,19 +215,17 @@ export default function LoginScreen() {
                     <button key={r.id} type="button"
                       onClick={() => setRole(r.id)}
                       style={{
-                        background: role === r.id
-                          ? `linear-gradient(135deg,${T.purple}33,${T.purpleD}22)`
-                          : T.sky,
-                        border: `3px solid ${role === r.id ? T.purpleL : T.border}`,
+                        background: role === r.id ? `${T.purple}15` : "#FFFFFF",
+                        border: `3px solid ${role === r.id ? T.purple : T.border}`,
                         borderRadius: 14, padding: "10px 8px",
                         cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-                        boxShadow: role === r.id ? `3px 3px 0 ${T.purpleD}` : "3px 3px 0 #1A0A3C",
+                        boxShadow: role === r.id ? `3px 3px 0 ${T.purple}` : "3px 3px 0 #000000",
                         transition: "all 0.15s", textAlign: "center",
                       }}>
                       <div style={{ fontSize: 22, marginBottom: 2 }}>{r.emoji}</div>
                       <div style={{
                         fontSize: 13, fontWeight: 800,
-                        color: role === r.id ? T.purpleL : T.text,
+                        color: role === r.id ? T.purple : T.text,
                       }}>{r.label}</div>
                       <div style={{ fontSize: 10, color: T.sub, marginTop: 1 }}>{r.desc}</div>
                     </button>
@@ -286,23 +271,23 @@ export default function LoginScreen() {
           {/* Error */}
           {error && (
             <div style={{
-              background: `${T.red}22`, border: `2px solid ${T.red}`,
+              background: "#FFFFFF", border: `3px solid ${T.red}`,
               borderRadius: 12, padding: "10px 14px",
-              fontSize: 13, color: "#FCA5A5", marginBottom: 14,
-              fontWeight: 700,
+              fontSize: 13, color: T.red, marginBottom: 14,
+              fontWeight: 700, boxShadow: `3px 3px 0 ${T.red}`,
             }}>
-              ⚠️ {error}
+              {error}
             </div>
           )}
 
           {resetSent && (
             <div style={{
-              background: `${T.green}22`, border: `2px solid ${T.green}`,
+              background: "#FFFFFF", border: `3px solid ${T.green}`,
               borderRadius: 12, padding: "10px 14px",
-              fontSize: 13, color: T.greenL, marginBottom: 14,
-              fontWeight: 700,
+              fontSize: 13, color: T.green, marginBottom: 14,
+              fontWeight: 700, boxShadow: `3px 3px 0 ${T.green}`,
             }}>
-              ✅ Reset email sent! Check your inbox.
+              Reset email sent! Check your inbox.
             </div>
           )}
 
@@ -315,16 +300,16 @@ export default function LoginScreen() {
               width: "100%", padding: "13px 0",
               background: loading || !email || !password
                 ? T.border
-                : "linear-gradient(135deg,#7C3AED,#5B21B6)",
-              border: "3px solid #1A0A3C",
+                : T.purple,
+              border: "3px solid #000000",
               borderRadius: 14, color: "white",
               fontSize: 17, fontWeight: 800, cursor: "pointer",
               fontFamily: "'Fredoka One', cursive",
-              boxShadow: loading || !email || !password ? "none" : "4px 4px 0 #1A0A3C",
+              boxShadow: loading || !email || !password ? "none" : "4px 4px 0 #000000",
               opacity: loading || !email || !password ? 0.5 : 1,
               transition: "all 0.15s",
             }}>
-            {loading ? "⏳ One moment..." : mode === "login" ? "🎁 Sign In" : "🚀 Create Account"}
+            {loading ? "One moment..." : mode === "login" ? "Sign In" : "Create Account"}
           </button>
 
           {/* Forgot password */}
@@ -333,7 +318,7 @@ export default function LoginScreen() {
               <button type="button" onClick={handleForgotPassword}
                 style={{
                   background: "none", border: "none",
-                  color: T.purpleL, cursor: "pointer",
+                  color: T.purple, cursor: "pointer",
                   fontSize: 13, fontWeight: 700,
                   fontFamily: "'Nunito', sans-serif",
                   textDecoration: "underline",
@@ -347,8 +332,8 @@ export default function LoginScreen() {
         {/* Footer */}
         <div style={{ textAlign: "center", marginTop: 16, fontSize: 12, color: T.sub }}>
           By signing up you agree to our{" "}
-          <a href="/terms" style={{ color: T.purpleL }}>Terms</a> and{" "}
-          <a href="/privacy" style={{ color: T.purpleL }}>Privacy Policy</a>
+          <a href="/terms" style={{ color: T.purple }}>Terms</a> and{" "}
+          <a href="/privacy" style={{ color: T.purple }}>Privacy Policy</a>
         </div>
       </div>
     </div>

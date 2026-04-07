@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { T } from "../lib/theme";
 import TeacherFlyerAndEditor from "./TeacherFlyerAndEditor";
 
 // ─── EmojiInput ─────────────────────────────────────────────────────────────
@@ -14,13 +15,13 @@ function EmojiInput({ value, onChange, placeholder = "🎁", C }) {
     setError(null); return true;
   };
   const handleChange = (str) => { validate(str); onChange(str); };
-  const border = C ? `1.5px solid ${error ? C.red : C.border}` : `1.5px solid ${error ? "#EF4444" : "#334155"}`;
+  const border = C ? `1.5px solid ${error ? C.red : C.border}` : `1.5px solid ${error ? "#EF4444" : "#222222"}`;
   return (
     <div>
       <input type="text" value={value} onChange={e => handleChange(e.target.value)}
         placeholder={placeholder}
-        style={{ width:"100%", background:"#0F172A", border, borderRadius:8,
-          padding:"9px 12px", fontSize:20, color:"#F1F5F9",
+        style={{ width:"100%", background:"#FFFFFF", border, borderRadius:8,
+          padding:"9px 12px", fontSize:20, color:"#111111",
           fontFamily:"Nunito, sans-serif", outline:"none",
           textAlign:"center", boxSizing:"border-box", transition:"border-color 0.2s" }}/>
       {error && <div style={{ marginTop:5, fontSize:11, color:"#EF4444", fontWeight:700 }}>{error}</div>}
@@ -130,8 +131,8 @@ export default function TeacherDashboard({ profile }) {
   };
 
   const C = {
-    bg:"#0F172A", panel:"#1E293B", border:"#334155",
-    text:"#F1F5F9", sub:"#94A3B8", accent:"#6366F1",
+    bg:"#FFFFFF", panel:"#F5F5F5", border:"#222222",
+    text:"#111111", sub:"#555555", accent:"#0033CC",
     green:"#10B981", gold:"#F59E0B", red:"#EF4444",
   };
 
@@ -159,7 +160,7 @@ export default function TeacherDashboard({ profile }) {
 
   const inp = (val, onChange, placeholder, type="text") => (
     <input type={type} value={val} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
-      style={{ width:"100%", background:"#0F172A", border:`1.5px solid ${C.border}`,
+      style={{ width:"100%", background:"#FFFFFF", border:`1.5px solid ${C.border}`,
         borderRadius:8, padding:"9px 12px", fontSize:14, color:C.text,
         fontFamily:"Nunito, sans-serif", outline:"none" }}/>
   );
@@ -176,13 +177,12 @@ export default function TeacherDashboard({ profile }) {
       <style>{fontCSS}</style>
 
       {/* Header */}
-      <div style={{ background:"linear-gradient(135deg, #1E293B, #0F172A)",
+      <div style={{ background:"#F5F5F5",
         borderBottom:`2px solid ${C.border}`, padding:"16px 24px",
         display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
         <div>
           <div style={{ fontFamily:"Fredoka One, cursive", fontSize:26,
-            background:"linear-gradient(135deg, #6366F1, #F59E0B)",
-            WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+            color:"#0033CC" }}>
             🎁 Digital Prize Box
           </div>
           <div style={{ fontSize:12, color:C.sub }}>
@@ -190,12 +190,12 @@ export default function TeacherDashboard({ profile }) {
           </div>
         </div>
         <div style={{ display:"flex", gap:10, alignItems:"center" }}>
-          <div style={{ background:"#1E293B", border:`1px solid ${C.border}`,
+          <div style={{ background:"#F5F5F5", border:`1px solid ${C.border}`,
             borderRadius:10, padding:"8px 16px", textAlign:"center" }}>
             <div style={{ fontSize:11, color:C.sub }}>Class Box</div>
             <div style={{ fontFamily:"Fredoka One, cursive", fontSize:20, color:C.gold }}>$34.00</div>
           </div>
-          <div style={{ background:"#1E293B", border:`1px solid ${C.border}`,
+          <div style={{ background:"#F5F5F5", border:`1px solid ${C.border}`,
             borderRadius:10, padding:"8px 16px", textAlign:"center" }}>
             <div style={{ fontSize:11, color:C.sub }}>Students</div>
             <div style={{ fontFamily:"Fredoka One, cursive", fontSize:20, color:C.green }}>{students.length}</div>
@@ -229,7 +229,7 @@ export default function TeacherDashboard({ profile }) {
                 <div>
                   {lbl("Category")}
                   <select value={newPrize.category} onChange={e=>setNewPrize(p=>({...p,category:e.target.value}))}
-                    style={{ width:"100%", background:"#0F172A", border:`1.5px solid ${C.border}`,
+                    style={{ width:"100%", background:"#FFFFFF", border:`1.5px solid ${C.border}`,
                       borderRadius:8, padding:"9px 12px", fontSize:14, color:C.text,
                       fontFamily:"Nunito, sans-serif", outline:"none" }}>
                     {CATEGORIES.map(c=><option key={c}>{c}</option>)}
@@ -267,12 +267,12 @@ export default function TeacherDashboard({ profile }) {
             <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(220px, 1fr))", gap:14}}>
               {prizes.map(prize=>(
                 <div key={prize.id} style={{ background:C.panel,
-                  border:`1px solid ${prize.active?C.border:"#1E293B"}`,
+                  border:`1px solid ${prize.active?C.border:"#F5F5F5"}`,
                   borderRadius:14, overflow:"hidden", opacity:prize.active?1:0.5,
                   animation:"pop 0.3s ease" }}>
                   {prize.photo
                     ? <img src={prize.photo} alt="" style={{width:"100%",height:120,objectFit:"cover"}}/>
-                    : <div style={{height:80, background:"#162032", display:"flex",
+                    : <div style={{height:80, background:"#F5F5F5", display:"flex",
                         alignItems:"center", justifyContent:"center", fontSize:32}}>
                         {prize.physical?"🎁":"💻"}
                       </div>}
@@ -419,7 +419,7 @@ export default function TeacherDashboard({ profile }) {
                     cursor:"pointer", fontFamily:"Fredoka One, cursive" }}>+{n}</button>
                 ))}
                 <input type="number" value={bonusAmount} onChange={e=>setBonusAmount(Number(e.target.value))}
-                  style={{ width:80, background:"#0F172A", border:`1.5px solid ${C.border}`,
+                  style={{ width:80, background:"#FFFFFF", border:`1.5px solid ${C.border}`,
                     borderRadius:8, padding:"8px 12px", fontSize:14, color:C.text,
                     fontFamily:"Nunito, sans-serif", outline:"none", textAlign:"center" }}/>
               </div>
@@ -466,10 +466,10 @@ export default function TeacherDashboard({ profile }) {
       {/* Toast */}
       {toast && (
         <div style={{ position:"fixed", bottom:30, left:"50%", transform:"translateX(-50%)",
-          background:"linear-gradient(135deg, #6366F1, #8B5CF6)",
+          background:"#0033CC",
           color:"white", borderRadius:30, padding:"12px 28px",
           fontFamily:"Fredoka One, cursive", fontSize:16,
-          boxShadow:"0 8px 30px rgba(99,102,241,0.5)",
+          boxShadow:"0 8px 30px rgba(0,51,204,0.5)",
           animation:"pop 0.3s ease", zIndex:9999, whiteSpace:"nowrap" }}>{toast}</div>
       )}
     </div>

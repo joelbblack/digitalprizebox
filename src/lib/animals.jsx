@@ -496,7 +496,7 @@ export const unlockedAnimals = (totalChores) =>
 // ── Loading screen ────────────────────────────────────────────────────────────
 export const LoadingScreen = ({ message = "Loading…" }) => (
   <div style={{
-    minHeight: "100vh", background: T.sky,
+    minHeight: "100vh", background: "#F5F5F5",
     display: "flex", flexDirection: "column",
     alignItems: "center", justifyContent: "center",
     gap: 20, fontFamily: "'Nunito', sans-serif",
@@ -506,7 +506,7 @@ export const LoadingScreen = ({ message = "Loading…" }) => (
       <PrizeBox size={80}/>
     </div>
     <div style={{
-      fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.text,
+      fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#111111",
     }}>{message}</div>
     <div style={{ display: "flex", gap: 8 }}>
       {[0,1,2].map(i => (
@@ -514,7 +514,7 @@ export const LoadingScreen = ({ message = "Loading…" }) => (
           width: 0, height: 0,
           borderLeft: "6px solid transparent",
           borderRight: "6px solid transparent",
-          borderBottom: `12px solid ${[T.red, T.yellow, T.green][i]}`,
+          borderBottom: `12px solid ${["#EF4444", "#FFDD00", "#10B981"][i]}`,
           animation: `bounce 0.8s ${i * 0.2}s ease-in-out infinite`,
         }}/>
       ))}

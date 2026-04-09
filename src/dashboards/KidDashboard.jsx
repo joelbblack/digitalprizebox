@@ -481,6 +481,8 @@ export default function KidDashboard({ kid, onRefresh }) {
     <div style={{
       minHeight: "100vh",
       background: "#FFFFFF",
+      backgroundImage: "radial-gradient(circle, #00000008 1.2px, transparent 1.2px)",
+      backgroundSize: "10px 10px",
       fontFamily: "'Nunito', sans-serif",
       overflowX: "hidden",
     }}>

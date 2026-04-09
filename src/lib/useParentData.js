@@ -173,10 +173,10 @@ export function useParentData(userId) {
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
-  const addKid = async ({ name, avatar, grade, birthday, pin }) => {
+  const addKid = async ({ name, avatar, animal_id, grade, birthday, pin }) => {
     const { data, error } = await supabase
       .from("kids")
-      .insert({ parent_id: userId, name, avatar, grade, birthday, pin })
+      .insert({ parent_id: userId, name, avatar, animal_id: animal_id || "fox", grade, birthday, pin })
       .select()
       .single();
     if (error) throw error;

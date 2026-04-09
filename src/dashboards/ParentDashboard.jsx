@@ -14,8 +14,9 @@ import { useState, useEffect } from "react";
 import { fontCSS, T }          from "../lib/theme";
 import {
   Fox, Bear, StarField, Toast, Confetti,
-  ANIMALS, getAnimal,
+  ANIMALS, getAnimal, unlockedAnimals,
 } from "../lib/animals";
+import { benday } from "../lib/theme";
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 const Lbl = ({ children }) => (
@@ -87,7 +88,8 @@ const CHORE_PRESETS = [
   { emoji: "📞", name: "Call Grandma",        orange: 30 },
 ];
 
-const AVATARS = ["🦊","🐼","🦋","🐸","🦄","🐯","🦁","🐨","🦝","🐺","🐻","🦙"];
+// Free animals available for avatar selection
+const AVATAR_ANIMALS = ANIMALS.filter(a => a.free || a.choreThreshold <= 25);
 
 // ── Overview tab ──────────────────────────────────────────────────────────────
 function OverviewTab({ kids, profile }) {
@@ -164,7 +166,7 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
   const [showAdd,     setShowAdd]     = useState(false);
   const [showAddKid,  setShowAddKid]  = useState(false);
   const [newChore,    setNewChore]    = useState({ name: "", emoji: "🧹", orange: 10, kidId: "" });
-  const [newKid,      setNewKid]      = useState({ name: "", avatar: "🦊", grade: "", pin: "" });
+  const [newKid,      setNewKid]      = useState({ name: "", animal_id: "fox", grade: "", pin: "" });
   const [addingKid,   setAddingKid]   = useState(false);
 
   const visible   = chores.filter(c => selected === "all" || c.kidId === selected);
@@ -201,8 +203,8 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
     if (!newKid.name.trim()) { showToast("⚠️ Enter a name"); return; }
     setAddingKid(true);
     try {
-      await onAddKid(newKid);
-      setNewKid({ name: "", avatar: "🦊", grade: "", pin: "" });
+      await onAddKid({ ...newKid, avatar: "🐾" });
+      setNewKid({ name: "", animal_id: "fox", grade: "", pin: "" });
       setShowAddKid(false);
       showToast("✅ Kid added!");
     } catch { showToast("❌ Failed to add kid"); }
@@ -249,15 +251,21 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
               placeholder="1234" style={{ letterSpacing: 4, fontWeight: 800 }}/>
           </div>
           <div style={{ marginBottom: 16 }}>
-            <Lbl>Avatar</Lbl>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {AVATARS.map(a => (
-                <button type="button" key={a} onClick={() => setNewKid(p => ({ ...p, avatar: a }))} style={{
-                  fontSize: 28,
-                  background: newKid.avatar === a ? `${T.purple}22` : "transparent",
-                  border: `3px solid ${newKid.avatar === a ? T.purpleL : T.border}`,
-                  borderRadius: 10, padding: "6px 10px", cursor: "pointer",
-                }}>{a}</button>
+            <Lbl>Choose an Animal</Lbl>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {AVATAR_ANIMALS.map(a => (
+                <button type="button" key={a.id} onClick={() => setNewKid(p => ({ ...p, animal_id: a.id }))} style={{
+                  background: newKid.animal_id === a.id ? `${a.color}22` : "#FFFFFF",
+                  border: `3px solid ${newKid.animal_id === a.id ? a.color : T.border}`,
+                  borderRadius: 14, padding: "8px 12px", cursor: "pointer",
+                  boxShadow: newKid.animal_id === a.id ? `3px 3px 0 ${a.color}` : "3px 3px 0 #000000",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                }}>
+                  <a.Component size={36}/>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: newKid.animal_id === a.id ? a.color : T.sub }}>
+                    {a.name}
+                  </div>
+                </button>
               ))}
             </div>
           </div>
@@ -314,7 +322,7 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
                         fontFamily: "'Nunito', sans-serif",
                         display: "flex", alignItems: "center", gap: 6,
                       }}>
-                      {k.avatar} {k.name}
+                      {(() => { const a = getAnimal(k.animal_id || "fox"); return <a.Component size={18}/>; })()} {k.name}
                     </button>
                   ))}
                 </div>
@@ -343,7 +351,7 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
             borderRadius: 30, padding: "7px 16px", fontSize: 13,
             fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
             display: "flex", alignItems: "center", gap: 6,
-          }}>{k.avatar} {k.name}</button>
+          }}>{(() => { const a = getAnimal(k.animal_id || "fox"); return <a.Component size={18}/>; })()} {k.name}</button>
         ))}
       </div>
 
@@ -461,7 +469,7 @@ function JarsTab({ kids, proposals, showToast, onApproveProposal, onDeclinePropo
             borderRadius: 30, padding: "8px 18px", fontSize: 13,
             fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
             display: "flex", alignItems: "center", gap: 6,
-          }}>{k.avatar} {k.name}</button>
+          }}>{(() => { const a = getAnimal(k.animal_id || "fox"); return <a.Component size={18}/>; })()} {k.name}</button>
         ))}
       </div>
 
@@ -649,7 +657,7 @@ function AwardTab({ kids, showToast, onAwardOrange }) {
     const kid = kids.find(k => k.id === selectedKid);
     try {
       await onAwardOrange(selectedKid, amt, reason);
-      setJustAwarded({ name: kid.name, avatar: kid.avatar, amount: amt, reason });
+      setJustAwarded({ name: kid.name, animal_id: kid.animal_id || "fox", amount: amt, reason });
       showToast(`🟠 +${amt} orange → ${kid.name}!`);
       setReason("");
       setTimeout(() => setJustAwarded(null), 3000);
@@ -669,7 +677,7 @@ function AwardTab({ kids, showToast, onAwardOrange }) {
           display: "flex", alignItems: "center", gap: 16,
           animation: "pop 0.5s ease", boxShadow: "4px 4px 0 #000000",
         }}>
-          <div style={{ fontSize: 44 }}>{justAwarded.avatar}</div>
+          <div>{(() => { const a = getAnimal(justAwarded.animal_id || "fox"); return <a.Component size={44}/>; })()}</div>
           <div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: T.orangeL }}>
               +{justAwarded.amount} orange to {justAwarded.name}!
@@ -697,7 +705,7 @@ function AwardTab({ kids, showToast, onAwardOrange }) {
               borderRadius: 30, padding: "8px 16px", fontSize: 14,
               fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
               display: "flex", alignItems: "center", gap: 6,
-            }}>{k.avatar} {k.name}</button>
+            }}>{(() => { const a = getAnimal(k.animal_id || "fox"); return <a.Component size={18}/>; })()} {k.name}</button>
           ))}
         </div>
         <Lbl>Amount</Lbl>
@@ -858,7 +866,7 @@ function GreenTab({ kids }) {
       }}>
         {kids.map(k => (
           <Card key={k.id} style={{ marginBottom: 0, textAlign: "center" }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>{k.avatar}</div>
+            <div style={{ marginBottom: 8 }}>{(() => { const a = getAnimal(k.animal_id || "fox"); return <a.Component size={48}/>; })()}</div>
             <div style={{ fontWeight: 800, fontSize: 16, color: T.text, marginBottom: 4 }}>{k.name}</div>
             <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, color: T.greenL }}>
               ${((k.greenBalance || 0) / 100).toFixed(2)}
@@ -920,7 +928,7 @@ function FamilyTab({ kids, familyMembers, showToast, onInviteFamilyMember }) {
               borderRadius: 30, padding: "8px 18px", fontSize: 13,
               fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito', sans-serif",
               display: "flex", alignItems: "center", gap: 6,
-            }}>{k.avatar} {k.name}</button>
+            }}>{(() => { const a = getAnimal(k.animal_id || "fox"); return <a.Component size={18}/>; })()} {k.name}</button>
           ))}
         </div>
       )}
@@ -1044,6 +1052,7 @@ export default function ParentDashboard({
       minHeight: "100vh", background: T.sky,
       color: T.text, fontFamily: "'Nunito', sans-serif",
       paddingBottom: 60,
+      ...benday("#00000008", 10, 1.2),
     }}>
       <style>{fontCSS}</style>
       <Confetti active={confetti}/>

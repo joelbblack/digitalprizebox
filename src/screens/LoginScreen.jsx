@@ -35,7 +35,8 @@ export default function LoginScreen() {
     setLoading(true); setError(null);
     const { error } = await signIn(email, password);
     if (error) { setError(error.message); setLoading(false); return; }
-    navigate("/dashboard");
+    // Full reload ensures auth state is cleanly picked up
+    window.location.href = "/dashboard";
   };
 
   const handleSignUp = async () => {

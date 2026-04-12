@@ -57,7 +57,7 @@ export default function App() {
               <ProtectedRoute><DashboardRouter /></ProtectedRoute>
             }/>
             <Route path="/setup" element={
-              <ProtectedRoute><SetupScreen /></ProtectedRoute>
+              <ProtectedRoute allowIncompleteSetup><SetupScreen /></ProtectedRoute>
             }/>
             <Route path="/pick-role" element={
               <ProtectedRoute><RolePicker /></ProtectedRoute>

@@ -8,7 +8,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState }            from "react";
-import { useNavigate }         from "react-router-dom";
 import { useAuth, supabase }   from "../lib/auth";
 import { fontCSS, T, PRICING } from "../lib/theme";
 import { PrizeBox, StarField, Bear, Crane, Fox } from "../lib/animals";
@@ -115,8 +114,7 @@ const rowInput = {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function SetupScreen() {
-  const { profile, refresh } = useAuth();
-  const navigate             = useNavigate();
+  const { profile } = useAuth();
   const role                 = profile?.role || "parent";
 
   const isTeacher    = role === "teacher" || role === "both";
@@ -211,8 +209,8 @@ export default function SetupScreen() {
         // Will be handled in parent dashboard
       }
 
-      await refresh();
-      navigate("/dashboard");
+      // Full page reload so AuthProvider picks up the updated profile
+      window.location.replace("/dashboard");
     } catch (err) {
       console.error(err);
       setError("Something went wrong. Please try again.");
@@ -242,6 +240,7 @@ export default function SetupScreen() {
           {role === "teacher" && "Let's set up your classroom. You'll be awarding Orange Bucks in no time."}
           {role === "both" && "You've got both parent and teacher access. Let's set everything up."}
           {role === "principal" && "Your school dashboard is ready. Let's configure it."}
+          {(role === "superintendent" || role === "district") && "Let's set up your district dashboard. You'll have visibility across all your schools."}
         </div>
         <button type="button" onClick={() => setStep(1)} style={nextBtn}>
           Let's Go! 🚀

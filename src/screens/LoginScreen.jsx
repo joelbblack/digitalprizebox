@@ -4,7 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState }              from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { supabase }              from "../lib/auth";
 import { fontCSS, T }            from "../lib/theme";
 import { PrizeBox, StarField }   from "../lib/animals";
@@ -18,7 +18,6 @@ const ROLES = [
 ];
 
 export default function LoginScreen() {
-  const navigate          = useNavigate();
   const [params]          = useSearchParams();
   const joinCode          = params.get("join") || "";
   const defaultMode       = params.get("mode") === "signup" ? "signup" : "login";
@@ -101,6 +100,7 @@ export default function LoginScreen() {
       }
     }
 
+    // Full reload so AuthProvider picks up the new session
     window.location.replace("/setup");
   };
 

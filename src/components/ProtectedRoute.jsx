@@ -6,7 +6,7 @@ import { Navigate }         from "react-router-dom";
 import { useAuth }          from "../lib/auth";
 import { LoadingScreen }    from "../lib/animals";
 
-export default function ProtectedRoute({ children, allowedRoles }) {
+export default function ProtectedRoute({ children, allowedRoles, allowIncompleteSetup }) {
   const { session, profile, loading, profileState } = useAuth();
 
   // ALWAYS wait for auth to finish loading — never redirect while loading
@@ -22,10 +22,12 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   }
 
   // Logged in but no profile row → needs onboarding
-  if (profileState === "missing") return <Navigate to="/setup" replace />;
+  if (!allowIncompleteSetup && profileState === "missing") {
+    return <Navigate to="/setup" replace />;
+  }
 
   // Profile exists but hasn't completed setup
-  if (profile && !profile.signup_fee_paid && profile.plan === "free") {
+  if (!allowIncompleteSetup && profile && !profile.signup_fee_paid && profile.plan === "free") {
     return <Navigate to="/setup" replace />;
   }
 

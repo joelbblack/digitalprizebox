@@ -25,26 +25,36 @@ export function AuthProvider({ children }) {
   const [profileState, setProfileState] = useState("none");
 
   useEffect(() => {
+    let initialLoadDone = false;
+
     // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id).then(() => { initialLoadDone = true; });
       } else {
         setLoading(false);
+        initialLoadDone = true;
       }
-    });
+    }).catch(() => { setLoading(false); });
 
     // Auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         if (session) {
-          // For OAuth signups, we may need to create the users row
-          if (event === "SIGNED_IN") {
-            await ensureProfileExists(session.user);
+          try {
+            if (event === "SIGNED_IN") {
+              await ensureProfileExists(session.user);
+            }
+            // Skip if initial load already handled this
+            if (!initialLoadDone || event !== "INITIAL_SESSION") {
+              await fetchProfile(session.user.id);
+            }
+          } catch (err) {
+            console.error("Auth state change error:", err);
+            setLoading(false);
           }
-          fetchProfile(session.user.id);
         } else {
           setProfile(null);
           setProfileState("none");
@@ -58,23 +68,26 @@ export function AuthProvider({ children }) {
 
   // Ensure a users row exists for OAuth users
   async function ensureProfileExists(authUser) {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id")
-      .eq("auth_id", authUser.id)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("auth_id", authUser.id)
+        .single();
 
-    if (error && error.code === "PGRST116") {
-      // No row exists — create one with defaults
-      const meta = authUser.user_metadata || {};
-      await supabase.from("users").insert({
-        auth_id:      authUser.id,
-        email:        authUser.email,
-        display_name: meta.display_name || meta.full_name || authUser.email?.split("@")[0],
-        role:         meta.role || "parent",
-        account_type: meta.role === "teacher" ? "classroom" : "family",
-        plan:         "free",
-      });
+      if (error && error.code === "PGRST116") {
+        const meta = authUser.user_metadata || {};
+        await supabase.from("users").insert({
+          auth_id:      authUser.id,
+          email:        authUser.email,
+          display_name: meta.display_name || meta.full_name || authUser.email?.split("@")[0],
+          role:         meta.role || "parent",
+          account_type: meta.role === "teacher" ? "classroom" : "family",
+          plan:         "free",
+        });
+      }
+    } catch (err) {
+      console.error("ensureProfileExists error:", err);
     }
   }
 

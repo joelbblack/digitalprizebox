@@ -16,9 +16,9 @@ import { fontCSS }                           from "./lib/theme";
 // Eagerly loaded (always needed)
 import LoginScreen    from "./screens/LoginScreen";
 import DashboardRouter from "./screens/DashboardRouter";
+import LandingPage    from "./screens/LandingPage";
 
 // Lazily loaded
-const LandingPage           = lazy(() => import("./screens/LandingPage"));
 const SetupScreen           = lazy(() => import("./screens/SetupScreen"));
 const RolePicker            = lazy(() => import("./screens/RolePicker"));
 const JoinPage              = lazy(() => import("./screens/JoinPage"));

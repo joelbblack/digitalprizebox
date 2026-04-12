@@ -39,18 +39,30 @@ export default function LoginScreen() {
   const [error,    setError]    = useState(null);
   const [resetSent,setResetSent]= useState(false);
 
+  const [debugLog, setDebugLog] = useState([]);
+  const addDebug = (msg) => setDebugLog(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
+
   const handleLogin = async () => {
     setLoading(true); setError(null);
+    addDebug("Starting sign-in...");
     try {
+      addDebug("Calling signInWithPassword...");
       const { data, error } = await signIn(email, password);
+      addDebug(`signIn returned. error=${error?.message || "none"}, session=${!!data?.session}`);
       if (error) { setError(error.message); setLoading(false); return; }
-      // signInWithPassword sets session automatically.
-      // The useEffect above will detect the session and navigate to /dashboard.
-      // If it doesn't fire within 4 seconds, do a hard redirect as fallback.
+      if (data?.session) {
+        addDebug("Got session directly from signIn, redirecting...");
+        window.location.href = "/dashboard";
+        return;
+      }
+      addDebug("No session in response, waiting for onAuthStateChange...");
+      // Fallback: hard redirect after 4 seconds
       setTimeout(() => {
+        addDebug("Fallback timeout fired, redirecting...");
         window.location.href = "/dashboard";
       }, 4000);
     } catch (err) {
+      addDebug(`Caught exception: ${err.message}`);
       setError(err.message || "Login failed — check your connection");
       setLoading(false);
     }
@@ -354,6 +366,22 @@ export default function LoginScreen() {
           <a href="/terms" style={{ color: T.purple }}>Terms</a> and{" "}
           <a href="/privacy" style={{ color: T.purple }}>Privacy Policy</a>
         </div>
+
+        {/* Debug panel — temporary */}
+        {debugLog.length > 0 && (
+          <div style={{
+            marginTop: 16, background: "#111", color: "#0f0",
+            fontFamily: "monospace", fontSize: 11, padding: 12,
+            borderRadius: 8, maxHeight: 200, overflow: "auto",
+            whiteSpace: "pre-wrap", wordBreak: "break-all",
+          }}>
+            <div style={{ color: "#ff0", marginBottom: 4 }}>DEBUG LOG:</div>
+            <div>authLoading: {String(authLoading)}</div>
+            <div>session: {session ? "YES" : "null"}</div>
+            <div>---</div>
+            {debugLog.map((line, i) => <div key={i}>{line}</div>)}
+          </div>
+        )}
       </div>
     </div>
   );

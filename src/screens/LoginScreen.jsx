@@ -35,11 +35,17 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     setLoading(true); setError(null);
     try {
-      const { error } = await signIn(email, password);
+      const { data, error } = await signIn(email, password);
       if (error) { setError(error.message); setLoading(false); return; }
-      // Wait for session to persist, then reload
-      await new Promise(r => setTimeout(r, 500));
-      window.location.href = "/dashboard";
+      // Verify session is actually persisted before redirecting
+      for (let i = 0; i < 10; i++) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) { window.location.href = "/dashboard"; return; }
+        await new Promise(r => setTimeout(r, 300));
+      }
+      // If we get here, session never persisted
+      setError("Login succeeded but session failed to save. Please try again.");
+      setLoading(false);
     } catch (err) {
       setError(err.message || "Login failed — check your connection");
       setLoading(false);

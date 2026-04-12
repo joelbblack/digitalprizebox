@@ -1,14 +1,9 @@
 // ─── src/lib/auth.js ──────────────────────────────────────────────────────────
-// Fixed from original:
-//  ✅ Handles PGRST116 (no profile row) → redirects to /setup instead of looping
-//  ✅ refresh() fetches fresh session instead of closing over stale one
-//  ✅ Superintendent role added to isX helpers
-//  ✅ GitHub OAuth creates users row after OAuth redirect
-//  ✅ Profile null state is explicit, not ambiguous
+// Simplified auth provider — single code path, no race conditions.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient }                           from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 
 export const supabase = createClient(
   process.env.REACT_APP_SUPABASE_URL,
@@ -23,38 +18,45 @@ export function AuthProvider({ children }) {
   const [loading,  setLoading]  = useState(true);
   // "none" | "loading" | "missing" | "loaded"
   const [profileState, setProfileState] = useState("none");
+  const fetchingRef = useRef(false);
+
+  async function fetchProfile(authId) {
+    // Prevent concurrent fetches
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+    setProfileState("loading");
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("auth_id", authId)
+        .single();
+
+      if (error) {
+        console.error("Profile fetch error:", error);
+        setProfileState("missing");
+        setProfile(null);
+      } else {
+        setProfile(data);
+        setProfileState("loaded");
+      }
+    } catch (err) {
+      console.error("Profile fetch exception:", err);
+      setProfileState("missing");
+      setProfile(null);
+    }
+    fetchingRef.current = false;
+    setLoading(false);
+  }
 
   useEffect(() => {
-    let initialLoadDone = false;
-
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        fetchProfile(session.user.id).then(() => { initialLoadDone = true; });
-      } else {
-        setLoading(false);
-        initialLoadDone = true;
-      }
-    }).catch(() => { setLoading(false); });
-
-    // Auth state listener
+    // Single code path: use onAuthStateChange for everything.
+    // It fires INITIAL_SESSION on mount, then SIGNED_IN / SIGNED_OUT later.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        if (session) {
-          try {
-            if (event === "SIGNED_IN") {
-              await ensureProfileExists(session.user);
-            }
-            // Skip if initial load already handled this
-            if (!initialLoadDone || event !== "INITIAL_SESSION") {
-              await fetchProfile(session.user.id);
-            }
-          } catch (err) {
-            console.error("Auth state change error:", err);
-            setLoading(false);
-          }
+      async (event, newSession) => {
+        setSession(newSession);
+        if (newSession) {
+          await fetchProfile(newSession.user.id);
         } else {
           setProfile(null);
           setProfileState("none");
@@ -63,62 +65,24 @@ export function AuthProvider({ children }) {
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Safety net: if onAuthStateChange never fires, stop loading after 5s
+    const safetyTimeout = setTimeout(() => {
+      setLoading(prev => {
+        if (prev) console.warn("Auth safety timeout — forcing loading=false");
+        return false;
+      });
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(safetyTimeout);
+    };
   }, []);
-
-  // Ensure a users row exists for OAuth users
-  async function ensureProfileExists(authUser) {
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id")
-        .eq("auth_id", authUser.id)
-        .single();
-
-      if (error && error.code === "PGRST116") {
-        const meta = authUser.user_metadata || {};
-        await supabase.from("users").insert({
-          auth_id:      authUser.id,
-          email:        authUser.email,
-          display_name: meta.display_name || meta.full_name || authUser.email?.split("@")[0],
-          role:         meta.role || "parent",
-          account_type: meta.role === "teacher" ? "classroom" : "family",
-          plan:         "free",
-        });
-      }
-    } catch (err) {
-      console.error("ensureProfileExists error:", err);
-    }
-  }
-
-  async function fetchProfile(authId) {
-    setProfileState("loading");
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("auth_id", authId)
-      .single();
-
-    if (error) {
-      if (error.code === "PGRST116") {
-        // No profile row yet — new user needs setup
-        setProfileState("missing");
-        setProfile(null);
-      } else {
-        console.error("Profile fetch error:", error);
-        setProfileState("missing");
-        setProfile(null);
-      }
-    } else {
-      setProfile(data);
-      setProfileState("loaded");
-    }
-    setLoading(false);
-  }
 
   async function refresh() {
     const { data: { session: freshSession } } = await supabase.auth.getSession();
     if (freshSession) {
+      fetchingRef.current = false; // allow re-fetch
       await fetchProfile(freshSession.user.id);
     }
   }
@@ -127,7 +91,7 @@ export function AuthProvider({ children }) {
     session,
     profile,
     loading,
-    profileState,  // expose so components can show "setup" vs "error" states
+    profileState,
     user: session?.user || null,
 
     // Role helpers — all handle "both"
@@ -135,7 +99,7 @@ export function AuthProvider({ children }) {
     isTeacher:       profile?.role === "teacher" || profile?.role === "both",
     isPrincipal:     profile?.role === "principal",
     isSuperintendent:profile?.role === "superintendent" || profile?.role === "district",
-    isKid:           false, // kids use PIN login, not Supabase auth
+    isKid:           false,
 
     // Auth actions
     signIn:  (email, password) =>

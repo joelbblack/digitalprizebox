@@ -9,10 +9,11 @@ import { fontCSS, T }            from "../lib/theme";
 import { PrizeBox, StarField }   from "../lib/animals";
 
 const ROLES = [
-  { id: "parent",    emoji: "🏠", label: "Parent",      desc: "Manage kids at home"       },
-  { id: "teacher",   emoji: "🏫", label: "Teacher",     desc: "Run a classroom"            },
-  { id: "both",      emoji: "🔄", label: "Both",        desc: "Parent & teacher"           },
-  { id: "principal", emoji: "🎓", label: "Principal",   desc: "Manage a school"            },
+  { id: "parent",         emoji: "🏠", label: "Parent",          desc: "Manage kids at home"       },
+  { id: "teacher",        emoji: "🏫", label: "Teacher",         desc: "Run a classroom"            },
+  { id: "both",           emoji: "🔄", label: "Both",            desc: "Parent & teacher"           },
+  { id: "principal",      emoji: "🎓", label: "Principal",       desc: "Manage a school"            },
+  { id: "superintendent", emoji: "🏛️", label: "Superintendent",  desc: "Manage a district"          },
 ];
 
 export default function LoginScreen() {
@@ -33,10 +34,16 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     setLoading(true); setError(null);
-    const { error } = await signIn(email, password);
-    if (error) { setError(error.message); setLoading(false); return; }
-    // Full reload ensures auth state is cleanly picked up
-    window.location.href = "/dashboard";
+    try {
+      const { error } = await signIn(email, password);
+      if (error) { setError(error.message); setLoading(false); return; }
+      // Wait for session to persist, then reload
+      await new Promise(r => setTimeout(r, 500));
+      window.location.href = "/dashboard";
+    } catch (err) {
+      setError(err.message || "Login failed — check your connection");
+      setLoading(false);
+    }
   };
 
   const handleSignUp = async () => {
@@ -51,7 +58,8 @@ export default function LoginScreen() {
     if (signUpError) { setError(signUpError.message); setLoading(false); return; }
 
     if (data.user) {
-      const accountType = role === "teacher" || role === "principal" ? "classroom"
+      const accountType = role === "superintendent" ? "district"
+                        : role === "teacher" || role === "principal" ? "classroom"
                         : role === "both" ? "both" : "family";
 
       const { data: userRow, error: profileError } = await supabase

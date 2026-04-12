@@ -186,6 +186,178 @@ function HowItWorks() {
   );
 }
 
+function DashboardTour() {
+  const dashboards = [
+    {
+      title: "Kid Dashboard",
+      color: T.coral,
+      accent: "#FFDD00",
+      desc: "Kids open their prize box, track chores, watch their jar grow, and unlock new animals.",
+      features: ["Prize Box with confetti", "Orange + Green balances", "Wishlist jars with progress bars", "Animal collection unlocks"],
+      mockup: (
+        <div style={{ padding: 12, background: "#FFFFFF", borderRadius: 12, border: "2px solid #000" }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <div style={{ flex: 1, background: `${T.orange}22`, border: `2px solid ${T.orange}`, borderRadius: 8, padding: "6px", textAlign: "center" }}>
+              <div style={{ fontSize: 8, color: T.orange, fontWeight: 700 }}>ORANGE</div>
+              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 16, color: T.orange }}>142</div>
+            </div>
+            <div style={{ flex: 1, background: `${T.green}22`, border: `2px solid ${T.green}`, borderRadius: 8, padding: "6px", textAlign: "center" }}>
+              <div style={{ fontSize: 8, color: T.green, fontWeight: 700 }}>GREEN</div>
+              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 16, color: T.green }}>$4.50</div>
+            </div>
+          </div>
+          <div style={{ background: `${T.gold}18`, border: `2px solid ${T.gold}`, borderRadius: 8, padding: "6px 8px", marginBottom: 6 }}>
+            <div style={{ fontSize: 8, fontWeight: 700, color: T.gold }}>⭐ Lego Set Jar</div>
+            <div style={{ background: "#eee", borderRadius: 4, height: 6, marginTop: 3 }}>
+              <div style={{ width: "68%", height: "100%", background: T.gold, borderRadius: 4 }}/>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+            {["🦊","🐸","🐻","🐯","❓","❓"].map((e,i) => (
+              <div key={i} style={{ width: 20, height: 20, background: i < 4 ? `${T.purple}18` : "#f0f0f0",
+                border: `1.5px solid ${i < 4 ? T.purple : "#ddd"}`, borderRadius: 4, fontSize: 10,
+                display: "flex", alignItems: "center", justifyContent: "center" }}>{e}</div>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Parent Dashboard",
+      color: T.green,
+      accent: T.orange,
+      desc: "Parents manage kids, approve chores, load green bucks, and control the reward flow.",
+      features: ["Kid cards with balances", "Chore approval queue", "Wishlist jar management", "Award orange bucks"],
+      mockup: (
+        <div style={{ padding: 12, background: "#FFFFFF", borderRadius: 12, border: "2px solid #000" }}>
+          {["Juju","Jaxy","Jetty"].map((name,i) => (
+            <div key={name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 0",
+              borderBottom: i < 2 ? "1px solid #eee" : "none" }}>
+              <div style={{ width: 22, height: 22, background: [T.orange,T.green,T.purple][i],
+                borderRadius: 6, border: "1.5px solid #000" }}/>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 800 }}>{name}</div>
+                <div style={{ fontSize: 8, color: T.sub }}>🟠 {[42,87,15][i]} · 🟢 ${[2.50,1.00,4.00][i]}</div>
+              </div>
+              <div style={{ fontSize: 8, color: T.green, fontWeight: 700 }}>✅ {[3,7,1][i]} chores</div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      title: "Teacher Dashboard",
+      color: T.purple,
+      accent: T.blue,
+      desc: "Teachers manage their classroom, award orange bucks, and track the class goal.",
+      features: ["Classroom roster", "Award orange to students", "Class goal meter", "QR code join flyer"],
+      mockup: (
+        <div style={{ padding: 12, background: "#FFFFFF", borderRadius: 12, border: "2px solid #000" }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+            {["Roster","Awards","Goal","Flyer"].map((t,i) => (
+              <div key={t} style={{ fontSize: 8, fontWeight: 700, padding: "3px 6px", borderRadius: 4,
+                background: i === 0 ? T.purple : "transparent", color: i === 0 ? "#fff" : T.sub,
+                border: `1.5px solid ${i === 0 ? T.purple : "#ddd"}` }}>{t}</div>
+            ))}
+          </div>
+          <div style={{ background: `${T.gold}18`, border: `2px solid ${T.gold}`, borderRadius: 8, padding: "6px 8px", marginBottom: 6 }}>
+            <div style={{ fontSize: 8, fontWeight: 700, color: T.gold }}>🎯 Pizza Party</div>
+            <div style={{ background: "#eee", borderRadius: 4, height: 6, marginTop: 3 }}>
+              <div style={{ width: "45%", height: "100%", background: "linear-gradient(90deg,#FFD700,#F97316)", borderRadius: 4 }}/>
+            </div>
+          </div>
+          <div style={{ fontSize: 8, color: T.sub, textAlign: "center", marginTop: 4 }}>22 students · $12.00 PBIS pool</div>
+        </div>
+      ),
+    },
+    {
+      title: "Principal Dashboard",
+      color: T.blue,
+      accent: T.gold,
+      desc: "Principals manage teachers, load PBIS budgets, and track school-wide engagement.",
+      features: ["Teacher management", "PBIS budget distribution", "School goal tracking", "Engagement reports"],
+      mockup: (
+        <div style={{ padding: 12, background: "#FFFFFF", borderRadius: 12, border: "2px solid #000" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 8 }}>
+            {[{l:"Teachers",v:"8",c:T.purple},{l:"Students",v:"186",c:T.orange},{l:"PBIS Pool",v:"$420",c:T.green},{l:"Goal",v:"72%",c:T.gold}].map(s => (
+              <div key={s.l} style={{ background: `${s.c}15`, border: `1.5px solid ${s.c}`, borderRadius: 6, padding: "4px", textAlign: "center" }}>
+                <div style={{ fontSize: 7, color: s.c, fontWeight: 700 }}>{s.l}</div>
+                <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 14, color: s.c }}>{s.v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Superintendent Dashboard",
+      color: "#0033CC",
+      accent: T.blue,
+      desc: "District-wide read-only view across all schools, teachers, and PBIS budgets.",
+      features: ["Multi-school overview", "District-wide reports", "Tier-based pricing", "Engagement analytics"],
+      mockup: (
+        <div style={{ padding: 12, background: "#FFFFFF", borderRadius: 12, border: "2px solid #000" }}>
+          {["Lincoln Elementary","Washington Middle","Roosevelt High"].map((name,i) => (
+            <div key={name} style={{ display: "flex", alignItems: "center", gap: 6, padding: "4px 0",
+              borderLeft: `4px solid ${T.blue}`, paddingLeft: 8, marginBottom: i < 2 ? 4 : 0 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 9, fontWeight: 800 }}>{name}</div>
+                <div style={{ fontSize: 7, color: T.sub }}>{[4,6,8][i]} teachers · {[92,148,210][i]} students</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <section style={{ maxWidth: 1100, margin: "0 auto", padding: "80px 40px" }}>
+      <div style={{ textAlign: "center", marginBottom: 60 }}>
+        <div style={{
+          display: "inline-block",
+          background: "#FFFFFF", border: `3px solid ${T.coral}`,
+          borderRadius: 50, padding: "6px 16px",
+          fontSize: 13, fontWeight: 700, color: T.coral,
+          fontFamily: "'Nunito', sans-serif", marginBottom: 16,
+          boxShadow: "3px 3px 0 #000000",
+        }}>Dashboard Tour</div>
+        <h2 style={{ fontFamily: "'Fredoka One', cursive",
+          fontSize: "clamp(28px,4vw,48px)", color: T.text }}>
+          A dashboard for everyone.
+        </h2>
+        <p style={{ color: T.sub, fontSize: 16, fontFamily: "'Nunito', sans-serif", marginTop: 8 }}>
+          From kids earning prizes to superintendents tracking districts.
+        </p>
+      </div>
+      <div style={{ display: "grid",
+        gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 20 }}>
+        {dashboards.map((d, i) => (
+          <div key={d.title} className="land-card" style={{
+            borderTop: `6px solid ${d.color}`,
+            animation: `reveal 0.5s ${i * 0.08}s ease both`,
+          }}>
+            <div style={{ marginBottom: 12 }}>{d.mockup}</div>
+            <h3 style={{ fontFamily: "'Fredoka One', cursive",
+              fontSize: 18, color: d.color, marginBottom: 6 }}>{d.title}</h3>
+            <p style={{ fontSize: 13, color: T.sub, lineHeight: 1.6,
+              fontFamily: "'Nunito', sans-serif", marginBottom: 12 }}>{d.desc}</p>
+            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+              {d.features.map(f => (
+                <li key={f} style={{ display: "flex", gap: 8, alignItems: "center",
+                  fontSize: 12, color: T.sub, fontFamily: "'Nunito', sans-serif" }}>
+                  <span style={{ color: d.color, flexShrink: 0, fontWeight: 700 }}>✓</span>{f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+
 function WhoItsFor() {
   const groups = [
     { emoji: "🏠", title: "Families", color: T.green, Animal: Fox,
@@ -490,6 +662,7 @@ export default function LandingPage() {
         <Nav onGetStarted={goToApp}/>
         <Hero onGetStarted={goToApp}/>
         <HowItWorks/>
+        <DashboardTour/>
         <WhoItsFor/>
         <Pricing onGetStarted={goToApp}/>
         <Waitlist onGetStarted={goToApp}/>

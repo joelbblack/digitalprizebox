@@ -10,7 +10,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   const { session, profile, loading, profileState } = useAuth();
 
   // ALWAYS wait for auth to finish loading — never redirect while loading
-  if (loading) return <LoadingScreen message="Loading your prize box\u2026"/>;
+  if (loading) return <LoadingScreen message="Loading your prize box..."/>;
 
   // Auth resolved. No session = not logged in.
   if (!session) return <Navigate to="/login" replace />;
@@ -18,7 +18,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   // Session exists but profile hasn't loaded yet (shouldn't happen if
   // loading is false, but guard against it)
   if (profileState === "loading" || profileState === "none") {
-    return <LoadingScreen message="Loading your prize box\u2026"/>;
+    return <LoadingScreen message="Loading your prize box..."/>;
   }
 
   // Logged in but no profile row → needs onboarding

@@ -1,9 +1,9 @@
 // ─── src/lib/auth.js ──────────────────────────────────────────────────────────
-// Auth provider: getSession() for initial load, onAuthStateChange for updates.
+// Minimal auth: getSession on mount, no listener. Sign-in/out do full reloads.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient }                           from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export const supabase = createClient(
   process.env.REACT_APP_SUPABASE_URL,
@@ -18,78 +18,73 @@ export function AuthProvider({ children }) {
   const [loading,  setLoading]  = useState(true);
   const [profileState, setProfileState] = useState("none");
 
-  const fetchProfile = useCallback(async (authId) => {
-    setProfileState("loading");
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("auth_id", authId)
-        .single();
-
-      if (error) {
-        console.error("Profile fetch error:", error);
-        setProfileState(error.code === "PGRST116" ? "missing" : "missing");
-        setProfile(null);
-      } else {
-        setProfile(data);
-        setProfileState("loaded");
-      }
-    } catch (err) {
-      console.error("Profile fetch exception:", err);
-      setProfileState("missing");
-      setProfile(null);
-    }
-  }, []);
-
   useEffect(() => {
     let mounted = true;
 
-    // Step 1: Get the initial session (waits for storage to be read)
     async function init() {
       try {
-        const { data: { session: initial } } = await supabase.auth.getSession();
+        // Get session with a 6-second timeout
+        const sessionResult = await Promise.race([
+          supabase.auth.getSession(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 6000)),
+        ]);
+
+        const initial = sessionResult.data?.session;
         if (!mounted) return;
+
         setSession(initial);
+
         if (initial) {
-          await fetchProfile(initial.user.id);
+          // Fetch profile with a 6-second timeout
+          const profileResult = await Promise.race([
+            supabase.from("users").select("*").eq("auth_id", initial.user.id).single(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 6000)),
+          ]);
+
+          if (!mounted) return;
+
+          if (profileResult.error) {
+            console.error("Profile fetch error:", profileResult.error);
+            setProfileState(profileResult.error.code === "PGRST116" ? "missing" : "missing");
+            setProfile(null);
+          } else {
+            setProfile(profileResult.data);
+            setProfileState("loaded");
+          }
         }
       } catch (err) {
-        console.error("Init error:", err);
-      }
-      if (mounted) setLoading(false);
-    }
-    init();
-
-    // Step 2: Listen for changes AFTER initial load (sign in, sign out, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        // Skip the initial event — we handle that in init() above
-        if (event === "INITIAL_SESSION") return;
-
-        if (!mounted) return;
-        setSession(newSession);
-        if (newSession) {
-          await fetchProfile(newSession.user.id);
-          if (mounted) setLoading(false);
-        } else {
+        console.error("Auth init error:", err.message);
+        // On timeout or error, check localStorage directly as fallback
+        if (err.message === "timeout" && mounted) {
+          console.warn("Supabase client timed out — clearing stale auth state");
+          localStorage.clear();
+        }
+        if (mounted) {
           setProfile(null);
           setProfileState("none");
-          setLoading(false);
         }
       }
-    );
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [fetchProfile]);
+      if (mounted) setLoading(false);
+    }
+
+    init();
+    return () => { mounted = false; };
+  }, []);
 
   async function refresh() {
-    const { data: { session: freshSession } } = await supabase.auth.getSession();
-    if (freshSession) {
-      await fetchProfile(freshSession.user.id);
+    try {
+      const { data: { session: s } } = await supabase.auth.getSession();
+      if (s) {
+        const { data, error } = await supabase
+          .from("users").select("*").eq("auth_id", s.user.id).single();
+        if (!error) {
+          setProfile(data);
+          setProfileState("loaded");
+        }
+      }
+    } catch (err) {
+      console.error("Refresh error:", err);
     }
   }
 
@@ -106,11 +101,17 @@ export function AuthProvider({ children }) {
     isSuperintendent:profile?.role === "superintendent" || profile?.role === "district",
     isKid:           false,
 
+    // Sign in/out are NOT used by LoginScreen anymore (it calls supabase directly).
+    // These are kept for other components that might need them.
     signIn:  (email, password) =>
       supabase.auth.signInWithPassword({ email, password }),
     signUp:  (email, password, metadata) =>
       supabase.auth.signUp({ email, password, options: { data: metadata } }),
-    signOut: () => supabase.auth.signOut(),
+    signOut: async () => {
+      await supabase.auth.signOut();
+      localStorage.clear();
+      window.location.replace("/login");
+    },
     refresh,
 
     updateProfile: async (updates) => {

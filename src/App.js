@@ -17,6 +17,9 @@ import { fontCSS }                           from "./lib/theme";
 import LoginScreen    from "./screens/LoginScreen";
 import DashboardRouter from "./screens/DashboardRouter";
 
+// Diagnostic (temporary)
+const DiagnosticPage = lazy(() => import("./screens/DiagnosticPage"));
+
 // Lazily loaded
 const LandingPage           = lazy(() => import("./screens/LandingPage"));
 const SetupScreen           = lazy(() => import("./screens/SetupScreen"));
@@ -51,6 +54,7 @@ export default function App() {
             <Route path="/login"           element={<LoginScreen />} />
             <Route path="/join/:code"      element={<JoinPage />} />
             <Route path="/invite/:token"   element={<FamilyInviteScreen />} />
+            <Route path="/diag"           element={<DiagnosticPage />} />
 
             {/* Auth required — any role */}
             <Route path="/dashboard" element={

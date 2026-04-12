@@ -1,34 +1,27 @@
 // ─── src/screens/LoginScreen.jsx ─────────────────────────────────────────────
 // Pop-art design: bold outlines, flat colors, Ben-Day dot textures.
+// Login calls Supabase directly — no React auth state involved.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect }   from "react";
+import { useState }              from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth, supabase }     from "../lib/auth";
+import { supabase }              from "../lib/auth";
 import { fontCSS, T }            from "../lib/theme";
 import { PrizeBox, StarField }   from "../lib/animals";
 
 const ROLES = [
-  { id: "parent",         emoji: "🏠", label: "Parent",          desc: "Manage kids at home"       },
-  { id: "teacher",        emoji: "🏫", label: "Teacher",         desc: "Run a classroom"            },
-  { id: "both",           emoji: "🔄", label: "Both",            desc: "Parent & teacher"           },
-  { id: "principal",      emoji: "🎓", label: "Principal",       desc: "Manage a school"            },
-  { id: "superintendent", emoji: "🏛️", label: "Superintendent",  desc: "Manage a district"          },
+  { id: "parent",         emoji: "\u{1F3E0}", label: "Parent",          desc: "Manage kids at home"       },
+  { id: "teacher",        emoji: "\u{1F3EB}", label: "Teacher",         desc: "Run a classroom"            },
+  { id: "both",           emoji: "\u{1F504}", label: "Both",            desc: "Parent & teacher"           },
+  { id: "principal",      emoji: "\u{1F393}", label: "Principal",       desc: "Manage a school"            },
+  { id: "superintendent", emoji: "\u{1F3DB}\u{FE0F}", label: "Superintendent",  desc: "Manage a district"          },
 ];
 
 export default function LoginScreen() {
-  const { signIn, signUp, refresh, session, loading: authLoading } = useAuth();
   const navigate          = useNavigate();
   const [params]          = useSearchParams();
   const joinCode          = params.get("join") || "";
   const defaultMode       = params.get("mode") === "signup" ? "signup" : "login";
-
-  // If already logged in, redirect to dashboard
-  useEffect(() => {
-    if (!authLoading && session) {
-      window.location.href = "/dashboard";
-    }
-  }, [authLoading, session]);
 
   const [mode,     setMode]     = useState(defaultMode);
   const [email,    setEmail]    = useState("");
@@ -39,28 +32,34 @@ export default function LoginScreen() {
   const [error,    setError]    = useState(null);
   const [resetSent,setResetSent]= useState(false);
 
+  // ─── LOGIN: call Supabase directly, then full page reload ───
   const handleLogin = async () => {
     setLoading(true); setError(null);
     try {
-      const { error } = await signIn(email, password);
-      if (error) { setError(error.message); setLoading(false); return; }
-      // signIn triggers onAuthStateChange → session updates → useEffect redirects.
-      // Hard redirect as fallback in case React state doesn't propagate.
-      setTimeout(() => { window.location.href = "/dashboard"; }, 2000);
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email, password,
+      });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+      // Success — full page reload so AuthProvider picks up the session cleanly
+      window.location.replace("/dashboard");
     } catch (err) {
-      setError(err.message || "Login failed — check your connection");
+      setError(err.message || "Login failed");
       setLoading(false);
     }
   };
 
+  // ─── SIGNUP: call Supabase directly, create profile, then navigate ───
   const handleSignUp = async () => {
     if (!name.trim()) { setError("What's your name?"); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
     setLoading(true); setError(null);
 
-    const { data, error: signUpError } = await signUp(email, password, {
-      display_name: name,
-      role,
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email, password, options: { data: { display_name: name, role } },
     });
     if (signUpError) { setError(signUpError.message); setLoading(false); return; }
 
@@ -102,7 +101,7 @@ export default function LoginScreen() {
       }
     }
 
-    navigate("/setup");
+    window.location.replace("/setup");
   };
 
   const handleForgotPassword = async () => {
@@ -276,7 +275,7 @@ export default function LoginScreen() {
             <input
               type="password" value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
               style={inp}
               onKeyDown={e => e.key === "Enter" && (mode === "login" ? handleLogin() : handleSignUp())}
               onFocus={e => e.target.style.borderColor = T.purpleL}

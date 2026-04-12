@@ -1,8 +1,5 @@
 // ─── src/components/ProtectedRoute.jsx ───────────────────────────────────────
-// Fixed from original:
-//  ✅ profileState "missing" → /setup instead of infinite /login loop
-//  ✅ Superintendent role handled in allowedRoles check
-//  ✅ Clear loading state with cartoon spinner
+// Guards: waits for auth to fully resolve before making any redirect decision.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { Navigate }         from "react-router-dom";
@@ -12,17 +9,23 @@ import { LoadingScreen }    from "../lib/animals";
 export default function ProtectedRoute({ children, allowedRoles }) {
   const { session, profile, loading, profileState } = useAuth();
 
-  if (loading) return <LoadingScreen message="Loading your prize box…"/>;
+  // ALWAYS wait for auth to finish loading — never redirect while loading
+  if (loading) return <LoadingScreen message="Loading your prize box\u2026"/>;
 
-  // Not logged in at all
+  // Auth resolved. No session = not logged in.
   if (!session) return <Navigate to="/login" replace />;
 
-  // Logged in but no profile row yet → needs onboarding
+  // Session exists but profile hasn't loaded yet (shouldn't happen if
+  // loading is false, but guard against it)
+  if (profileState === "loading" || profileState === "none") {
+    return <LoadingScreen message="Loading your prize box\u2026"/>;
+  }
+
+  // Logged in but no profile row → needs onboarding
   if (profileState === "missing") return <Navigate to="/setup" replace />;
 
-  // Logged in, profile exists but hasn't completed setup
+  // Profile exists but hasn't completed setup
   if (profile && !profile.signup_fee_paid && profile.plan === "free") {
-    // Allow /setup through regardless
     return <Navigate to="/setup" replace />;
   }
 

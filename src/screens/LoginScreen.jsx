@@ -26,9 +26,9 @@ export default function LoginScreen() {
   // If already logged in, redirect to dashboard
   useEffect(() => {
     if (!authLoading && session) {
-      navigate("/dashboard", { replace: true });
+      window.location.href = "/dashboard";
     }
-  }, [authLoading, session, navigate]);
+  }, [authLoading, session]);
 
   const [mode,     setMode]     = useState(defaultMode);
   const [email,    setEmail]    = useState("");

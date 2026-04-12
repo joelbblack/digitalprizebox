@@ -1,9 +1,9 @@
 // ─── src/lib/auth.js ──────────────────────────────────────────────────────────
-// Simplified auth provider — single code path, no race conditions.
+// Auth provider: getSession() for initial load, onAuthStateChange for updates.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient }                           from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
 export const supabase = createClient(
   process.env.REACT_APP_SUPABASE_URL,
@@ -16,14 +16,9 @@ export function AuthProvider({ children }) {
   const [session,  setSession]  = useState(null);
   const [profile,  setProfile]  = useState(null);
   const [loading,  setLoading]  = useState(true);
-  // "none" | "loading" | "missing" | "loaded"
   const [profileState, setProfileState] = useState("none");
-  const fetchingRef = useRef(false);
 
-  async function fetchProfile(authId) {
-    // Prevent concurrent fetches
-    if (fetchingRef.current) return;
-    fetchingRef.current = true;
+  const fetchProfile = useCallback(async (authId) => {
     setProfileState("loading");
     try {
       const { data, error } = await supabase
@@ -34,7 +29,7 @@ export function AuthProvider({ children }) {
 
       if (error) {
         console.error("Profile fetch error:", error);
-        setProfileState("missing");
+        setProfileState(error.code === "PGRST116" ? "missing" : "missing");
         setProfile(null);
       } else {
         setProfile(data);
@@ -45,18 +40,38 @@ export function AuthProvider({ children }) {
       setProfileState("missing");
       setProfile(null);
     }
-    fetchingRef.current = false;
-    setLoading(false);
-  }
+  }, []);
 
   useEffect(() => {
-    // Single code path: use onAuthStateChange for everything.
-    // It fires INITIAL_SESSION on mount, then SIGNED_IN / SIGNED_OUT later.
+    let mounted = true;
+
+    // Step 1: Get the initial session (waits for storage to be read)
+    async function init() {
+      try {
+        const { data: { session: initial } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        setSession(initial);
+        if (initial) {
+          await fetchProfile(initial.user.id);
+        }
+      } catch (err) {
+        console.error("Init error:", err);
+      }
+      if (mounted) setLoading(false);
+    }
+    init();
+
+    // Step 2: Listen for changes AFTER initial load (sign in, sign out, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        // Skip the initial event — we handle that in init() above
+        if (event === "INITIAL_SESSION") return;
+
+        if (!mounted) return;
         setSession(newSession);
         if (newSession) {
           await fetchProfile(newSession.user.id);
+          if (mounted) setLoading(false);
         } else {
           setProfile(null);
           setProfileState("none");
@@ -65,24 +80,15 @@ export function AuthProvider({ children }) {
       }
     );
 
-    // Safety net: if onAuthStateChange never fires, stop loading after 5s
-    const safetyTimeout = setTimeout(() => {
-      setLoading(prev => {
-        if (prev) console.warn("Auth safety timeout — forcing loading=false");
-        return false;
-      });
-    }, 5000);
-
     return () => {
+      mounted = false;
       subscription.unsubscribe();
-      clearTimeout(safetyTimeout);
     };
-  }, []);
+  }, [fetchProfile]);
 
   async function refresh() {
     const { data: { session: freshSession } } = await supabase.auth.getSession();
     if (freshSession) {
-      fetchingRef.current = false; // allow re-fetch
       await fetchProfile(freshSession.user.id);
     }
   }
@@ -94,14 +100,12 @@ export function AuthProvider({ children }) {
     profileState,
     user: session?.user || null,
 
-    // Role helpers — all handle "both"
     isParent:        profile?.role === "parent" || profile?.role === "both",
     isTeacher:       profile?.role === "teacher" || profile?.role === "both",
     isPrincipal:     profile?.role === "principal",
     isSuperintendent:profile?.role === "superintendent" || profile?.role === "district",
     isKid:           false,
 
-    // Auth actions
     signIn:  (email, password) =>
       supabase.auth.signInWithPassword({ email, password }),
     signUp:  (email, password, metadata) =>
@@ -109,7 +113,6 @@ export function AuthProvider({ children }) {
     signOut: () => supabase.auth.signOut(),
     refresh,
 
-    // Profile actions
     updateProfile: async (updates) => {
       if (!profile) return;
       const { error } = await supabase

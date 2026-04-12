@@ -1,8 +1,14 @@
-// Temporary diagnostic page — shows raw Supabase state from the browser.
-// Visit /diag to see it. Remove when login is fixed.
+// Temporary diagnostic page — uses its OWN Supabase client to avoid
+// any interference from AuthProvider's shared client.
 
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/auth";
+import { createClient } from "@supabase/supabase-js";
+
+// Fresh client — not the shared one from auth.js
+const freshSupabase = createClient(
+  process.env.REACT_APP_SUPABASE_URL,
+  process.env.REACT_APP_SUPABASE_ANON_KEY
+);
 
 export default function DiagnosticPage() {
   const [log, setLog] = useState([]);
@@ -10,57 +16,64 @@ export default function DiagnosticPage() {
 
   useEffect(() => {
     async function run() {
-      add("Starting diagnostics...");
+      add("Starting diagnostics with FRESH Supabase client...");
 
-      // 1. Test basic Supabase connectivity
-      add("1. Testing Supabase connection...");
+      // 0. Show localStorage state
+      const keys = Object.keys(localStorage).filter(k => k.includes("supabase") || k.includes("sb-"));
+      add(`0. localStorage keys with 'supabase'/'sb-': ${keys.length > 0 ? keys.join(", ") : "none"}`);
+
+      // 1. Test basic connectivity with a simple fetch (no Supabase client)
+      add("1. Raw fetch to Supabase REST API...");
       try {
         const start = Date.now();
-        const { data, error } = await supabase.from("users").select("count").limit(1);
+        const resp = await fetch(
+          `${process.env.REACT_APP_SUPABASE_URL}/rest/v1/users?select=id&limit=1`,
+          {
+            headers: {
+              "apikey": process.env.REACT_APP_SUPABASE_ANON_KEY,
+              "Authorization": `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`,
+            },
+          }
+        );
         const ms = Date.now() - start;
-        add(`   Result: ${error ? `ERROR: ${error.message}` : `OK (${ms}ms)`}`);
+        const body = await resp.text();
+        add(`   Status: ${resp.status} (${ms}ms) Body: ${body.substring(0, 100)}`);
       } catch (e) {
-        add(`   Exception: ${e.message}`);
+        add(`   Fetch failed: ${e.message}`);
       }
 
-      // 2. Check session
-      add("2. Checking session...");
+      // 2. Test Supabase JS client query
+      add("2. Supabase JS client query (fresh client)...");
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          add(`   Session error: ${error.message}`);
-        } else if (session) {
-          add(`   Session found: ${session.user.email}`);
-          add(`   User ID: ${session.user.id}`);
-          add(`   Token expires: ${new Date(session.expires_at * 1000).toLocaleString()}`);
+        const start = Date.now();
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("TIMEOUT after 5s")), 5000)
+        );
+        const query = freshSupabase.from("users").select("id").limit(1);
+        const result = await Promise.race([query, timeout]);
+        const ms = Date.now() - start;
+        add(`   Result (${ms}ms): ${JSON.stringify(result.data || result.error?.message)}`);
+      } catch (e) {
+        add(`   Error: ${e.message}`);
+      }
 
-          // 3. Fetch profile with this session
-          add("3. Fetching profile...");
-          try {
-            const start = Date.now();
-            const { data: profile, error: profErr } = await supabase
-              .from("users")
-              .select("*")
-              .eq("auth_id", session.user.id)
-              .single();
-            const ms = Date.now() - start;
-            if (profErr) {
-              add(`   Profile error (${ms}ms): ${profErr.message} [${profErr.code}]`);
-            } else {
-              add(`   Profile found (${ms}ms): ${profile.display_name}, role=${profile.role}`);
-              add(`   signup_fee_paid=${profile.signup_fee_paid}, plan=${profile.plan}`);
-            }
-          } catch (e) {
-            add(`   Profile exception: ${e.message}`);
-          }
+      // 3. Test getSession
+      add("3. Testing getSession (fresh client)...");
+      try {
+        const start = Date.now();
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("TIMEOUT after 5s")), 5000)
+        );
+        const sessionCall = freshSupabase.auth.getSession();
+        const { data } = await Promise.race([sessionCall, timeout]);
+        const ms = Date.now() - start;
+        if (data?.session) {
+          add(`   Session found (${ms}ms): ${data.session.user.email}`);
         } else {
-          add("   No session — not logged in");
-
-          // 3b. Try signing in
-          add("3. No session. Try logging in below.");
+          add(`   No session (${ms}ms)`);
         }
       } catch (e) {
-        add(`   Session exception: ${e.message}`);
+        add(`   Error: ${e.message}`);
       }
 
       add("Done.");
@@ -73,21 +86,30 @@ export default function DiagnosticPage() {
   const [loginResult, setLoginResult] = useState("");
 
   const tryLogin = async () => {
-    setLoginResult("Signing in...");
+    setLoginResult("Signing in with fresh client...");
     try {
       const start = Date.now();
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pw });
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("TIMEOUT after 10s")), 10000)
+      );
+      const signInCall = freshSupabase.auth.signInWithPassword({ email, password: pw });
+      const { data, error } = await Promise.race([signInCall, timeout]);
       const ms = Date.now() - start;
       if (error) {
         setLoginResult(`Error (${ms}ms): ${error.message}`);
       } else {
-        setLoginResult(`Success (${ms}ms)! Session: ${!!data.session}, User: ${data.user?.email}`);
-        // Re-run diagnostics
-        setTimeout(() => window.location.reload(), 1500);
+        setLoginResult(`SUCCESS (${ms}ms)! User: ${data.user?.email}, Session: ${!!data.session}`);
       }
     } catch (e) {
       setLoginResult(`Exception: ${e.message}`);
     }
+  };
+
+  const clearStorage = () => {
+    const before = localStorage.length;
+    localStorage.clear();
+    sessionStorage.clear();
+    add(`Cleared localStorage (had ${before} items) and sessionStorage`);
   };
 
   return (
@@ -95,6 +117,14 @@ export default function DiagnosticPage() {
       <h2 style={{ color: "#ff0", marginBottom: 16 }}>Digital Prize Box - Diagnostics</h2>
       <div style={{ marginBottom: 24 }}>
         {log.map((line, i) => <div key={i} style={{ marginBottom: 4 }}>{line}</div>)}
+      </div>
+
+      <div style={{ borderTop: "1px solid #333", paddingTop: 16, marginBottom: 24 }}>
+        <button onClick={clearStorage}
+          style={{ background: "#600", color: "#fff", border: "1px solid #f00", padding: "8px 16px", cursor: "pointer", fontFamily: "monospace", marginBottom: 16 }}>
+          CLEAR ALL localStorage + sessionStorage
+        </button>
+        <p style={{ color: "#888", fontSize: 11 }}>Click this, then reload the page and run diagnostics again.</p>
       </div>
 
       <div style={{ borderTop: "1px solid #333", paddingTop: 16 }}>

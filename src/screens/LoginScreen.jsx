@@ -2,7 +2,7 @@
 // Pop-art design: bold outlines, flat colors, Ben-Day dot textures.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState }              from "react";
+import { useState, useEffect }   from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, supabase }     from "../lib/auth";
 import { fontCSS, T }            from "../lib/theme";
@@ -17,11 +17,18 @@ const ROLES = [
 ];
 
 export default function LoginScreen() {
-  const { signIn, signUp, refresh } = useAuth();
+  const { signIn, signUp, refresh, session, loading: authLoading } = useAuth();
   const navigate          = useNavigate();
   const [params]          = useSearchParams();
   const joinCode          = params.get("join") || "";
   const defaultMode       = params.get("mode") === "signup" ? "signup" : "login";
+
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    if (!authLoading && session) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [authLoading, session, navigate]);
 
   const [mode,     setMode]     = useState(defaultMode);
   const [email,    setEmail]    = useState("");

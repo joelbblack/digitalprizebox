@@ -115,14 +115,10 @@ export const fontCSS = `
 
 // ── Pricing constants ─────────────────────────────────────────────────────────
 export const PRICING = {
-  family:              { signup: 499,    monthly: 199,    label: "Family",              color: "#10B981" },
-  teacher:             { signup: 999,    monthly: 399,    label: "Teacher",             color: "#0033CC" },
-  school:              { signup: 0,      monthly: 4900,   label: "School",              color: "#F59E0B" },
-  district_micro:      { signup: 0,      monthly: 29900,  label: "District — Micro",    color: "#3B82F6" },
-  district_small:      { signup: 0,      monthly: 59900,  label: "District — Small",    color: "#3B82F6" },
-  district_medium:     { signup: 0,      monthly: 149900, label: "District — Medium",   color: "#3B82F6" },
-  district_large:      { signup: 0,      monthly: 399900, label: "District — Large",    color: "#3B82F6" },
-  district_enterprise: { signup: 0,      monthly: null,   label: "District — Enterprise", color: "#FF1493" },
+  school_family:       { signup: 0,      monthly: 99,     label: "School Family",       color: "#10B981" },
+  home_only:           { signup: 0,      monthly: 499,    label: "Home Only",           color: "#F59E0B" },
+  classroom:           { signup: 0,      monthly: 999,    label: "Classroom",           color: "#0033CC" },
+  school_district:     { signup: 0,      monthly: null,   label: "School / District",   color: "#3B82F6" },
 };
 
 // ── District tier lookup ──────────────────────────────────────────────────────

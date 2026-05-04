@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 //  💻 Digital = instant codes   — green only, Tango Card, +convenience fee
 // ──────────────────────────────────────────────────────────────────────────────
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3001";
+const API_BASE = "";
 
 const fontCSS = `
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');

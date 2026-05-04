@@ -12,6 +12,21 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase }                         from "./auth";
 
+const AFFILIATE_TAG = "digitalprizeb-20";
+
+// Append affiliate tag to Amazon URLs. Leaves non-Amazon URLs untouched.
+function tagAmazonUrl(url) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes("amazon.")) return url;
+    u.searchParams.set("tag", AFFILIATE_TAG);
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
 const DEFAULT_REWARDS = [
   { id: "hr1", emoji: "🎮", label: "Extra Game Time (30 min)", orange_cost: 40  },
   { id: "hr2", emoji: "🌙", label: "Stay Up 30 Min Late",      orange_cost: 60  },
@@ -102,7 +117,7 @@ export function useParentData(userId) {
             desc:           j.product_desc,
             orangeRequired: j.orange_required,
             priceDisplay:   `$${((j.product_price_cents || 0) / 100).toFixed(2)}`,
-            amazonUrl:      j.amazon_url,
+            amazonUrl:      tagAmazonUrl(j.amazon_url),
           },
           orangeConfirmed: j.orange_confirmed || 0,
           orangePending:   j.orange_pending   || 0,
@@ -173,13 +188,41 @@ export function useParentData(userId) {
 
   // ── Actions ──────────────────────────────────────────────────────────────
 
-  const addKid = async ({ name, avatar, animal_id, grade, birthday, pin }) => {
+  const addKid = async ({ name, avatar, animal_id, grade, birthday, pin, joinCode }) => {
+    // If a join code is provided, look up the teacher first
+    let teacherId = null;
+    if (joinCode && joinCode.trim()) {
+      const { data: teacherRow, error: teacherErr } = await supabase
+        .from("teachers")
+        .select("id")
+        .eq("join_code", joinCode.trim().toUpperCase())
+        .single();
+      if (teacherErr || !teacherRow) {
+        throw new Error("Invalid join code. Please check with your teacher and try again.");
+      }
+      teacherId = teacherRow.id;
+    }
+
     const { data, error } = await supabase
       .from("kids")
-      .insert({ parent_id: userId, name, avatar, animal_id: animal_id || "fox", grade, birthday, pin })
+      .insert({
+        parent_id: userId, name, avatar, animal_id: animal_id || "fox",
+        grade, birthday, pin,
+        teacher_id: teacherId, // legacy direct link
+      })
       .select()
       .single();
     if (error) throw error;
+
+    // If teacher found via join code, create class membership
+    if (teacherId) {
+      await supabase.from("class_memberships").insert({
+        kid_id:          data.id,
+        teacher_id:      teacherId,
+        joined_via_code: joinCode.trim().toUpperCase(),
+        is_active:       true,
+      });
+    }
 
     // Default orange caps
     await supabase.from("orange_caps").insert([

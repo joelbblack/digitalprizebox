@@ -166,7 +166,7 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
   const [showAdd,     setShowAdd]     = useState(false);
   const [showAddKid,  setShowAddKid]  = useState(false);
   const [newChore,    setNewChore]    = useState({ name: "", emoji: "🧹", orange: 10, kidId: "" });
-  const [newKid,      setNewKid]      = useState({ name: "", animal_id: "fox", grade: "", pin: "" });
+  const [newKid,      setNewKid]      = useState({ name: "", animal_id: "fox", grade: "", pin: "", joinCode: "" });
   const [addingKid,   setAddingKid]   = useState(false);
 
   const visible   = chores.filter(c => selected === "all" || c.kidId === selected);
@@ -204,10 +204,10 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
     setAddingKid(true);
     try {
       await onAddKid({ ...newKid, avatar: "🐾" });
-      setNewKid({ name: "", animal_id: "fox", grade: "", pin: "" });
+      setNewKid({ name: "", animal_id: "fox", grade: "", pin: "", joinCode: "" });
       setShowAddKid(false);
       showToast("✅ Kid added!");
-    } catch { showToast("❌ Failed to add kid"); }
+    } catch (err) { showToast(`❌ ${err.message || "Failed to add kid"}`); }
     setAddingKid(false);
   };
 
@@ -249,6 +249,16 @@ function ChoresTab({ kids, chores, showToast, onAddKid, onAddChore, onApproveCho
             <Lbl>4-Digit PIN (for kid login)</Lbl>
             <Field value={newKid.pin} onChange={v => setNewKid(p => ({ ...p, pin: v.replace(/\D/g,"").slice(0,4) }))}
               placeholder="1234" style={{ letterSpacing: 4, fontWeight: 800 }}/>
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <Lbl>Teacher Join Code (optional)</Lbl>
+            <Field value={newKid.joinCode}
+              onChange={v => setNewKid(p => ({ ...p, joinCode: v.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6) }))}
+              placeholder="e.g. ABC123"
+              style={{ letterSpacing: 3, fontWeight: 800, textTransform: "uppercase" }}/>
+            <div style={{ fontSize: 11, color: T.sub, marginTop: 4 }}>
+              Got a code from your kid's teacher? Enter it to link them to the classroom.
+            </div>
           </div>
           <div style={{ marginBottom: 16 }}>
             <Lbl>Choose an Animal</Lbl>

@@ -95,7 +95,7 @@ module.exports = async function handler(req, res) {
   const { error: txErr } = await supabase.from("green_transactions").insert({
     kid_id: kidId,
     parent_id: kid.parent_id,
-    type: "load",
+    type: "topup",
     stripe_payment_intent_id: paymentIntentId,
     amount_cents: amountCents,
     status: "complete",

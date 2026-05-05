@@ -38,13 +38,14 @@ const DEFAULT_REWARDS = [
 ];
 
 export function useParentData(userId) {
-  const [kids,          setKids]          = useState([]);
-  const [chores,        setChores]        = useState([]);
-  const [proposals,     setProposals]     = useState([]);
-  const [rewards,       setRewards]       = useState([]);
-  const [familyMembers, setFamilyMembers] = useState([]);
-  const [loading,       setLoading]       = useState(true);
-  const [error,         setError]         = useState(null);
+  const [kids,            setKids]            = useState([]);
+  const [chores,          setChores]          = useState([]);
+  const [proposals,       setProposals]       = useState([]);
+  const [rewards,         setRewards]         = useState([]);
+  const [familyMembers,   setFamilyMembers]   = useState([]);
+  const [greenDeposits,   setGreenDeposits]   = useState([]);
+  const [loading,         setLoading]         = useState(true);
+  const [error,           setError]           = useState(null);
 
   const fetchAll = useCallback(async () => {
     if (!userId) return;
@@ -103,6 +104,24 @@ export function useParentData(userId) {
         if (!membersError) membersData = data || [];
       }
 
+      // ── Recent green deposits (last 10 across all this parent's kids) ──────
+      let depositsData = [];
+      if (kidIds.length > 0) {
+        const { data, error: depErr } = await supabase
+          .from("green_transactions")
+          .select(`
+            id, kid_id, amount_cents, created_at, loaded_by_user_id,
+            kids(name, animal_id),
+            users:loaded_by_user_id(id, display_name)
+          `)
+          .in("kid_id", kidIds)
+          .eq("type", "topup")
+          .eq("status", "complete")
+          .order("created_at", { ascending: false })
+          .limit(10);
+        if (!depErr) depositsData = data || [];
+      }
+
       // ── Normalize ────────────────────────────────────────────────────────────
       const normalizedKids = (kidsData || []).map(k => ({
         ...k,
@@ -145,11 +164,23 @@ export function useParentData(userId) {
       const normalizedRewards = (rewardsData?.length > 0 ? rewardsData : DEFAULT_REWARDS)
         .map(r => ({ ...r, orange: r.orange_cost || r.orange }));
 
+      const normalizedDeposits = depositsData.map(d => ({
+        id:           d.id,
+        kidId:        d.kid_id,
+        kidName:      d.kids?.name || "—",
+        kidAnimalId:  d.kids?.animal_id || "fox",
+        amountCents:  d.amount_cents || 0,
+        createdAt:    d.created_at,
+        loaderId:     d.loaded_by_user_id,
+        loaderName:   d.users?.display_name || (d.loaded_by_user_id ? "Family member" : "—"),
+      }));
+
       setKids(normalizedKids);
       setChores(normalizedChores);
       setProposals(normalizedProposals);
       setRewards(normalizedRewards);
       setFamilyMembers(membersData);
+      setGreenDeposits(normalizedDeposits);
       setError(null);
     } catch (err) {
       console.error("Parent data fetch error:", err);
@@ -180,6 +211,11 @@ export function useParentData(userId) {
       supabase.channel(`proposals_${userId}`)
         .on("postgres_changes", { event: "*", schema: "public", table: "jar_proposals" },
           fetchAll)
+        .subscribe(),
+
+      supabase.channel(`green_tx_${userId}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "green_transactions",
+          filter: `parent_id=eq.${userId}` }, fetchAll)
         .subscribe(),
     ];
 
@@ -444,7 +480,7 @@ export function useParentData(userId) {
   };
 
   return {
-    kids, chores, proposals, rewards, familyMembers,
+    kids, chores, proposals, rewards, familyMembers, greenDeposits,
     loading, error,
     setKids, setChores, setProposals, setRewards,
     addKid, updateKid, addChore,

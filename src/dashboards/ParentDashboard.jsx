@@ -863,7 +863,17 @@ function RewardsTab({ rewards, showToast, onAddReward, onDeleteReward }) {
 }
 
 // ── Green tab ─────────────────────────────────────────────────────────────────
-function GreenTab({ kids, showToast }) {
+function timeAgo(iso) {
+  if (!iso) return "";
+  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 60)        return "just now";
+  if (diff < 3600)      return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400)     return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 86400 * 7) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function GreenTab({ kids, deposits = [], showToast }) {
   const QUICK_AMOUNTS = [5, 10, 25, 50];
   const [selectedKid, setSelectedKid] = useState(kids[0]?.id || null);
   const [amount,      setAmount]      = useState(10);
@@ -1013,6 +1023,44 @@ function GreenTab({ kids, showToast }) {
           </div>
         </Card>
       )}
+
+      {/* Recent deposits */}
+      {deposits.length > 0 && (
+        <Card style={{ marginTop: 20 }}>
+          <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 16, color: T.text, marginBottom: 4 }}>
+            📜 Recent Deposits
+          </div>
+          <div style={{ fontSize: 12, color: T.sub, marginBottom: 14 }}>
+            Last {deposits.length} green-dollar load{deposits.length === 1 ? "" : "s"} across your kids.
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {deposits.map(d => {
+              const animal = getAnimal(d.kidAnimalId);
+              return (
+                <div key={d.id} style={{
+                  display: "flex", alignItems: "center", gap: 12,
+                  padding: "10px 12px",
+                  background: T.panel,
+                  border: `2px solid ${T.border}`,
+                  borderRadius: 12,
+                }}>
+                  <animal.Component size={32}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: T.text }}>
+                      <span style={{ color: T.greenL }}>+${(d.amountCents / 100).toFixed(2)}</span>
+                      {" → "}
+                      {d.kidName}
+                    </div>
+                    <div style={{ fontSize: 11, color: T.sub, marginTop: 2 }}>
+                      from {d.loaderName} · {timeAgo(d.createdAt)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
@@ -1144,7 +1192,7 @@ function FamilyTab({ kids, familyMembers, showToast, onInviteFamilyMember }) {
 // ── Main dashboard ────────────────────────────────────────────────────────────
 export default function ParentDashboard({
   profile, onSignOut,
-  kids, chores, proposals, rewards, familyMembers,
+  kids, chores, proposals, rewards, familyMembers, greenDeposits = [],
   error,
   addKid, addChore, approveChore, rejectChore,
   awardOrange, approveProposal, declineProposal,
@@ -1323,7 +1371,7 @@ export default function ParentDashboard({
           onDeleteReward={deleteHomeReward}/>}
         {tab === "award"    && <AwardTab kids={kids}
           showToast={showToast} onAwardOrange={awardOrange}/>}
-        {tab === "green"    && <GreenTab kids={kids} showToast={showToast}/>}
+        {tab === "green"    && <GreenTab kids={kids} deposits={greenDeposits} showToast={showToast}/>}
         {tab === "family"   && <FamilyTab kids={kids} familyMembers={familyMembers}
           showToast={showToast} onInviteFamilyMember={inviteFamilyMember}/>}
       </div>

@@ -91,6 +91,11 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: "Kid has no parent_id" });
   }
 
+  // Stripe returns metadata strings; treat empty as null
+  const loadedByUserId = meta.loadedByUserId && meta.loadedByUserId.length > 0
+    ? meta.loadedByUserId
+    : null;
+
   // Record the transaction (acts as the idempotency key on retry)
   const { error: txErr } = await supabase.from("green_transactions").insert({
     kid_id: kidId,
@@ -99,6 +104,7 @@ module.exports = async function handler(req, res) {
     stripe_payment_intent_id: paymentIntentId,
     amount_cents: amountCents,
     status: "complete",
+    loaded_by_user_id: loadedByUserId,
   });
 
   if (txErr) {

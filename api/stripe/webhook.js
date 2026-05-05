@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
   // Look up kid to get parent_id (NOT NULL on green_transactions) and current balance
   const { data: kid, error: kidErr } = await supabase
     .from("kids")
-    .select("id, parent_id, green_balance")
+    .select("id, name, parent_id, green_balance")
     .eq("id", kidId)
     .single();
 
@@ -120,6 +120,20 @@ module.exports = async function handler(req, res) {
       .delete()
       .eq("stripe_payment_intent_id", paymentIntentId);
     return res.status(500).json({ error: "Failed to update balance" });
+  }
+
+  // Notify the parent when a family-circle member loads green for their kid
+  if (meta.loadedByRole === "family" && kid.parent_id) {
+    const loaderName = meta.loadedByName || "A family member";
+    const dollars    = (amountCents / 100).toFixed(2);
+    await supabase.from("notifications").insert({
+      user_id: kid.parent_id,
+      kid_id:  kidId,
+      type:    "green_loaded_by_family",
+      title:   `${loaderName} loaded $${dollars} for ${kid.name}!`,
+      body:    `Green dollars are now on ${kid.name}'s account.`,
+      data:    { amountCents, paymentIntentId, loaderName },
+    });
   }
 
   return res.status(200).json({ received: true, credited: amountCents });

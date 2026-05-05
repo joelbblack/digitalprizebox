@@ -1,10 +1,13 @@
 // POST /api/stripe/checkout
-// Creates a Stripe Checkout Session so a parent can load green dollars for their kid.
-// Body: { kidId, kidName, amountCents }
+// Creates a Stripe Checkout Session so a parent (or accepted family-circle
+// member) can load green dollars for a kid.
+// Body:    { kidId, kidName, amountCents, returnPath? }
 // Headers: Authorization: Bearer <supabase access token>
-// Returns: { url } — frontend redirects the parent here.
+// Returns: { url } — frontend redirects the caller here.
 const Stripe = require("stripe");
 const { createClient } = require("@supabase/supabase-js");
+
+const ALLOWED_RETURN_PATHS = new Set(["/parent", "/family"]);
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -13,7 +16,7 @@ module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { kidId, kidName, amountCents } = req.body || {};
+  const { kidId, kidName, amountCents, returnPath } = req.body || {};
 
   if (!kidId || !amountCents) {
     return res.status(400).json({ error: "Missing kidId or amountCents" });
@@ -22,7 +25,9 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: "Amount must be between $1 and $500" });
   }
 
-  // Verify caller owns the kid before creating a Stripe session
+  const safeReturnPath = ALLOWED_RETURN_PATHS.has(returnPath) ? returnPath : "/parent";
+
+  // Verify caller owns the kid (as parent OR accepted family member)
   const authHeader = req.headers.authorization || "";
   const token      = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
   if (!token) return res.status(401).json({ error: "Missing auth token" });
@@ -36,21 +41,44 @@ module.exports = async function handler(req, res) {
   if (authErr || !authData?.user) {
     return res.status(401).json({ error: "Invalid auth token" });
   }
-
-  const { data: userRow, error: userErr } = await supabase
-    .from("users")
-    .select("id")
-    .eq("auth_id", authData.user.id)
-    .single();
-  if (userErr || !userRow) return res.status(401).json({ error: "User profile not found" });
+  const callerAuthId = authData.user.id;
 
   const { data: kid, error: kidErr } = await supabase
     .from("kids")
     .select("id, parent_id")
     .eq("id", kidId)
     .single();
-  if (kidErr || !kid)               return res.status(404).json({ error: "Kid not found" });
-  if (kid.parent_id !== userRow.id) return res.status(403).json({ error: "Not your kid" });
+  if (kidErr || !kid) return res.status(404).json({ error: "Kid not found" });
+
+  // Path 1: caller is the kid's parent
+  let role = null;
+  let loadedByUserId = null;
+  const { data: userRow } = await supabase
+    .from("users")
+    .select("id, display_name")
+    .eq("auth_id", callerAuthId)
+    .single();
+  if (userRow && kid.parent_id === userRow.id) {
+    role           = "parent";
+    loadedByUserId = userRow.id;
+  } else {
+    // Path 2: caller is an accepted family-circle member of this kid
+    const { data: famRow } = await supabase
+      .from("kid_family_members")
+      .select("id, member_name, invite_status")
+      .eq("kid_id", kidId)
+      .eq("auth_id", callerAuthId)
+      .eq("invite_status", "accepted")
+      .maybeSingle();
+    if (famRow) {
+      role           = "family";
+      loadedByUserId = userRow?.id || null;
+    }
+  }
+
+  if (!role) return res.status(403).json({ error: "Not authorized to load funds for this kid" });
+
+  const callerName = userRow?.display_name || "A family member";
 
   const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
   const origin = req.headers.origin || "https://digitalprizebox.com";
@@ -74,10 +102,13 @@ module.exports = async function handler(req, res) {
       metadata: {
         kidId,
         amountCents: String(amountCents),
-        type: "green_load",
+        type:           "green_load",
+        loadedByRole:   role,
+        loadedByUserId: loadedByUserId || "",
+        loadedByName:   callerName,
       },
-      success_url: `${origin}/parent?load=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/parent?load=cancelled`,
+      success_url: `${origin}${safeReturnPath}?load=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}${safeReturnPath}?load=cancelled`,
     });
 
     return res.status(200).json({ url: session.url });

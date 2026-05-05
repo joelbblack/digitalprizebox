@@ -15,8 +15,68 @@ export default function FamilyCircleScreen() {
   const [toast,   setToast]     = useState(null);
   const [gifting, setGifting]   = useState(null);
   const [giftAmt, setGiftAmt]   = useState(25);
+  const [loadingKid, setLoadingKid] = useState(null);
+  const [loadAmt,    setLoadAmt]    = useState(10);
+  const [submitting, setSubmitting] = useState(false);
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2600); };
+
+  // Handle Stripe Checkout return
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("load");
+    if (!status) return;
+
+    if (status === "success") {
+      showToast("🎉 Green dollars loaded! Balance updates in a moment.");
+    } else if (status === "cancelled") {
+      showToast("Deposit cancelled — no charge made.");
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete("load");
+    url.searchParams.delete("session_id");
+    window.history.replaceState({}, "", url.toString());
+  }, []);
+
+  const startGreenLoad = async (kidId, kidName, amount) => {
+    if (!amount || amount < 1) return showToast("Pick at least $1.");
+    if (amount > 500)          return showToast("Max load is $500.");
+    setSubmitting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        showToast("Please sign in again.");
+        setSubmitting(false);
+        return;
+      }
+      const r = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type":  "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          kidId,
+          kidName,
+          amountCents: Math.round(amount * 100),
+          returnPath:  "/family",
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.url) {
+        showToast(data.error || "Could not start checkout.");
+        setSubmitting(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Family green load error:", err);
+      showToast("Something went wrong starting checkout.");
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (!profile) return;
@@ -212,6 +272,71 @@ export default function FamilyCircleScreen() {
                     </div>
                   )}
 
+                  {/* Load green dollars panel */}
+                  {loadingKid === kid.id ? (
+                    <div style={{ background: T.panel, borderRadius: 14,
+                      padding: "16px", border: `2px solid ${T.green}`, marginBottom: 12 }}>
+                      <div style={{ fontWeight: 700, fontSize: 14, color: T.text, marginBottom: 10 }}>
+                        💳 Load Green Dollars for {kid.name}
+                      </div>
+                      <div style={{ fontSize: 12, color: T.sub, marginBottom: 12, lineHeight: 1.5 }}>
+                        Real money for instant digital codes (Robux, iTunes, V-Bucks). $1 = 100 green.
+                      </div>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                        {[5, 10, 25, 50].map(n => (
+                          <button key={n} type="button" onClick={() => setLoadAmt(n)} style={{
+                            background: loadAmt === n ? T.green : "transparent",
+                            border: `3px solid ${loadAmt === n ? T.green : T.border}`,
+                            color: loadAmt === n ? "white" : T.sub,
+                            borderRadius: 30, padding: "8px 18px",
+                            fontSize: 16, fontWeight: 800, cursor: "pointer",
+                            fontFamily: "'Fredoka One', cursive",
+                            boxShadow: loadAmt === n ? "3px 3px 0 #000000" : "none",
+                          }}>${n}</button>
+                        ))}
+                      </div>
+                      <div style={{ display: "flex", gap: 10 }}>
+                        <button type="button"
+                          onClick={() => startGreenLoad(kid.id, kid.name, loadAmt)}
+                          disabled={submitting}
+                          style={{
+                          flex: 1,
+                          background: submitting ? T.border : "linear-gradient(135deg,#10B981,#059669)",
+                          border: "3px solid #000000", color: "white",
+                          borderRadius: 14, padding: "11px 0", fontSize: 15,
+                          fontWeight: 800, cursor: submitting ? "not-allowed" : "pointer",
+                          fontFamily: "'Fredoka One', cursive",
+                          boxShadow: submitting ? "none" : "4px 4px 0 #000000",
+                          opacity: submitting ? 0.7 : 1,
+                        }}>
+                          {submitting ? "⏳ Starting…" : `💳 Load $${loadAmt}`}
+                        </button>
+                        <button type="button" onClick={() => setLoadingKid(null)} disabled={submitting} style={{
+                          background: "transparent", border: `2px solid ${T.border}`,
+                          borderRadius: 14, padding: "11px 16px", color: T.sub,
+                          cursor: submitting ? "not-allowed" : "pointer",
+                          fontFamily: "'Nunito', sans-serif", fontWeight: 700,
+                        }}>Cancel</button>
+                      </div>
+                      <div style={{ fontSize: 10, color: T.sub, marginTop: 10, textAlign: "center" }}>
+                        🔒 Payment processed by Stripe.
+                      </div>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => { setLoadingKid(kid.id); setGifting(null); }} style={{
+                      width: "100%",
+                      background: "linear-gradient(135deg,#10B981,#059669)",
+                      border: "3px solid #000000", color: "white",
+                      borderRadius: 14, padding: "12px 0",
+                      fontSize: 16, fontWeight: 800, cursor: "pointer",
+                      fontFamily: "'Fredoka One', cursive",
+                      boxShadow: "4px 4px 0 #000000",
+                      marginBottom: 10,
+                    }}>
+                      💳 Load Green Dollars
+                    </button>
+                  )}
+
                   {/* Gift orange button */}
                   {gifting === kid.id ? (
                     <div style={{ background: T.panel, borderRadius: 14,
@@ -251,7 +376,7 @@ export default function FamilyCircleScreen() {
                       </div>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => setGifting(kid.id)} style={{
+                    <button type="button" onClick={() => { setGifting(kid.id); setLoadingKid(null); }} style={{
                       width: "100%",
                       background: "linear-gradient(135deg,#F97316,#EA580C)",
                       border: "3px solid #000000", color: "white",

@@ -17,6 +17,7 @@ import {
   ANIMALS, getAnimal, unlockedAnimals,
 } from "../lib/animals";
 import { benday } from "../lib/theme";
+import { supabase } from "../lib/auth";
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 const Lbl = ({ children }) => (
@@ -862,13 +863,63 @@ function RewardsTab({ rewards, showToast, onAddReward, onDeleteReward }) {
 }
 
 // ── Green tab ─────────────────────────────────────────────────────────────────
-function GreenTab({ kids }) {
+function GreenTab({ kids, showToast }) {
+  const QUICK_AMOUNTS = [5, 10, 25, 50];
+  const [selectedKid, setSelectedKid] = useState(kids[0]?.id || null);
+  const [amount,      setAmount]      = useState(10);
+  const [submitting,  setSubmitting]  = useState(false);
+
+  const kid = kids.find(k => k.id === selectedKid) || kids[0];
+
+  const startCheckout = async () => {
+    if (!kid)                    return showToast("Add a kid first.");
+    if (!amount || amount < 1)   return showToast("Pick at least $1.");
+    if (amount > 500)            return showToast("Max load is $500 per checkout.");
+
+    setSubmitting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        showToast("Please sign in again.");
+        setSubmitting(false);
+        return;
+      }
+
+      const r = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type":  "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          kidId:       kid.id,
+          kidName:     kid.name,
+          amountCents: Math.round(amount * 100),
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.url) {
+        showToast(data.error || "Could not start checkout.");
+        setSubmitting(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      showToast("Something went wrong starting checkout.");
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div style={{ animation: "fadeIn 0.3s ease" }}>
       <div style={{ fontSize: 13, color: T.sub, marginBottom: 20, lineHeight: 1.7 }}>
         🟢 Green is real money. Kids spend it on instant digital codes — Robux, iTunes, V-Bucks.
         $1 = 100 green.
       </div>
+
+      {/* Kid balances */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
@@ -885,19 +936,83 @@ function GreenTab({ kids }) {
           </Card>
         ))}
       </div>
-      <Card style={{ border: `3px dashed ${T.green}`, background: `${T.green}08` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-          <div style={{ fontSize: 48 }}>💳</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, fontSize: 16, color: T.greenL, marginBottom: 4 }}>
-              Stripe Loading — Coming Soon
-            </div>
-            <div style={{ fontSize: 13, color: T.sub, lineHeight: 1.6 }}>
-              Set up weekly or monthly auto-deposits. Included with your subscription — no markup on digital codes.
-            </div>
+
+      {kids.length === 0 ? (
+        <Card style={{ textAlign: "center", padding: "40px 24px" }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>👶</div>
+          <div style={{ fontWeight: 800, color: T.text }}>Add a kid first</div>
+          <div style={{ fontSize: 13, color: T.sub, marginTop: 4 }}>
+            Head to the Chores tab to add your first kid.
           </div>
-        </div>
-      </Card>
+        </Card>
+      ) : (
+        <Card style={{ border: `3px solid ${T.green}` }}>
+          <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 18, color: T.greenL, marginBottom: 14 }}>
+            💳 Load Green Dollars
+          </div>
+
+          {kids.length > 1 && (
+            <>
+              <Lbl>Whose Account?</Lbl>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+                {kids.map(k => (
+                  <button type="button" key={k.id} onClick={() => setSelectedKid(k.id)} style={{
+                    background: selectedKid === k.id ? T.green : "transparent",
+                    border: `3px solid ${selectedKid === k.id ? T.green : T.border}`,
+                    color: selectedKid === k.id ? "white" : T.sub,
+                    borderRadius: 14, padding: "8px 16px", fontSize: 13,
+                    fontWeight: 700, cursor: "pointer",
+                    fontFamily: "'Nunito', sans-serif",
+                    boxShadow: selectedKid === k.id ? "3px 3px 0 #000000" : "none",
+                  }}>
+                    {k.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <Lbl>Amount</Lbl>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+            {QUICK_AMOUNTS.map(n => (
+              <button type="button" key={n} onClick={() => setAmount(n)} style={{
+                background: amount === n ? T.green : "transparent",
+                border: `3px solid ${amount === n ? T.green : T.border}`,
+                color: amount === n ? "white" : T.sub,
+                borderRadius: 50, padding: "8px 18px", fontSize: 13,
+                fontWeight: 800, cursor: "pointer",
+                fontFamily: "'Nunito', sans-serif",
+                boxShadow: amount === n ? "3px 3px 0 #000000" : "none",
+              }}>
+                ${n}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+            <span style={{ fontWeight: 800, color: T.sub }}>$</span>
+            <Field
+              type="number"
+              value={amount}
+              onChange={v => setAmount(Number(v) || 0)}
+              placeholder="10"
+              style={{ maxWidth: 140 }}
+            />
+            <span style={{ fontSize: 12, color: T.sub }}>USD · max $500</span>
+          </div>
+
+          <Btn onClick={startCheckout} color={T.green}
+            disabled={submitting || !kid || !amount || amount < 1} full>
+            {submitting
+              ? "Starting checkout…"
+              : `Load $${amount} to ${kid?.name || "kid"}`}
+          </Btn>
+
+          <div style={{ fontSize: 11, color: T.sub, marginTop: 12, textAlign: "center", lineHeight: 1.5 }}>
+            🔒 Payment processed by Stripe. Balance appears here after payment confirms.
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
@@ -1042,6 +1157,31 @@ export default function ParentDashboard({
 
   const showToast = msg => { setToast(msg); setTimeout(() => setToast(null), 2600); };
 
+  // Handle return from Stripe Checkout for green-dollar loads
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("load");
+    if (!status) return;
+
+    if (status === "success") {
+      setTab("green");
+      setConfetti(true);
+      setTimeout(() => setConfetti(false), 1800);
+      setToast("Deposit successful! Balance updates in a moment.");
+      setTimeout(() => setToast(null), 4000);
+    } else if (status === "cancelled") {
+      setTab("green");
+      setToast("Deposit cancelled — no charge made.");
+      setTimeout(() => setToast(null), 3000);
+    }
+
+    // Strip the query params so a refresh doesn't re-trigger
+    const url = new URL(window.location.href);
+    url.searchParams.delete("load");
+    url.searchParams.delete("session_id");
+    window.history.replaceState({}, "", url.toString());
+  }, []);
+
   const pendingChores    = chores.filter(c => c.status === "done").length;
   const pendingProposals = proposals.filter(p => p.status === "pending").length;
   const totalPending     = pendingChores + pendingProposals;
@@ -1183,7 +1323,7 @@ export default function ParentDashboard({
           onDeleteReward={deleteHomeReward}/>}
         {tab === "award"    && <AwardTab kids={kids}
           showToast={showToast} onAwardOrange={awardOrange}/>}
-        {tab === "green"    && <GreenTab kids={kids}/>}
+        {tab === "green"    && <GreenTab kids={kids} showToast={showToast}/>}
         {tab === "family"   && <FamilyTab kids={kids} familyMembers={familyMembers}
           showToast={showToast} onInviteFamilyMember={inviteFamilyMember}/>}
       </div>

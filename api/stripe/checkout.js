@@ -1,8 +1,10 @@
 // POST /api/stripe/checkout
 // Creates a Stripe Checkout Session so a parent can load green dollars for their kid.
 // Body: { kidId, kidName, amountCents }
+// Headers: Authorization: Bearer <supabase access token>
 // Returns: { url } — frontend redirects the parent here.
 const Stripe = require("stripe");
+const { createClient } = require("@supabase/supabase-js");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -19,6 +21,36 @@ module.exports = async function handler(req, res) {
   if (typeof amountCents !== "number" || amountCents < 100 || amountCents > 50000) {
     return res.status(400).json({ error: "Amount must be between $1 and $500" });
   }
+
+  // Verify caller owns the kid before creating a Stripe session
+  const authHeader = req.headers.authorization || "";
+  const token      = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ error: "Missing auth token" });
+
+  const supabase = createClient(
+    process.env.SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+  );
+
+  const { data: authData, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !authData?.user) {
+    return res.status(401).json({ error: "Invalid auth token" });
+  }
+
+  const { data: userRow, error: userErr } = await supabase
+    .from("users")
+    .select("id")
+    .eq("auth_id", authData.user.id)
+    .single();
+  if (userErr || !userRow) return res.status(401).json({ error: "User profile not found" });
+
+  const { data: kid, error: kidErr } = await supabase
+    .from("kids")
+    .select("id, parent_id")
+    .eq("id", kidId)
+    .single();
+  if (kidErr || !kid)               return res.status(404).json({ error: "Kid not found" });
+  if (kid.parent_id !== userRow.id) return res.status(403).json({ error: "Not your kid" });
 
   const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
   const origin = req.headers.origin || "https://digitalprizebox.com";

@@ -29,6 +29,7 @@ const SuperintendentScreen  = lazy(() => import("./screens/SuperintendentScreen"
 const KidScreen             = lazy(() => import("./screens/KidScreen"));
 const FamilyCircleScreen    = lazy(() => import("./screens/FamilyCircleScreen"));
 const FamilyInviteScreen    = lazy(() => import("./screens/FamilyInviteScreen"));
+const MockupCardsScreen     = lazy(() => import("./screens/MockupCardsScreen"));
 
 function AppLoader() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
   return (
     <AuthProvider>
       <style>{fontCSS}</style>
+      <a href="#main" className="skip-link">Skip to main content</a>
       <BrowserRouter>
         <Suspense fallback={<AppLoader />}>
           <Routes>
@@ -51,6 +53,7 @@ export default function App() {
             <Route path="/login"           element={<LoginScreen />} />
             <Route path="/join/:code"      element={<JoinPage />} />
             <Route path="/invite/:token"   element={<FamilyInviteScreen />} />
+            <Route path="/mockups/cards"   element={<MockupCardsScreen />} />
 
             {/* Auth required — any role */}
             <Route path="/dashboard" element={

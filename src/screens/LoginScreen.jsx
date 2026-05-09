@@ -206,12 +206,14 @@ export default function LoginScreen() {
           {mode === "signup" && (
             <>
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+                <label htmlFor="signup-name" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
                   textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
                   Your Name
-                </div>
+                </label>
                 <input
+                  id="signup-name"
                   type="text" value={name}
+                  autoComplete="name"
                   onChange={e => setName(e.target.value)}
                   placeholder="Ms. Black"
                   style={inp}
@@ -252,12 +254,14 @@ export default function LoginScreen() {
 
           {/* Email */}
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+            <label htmlFor="auth-email" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
               textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
               Email
-            </div>
+            </label>
             <input
+              id="auth-email"
               type="email" value={email}
+              autoComplete="email"
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
               style={inp}
@@ -268,12 +272,14 @@ export default function LoginScreen() {
 
           {/* Password */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+            <label htmlFor="auth-password" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
               textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
               Password
-            </div>
+            </label>
             <input
+              id="auth-password"
               type="password" value={password}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
               onChange={e => setPassword(e.target.value)}
               placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
               style={inp}
@@ -285,7 +291,7 @@ export default function LoginScreen() {
 
           {/* Error */}
           {error && (
-            <div style={{
+            <div role="alert" style={{
               background: "#FFFFFF", border: `3px solid ${T.red}`,
               borderRadius: 12, padding: "10px 14px",
               fontSize: 13, color: T.red, marginBottom: 14,
@@ -296,7 +302,7 @@ export default function LoginScreen() {
           )}
 
           {resetSent && (
-            <div style={{
+            <div role="status" aria-live="polite" style={{
               background: "#FFFFFF", border: `3px solid ${T.green}`,
               borderRadius: 12, padding: "10px 14px",
               fontSize: 13, color: T.green, marginBottom: 14,

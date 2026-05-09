@@ -9,12 +9,20 @@ import { useEffect, useRef, useState } from "react";
 import { T, fontCSS } from "./theme";
 
 // ── Shared SVG wrapper ────────────────────────────────────────────────────────
-const AnimalSVG = ({ size, children, viewBox = "0 0 100 100" }) => (
+// `label` exposes the animal name to screen readers; `decorative` opts the SVG
+// out of the accessibility tree entirely (use when a visible text label already
+// describes the same thing, so screen readers don't double-announce).
+const AnimalSVG = ({ size, children, viewBox = "0 0 100 100", label, decorative = false }) => (
   <svg
     width={size} height={size}
     viewBox={viewBox}
+    role={decorative ? "presentation" : "img"}
+    aria-hidden={decorative ? true : undefined}
+    aria-label={!decorative && label ? label : undefined}
+    focusable="false"
     style={{ display: "block", overflow: "visible" }}
   >
+    {!decorative && label && <title>{label}</title>}
     {children}
   </svg>
 );
@@ -35,8 +43,8 @@ const Tri = ({ points, fill, stroke = "#000000", sw = 2.5 }) => (
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ── Fox ───────────────────────────────────────────────────────────────────────
-export const Fox = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Fox = ({ size = 64, animate = false, label = "Fox", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Left ear */}
     <Tri points="14,52 26,18 40,52" fill="#E8621A"/>
     <Tri points="18,50 26,24 34,50" fill="#F9A875" sw={0}/>
@@ -59,8 +67,8 @@ export const Fox = ({ size = 64, animate = false }) => (
 );
 
 // ── Panda ─────────────────────────────────────────────────────────────────────
-export const Panda = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Panda = ({ size = 64, animate = false, label = "Panda", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Ears — dark triangles */}
     <Tri points="18,30 28,10 38,30" fill="#2D2D3A"/>
     <Tri points="62,30 72,10 82,30" fill="#2D2D3A"/>
@@ -86,8 +94,8 @@ export const Panda = ({ size = 64, animate = false }) => (
 );
 
 // ── Butterfly ─────────────────────────────────────────────────────────────────
-export const Butterfly = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Butterfly = ({ size = 64, animate = false, label = "Butterfly", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Upper left wing — 2 triangles */}
     <Tri points="50,46 6,10 8,46" fill="#9B5DE5"/>
     <Tri points="50,46 6,10 28,10" fill="#C77DFF"/>
@@ -110,8 +118,8 @@ export const Butterfly = ({ size = 64, animate = false }) => (
 );
 
 // ── Frog ──────────────────────────────────────────────────────────────────────
-export const Frog = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Frog = ({ size = 64, animate = false, label = "Frog", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Body — diamond as 4 triangles */}
     <Tri points="50,14 86,48 50,48" fill="#3EBD6E"/>
     <Tri points="50,14 14,48 50,48" fill="#34A85E"/>
@@ -135,8 +143,8 @@ export const Frog = ({ size = 64, animate = false }) => (
 );
 
 // ── Bear ──────────────────────────────────────────────────────────────────────
-export const Bear = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Bear = ({ size = 64, animate = false, label = "Bear", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Ears */}
     <Tri points="18,30 28,10 38,30" fill="#A78BFA"/>
     <Tri points="22,28 28,16 34,28" fill="#C4B5FD" sw={0}/>
@@ -160,8 +168,8 @@ export const Bear = ({ size = 64, animate = false }) => (
 );
 
 // ── Tiger ─────────────────────────────────────────────────────────────────────
-export const Tiger = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Tiger = ({ size = 64, animate = false, label = "Tiger", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Ears */}
     <Tri points="14,44 24,16 38,44" fill="#F97316"/>
     <Tri points="18,42 24,22 34,42" fill="#FDE68A" sw={0}/>
@@ -191,8 +199,8 @@ export const Tiger = ({ size = 64, animate = false }) => (
 );
 
 // ── Owl ───────────────────────────────────────────────────────────────────────
-export const Owl = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Owl = ({ size = 64, animate = false, label = "Owl", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Left wing */}
     <Tri points="20,40 4,58 14,74" fill="#1D4ED8"/>
     {/* Right wing */}
@@ -226,8 +234,8 @@ export const Owl = ({ size = 64, animate = false }) => (
 );
 
 // ── Penguin ───────────────────────────────────────────────────────────────────
-export const Penguin = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Penguin = ({ size = 64, animate = false, label = "Penguin", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Body — dark triangles */}
     <Tri points="50,30 22,55 50,90" fill="#1E293B"/>
     <Tri points="50,30 78,55 50,90" fill="#151E2B"/>
@@ -257,8 +265,8 @@ export const Penguin = ({ size = 64, animate = false }) => (
 );
 
 // ── Koala ─────────────────────────────────────────────────────────────────────
-export const Koala = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Koala = ({ size = 64, animate = false, label = "Koala", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Left ear — triangulated circle */}
     <Tri points="6,14 22,4 34,20" fill="#94A3B8"/>
     <Tri points="6,14 34,20 20,32" fill="#94A3B8"/>
@@ -284,8 +292,8 @@ export const Koala = ({ size = 64, animate = false }) => (
 );
 
 // ── Deer ──────────────────────────────────────────────────────────────────────
-export const Deer = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Deer = ({ size = 64, animate = false, label = "Deer", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Left antler — branching triangles */}
     <Tri points="36,20 20,2 26,20" fill="#92400E"/>
     <Tri points="36,20 14,12 24,20" fill="#92400E"/>
@@ -313,8 +321,8 @@ export const Deer = ({ size = 64, animate = false }) => (
 );
 
 // ── Whale ─────────────────────────────────────────────────────────────────────
-export const Whale = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size} viewBox="0 0 120 80">
+export const Whale = ({ size = 64, animate = false, label = "Whale", decorative = false }) => (
+  <AnimalSVG size={size} viewBox="0 0 120 80" label={label} decorative={decorative}>
     {/* Tail fluke */}
     <Tri points="100,35 118,18 110,35" fill="#2563EB"/>
     <Tri points="100,35 118,52 110,35" fill="#1D4ED8"/>
@@ -342,8 +350,8 @@ export const Whale = ({ size = 64, animate = false }) => (
 );
 
 // ── Crane ─────────────────────────────────────────────────────────────────────
-export const Crane = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Crane = ({ size = 64, animate = false, label = "Crane", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Left wing — 2 triangles */}
     <Tri points="50,42 4,24 18,52" fill="#E0F2FE"/>
     <Tri points="50,42 4,24 22,30" fill="#BAE6FD"/>
@@ -369,8 +377,8 @@ export const Crane = ({ size = 64, animate = false }) => (
 );
 
 // ── Dragon ────────────────────────────────────────────────────────────────────
-export const Dragon = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Dragon = ({ size = 64, animate = false, label = "Dragon", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Left wing — 2 triangles */}
     <Tri points="50,36 8,6 16,50" fill="#10B981"/>
     <Tri points="50,36 8,6 24,18" fill="#34D399"/>
@@ -400,8 +408,8 @@ export const Dragon = ({ size = 64, animate = false }) => (
 );
 
 // ── Octopus ───────────────────────────────────────────────────────────────────
-export const Octopus = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const Octopus = ({ size = 64, animate = false, label = "Octopus", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Tentacles — chains of small triangles */}
     <Tri points="24,66 14,80 20,80" fill="#EC4899" sw={1.5}/>
     <Tri points="14,80 12,94 20,80" fill="#DB2777" sw={1.5}/>
@@ -435,8 +443,8 @@ export const Octopus = ({ size = 64, animate = false }) => (
 );
 
 // ── Prize Box (logo icon) ─────────────────────────────────────────────────────
-export const PrizeBox = ({ size = 64, animate = false }) => (
-  <AnimalSVG size={size}>
+export const PrizeBox = ({ size = 64, animate = false, label = "Prize Box", decorative = false }) => (
+  <AnimalSVG size={size} label={label} decorative={decorative}>
     {/* Box body — 2 triangles */}
     <Tri points="14,48 86,48 14,90" fill="#0033CC"/>
     <Tri points="86,48 86,90 14,90" fill="#002299"/>
@@ -495,15 +503,20 @@ export const unlockedAnimals = (totalChores) =>
 
 // ── Loading screen ────────────────────────────────────────────────────────────
 export const LoadingScreen = ({ message = "Loading…" }) => (
-  <div style={{
-    minHeight: "100vh", background: "#F5F5F5",
-    display: "flex", flexDirection: "column",
-    alignItems: "center", justifyContent: "center",
-    gap: 20, fontFamily: "'Nunito', sans-serif",
-  }}>
+  <div
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    aria-label={message}
+    style={{
+      minHeight: "100vh", background: "#F5F5F5",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      gap: 20, fontFamily: "'Nunito', sans-serif",
+    }}>
     <style>{fontCSS}</style>
     <div style={{ animation: "bounce 1.2s ease-in-out infinite" }}>
-      <PrizeBox size={80}/>
+      <PrizeBox size={80} decorative/>
     </div>
     <div style={{
       fontFamily: "'Fredoka One', cursive", fontSize: 18, color: "#111111",
@@ -532,22 +545,27 @@ export const Spinner = ({ size = 32, color = T.purple }) => (
 );
 
 // ── Toast notification ────────────────────────────────────────────────────────
-export const Toast = ({ msg }) => {
+export const Toast = ({ msg, level = "polite" }) => {
   if (!msg) return null;
   return (
-    <div style={{
-      position: "fixed", bottom: 24, left: "50%",
-      transform: "translateX(-50%)",
-      background: T.ink, color: "#FFFFFF",
-      border: "3px solid #000000",
-      borderRadius: 50,
-      padding: "12px 24px",
-      fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 15,
-      zIndex: 9999,
-      boxShadow: "5px 5px 0 #000000",
-      animation: "pop 0.3s ease",
-      whiteSpace: "nowrap",
-    }}>
+    <div
+      role={level === "assertive" ? "alert" : "status"}
+      aria-live={level}
+      aria-atomic="true"
+      style={{
+        position: "fixed", bottom: 24, left: "50%",
+        transform: "translateX(-50%)",
+        background: T.ink, color: "#FFFFFF",
+        border: "3px solid #000000",
+        borderRadius: 50,
+        padding: "12px 24px",
+        fontFamily: "'Nunito', sans-serif", fontWeight: 800, fontSize: 15,
+        zIndex: 9999,
+        boxShadow: "5px 5px 0 #000000",
+        animation: "pop 0.3s ease",
+        whiteSpace: "nowrap",
+      }}
+    >
       {msg}
     </div>
   );
@@ -563,7 +581,7 @@ export const Confetti = ({ active }) => {
     size: 8 + Math.random() * 10,
   }));
   return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9998, overflow: "hidden" }}>
+    <div aria-hidden="true" style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9998, overflow: "hidden" }}>
       {pieces.map((p, i) => (
         <div key={i} style={{
           position: "absolute", top: "-20px", left: p.left,
@@ -589,7 +607,7 @@ export const StarField = ({ count = 20 }) => {
     opacity: 0.15 + Math.random() * 0.2,
   }));
   return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+    <div aria-hidden="true" style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
       {tris.map((s, i) => (
         <div key={i} style={{
           position: "absolute", left: s.left, top: s.top,

@@ -142,25 +142,27 @@ function DistrictSurveyModal({ onComplete }) {
               </div>
             </div>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
-                textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>District Name</div>
-              <input value={form.districtName}
+              <label htmlFor="district-name" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
+                textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>District Name</label>
+              <input id="district-name" value={form.districtName}
                 onChange={e => setForm(p => ({ ...p, districtName: e.target.value }))}
                 placeholder="e.g. Redlands Unified School District"
                 style={inp}/>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 80px", gap: 10, marginBottom: 12 }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
-                  textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>City / Region</div>
-                <input value={form.city || ""}
+                <label htmlFor="district-city" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
+                  textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>City / Region</label>
+                <input id="district-city" value={form.city || ""}
+                  autoComplete="address-level2"
                   onChange={e => setForm(p => ({ ...p, city: e.target.value }))}
                   placeholder="Redlands" style={inp}/>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
-                  textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>State</div>
-                <input value={form.state}
+                <label htmlFor="district-state" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
+                  textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>State</label>
+                <input id="district-state" value={form.state}
+                  autoComplete="address-level1"
                   onChange={e => setForm(p => ({ ...p, state: e.target.value }))}
                   placeholder="CA" style={inp}/>
               </div>
@@ -193,30 +195,30 @@ function DistrictSurveyModal({ onComplete }) {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+                <label htmlFor="district-student-count" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
                   textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
                   Approximate Students
-                </div>
-                <input type="number" value={form.studentCount}
+                </label>
+                <input id="district-student-count" type="number" value={form.studentCount}
                   onChange={e => setForm(p => ({ ...p, studentCount: e.target.value }))}
                   placeholder="e.g. 8500" style={inp}/>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+                <label htmlFor="district-school-count" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
                   textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
                   Number of Schools
-                </div>
-                <input type="number" value={form.schoolCount}
+                </label>
+                <input id="district-school-count" type="number" value={form.schoolCount}
                   onChange={e => setForm(p => ({ ...p, schoolCount: e.target.value }))}
                   placeholder="e.g. 12" style={inp}/>
               </div>
             </div>
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: T.sub,
+              <label htmlFor="district-current-pbis" style={{ display: "block", fontSize: 11, fontWeight: 800, color: T.sub,
                 textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
                 Current PBIS System (optional)
-              </div>
-              <input value={form.currentPbis}
+              </label>
+              <input id="district-current-pbis" value={form.currentPbis}
                 onChange={e => setForm(p => ({ ...p, currentPbis: e.target.value }))}
                 placeholder="e.g. Positive Behavior Interventions, ClassDojo…" style={inp}/>
             </div>

@@ -323,9 +323,16 @@ function InterestPicker({avatar,onDone}) {
 
 // ── Teacher Award Banner ──────────────────────────────────────────────────────
 function TeacherAwardBanner({award,onDone}) {
-  useEffect(()=>{const t=setTimeout(onDone,4000);return()=>clearTimeout(t);},[]);
+  useEffect(()=>{
+    const t=setTimeout(onDone,4000);
+    const onKey = e => { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") { e.preventDefault(); onDone(); } };
+    window.addEventListener("keydown", onKey);
+    return () => { clearTimeout(t); window.removeEventListener("keydown", onKey); };
+  },[]);
   return (
-    <div onClick={onDone} style={{position:"fixed",inset:0,zIndex:2000,cursor:"pointer",
+    <div role="alertdialog" aria-modal="true" aria-labelledby="teacher-award-title"
+      onClick={onDone}
+      style={{position:"fixed",inset:0,zIndex:2000,cursor:"pointer",
       display:"flex",alignItems:"center",justifyContent:"center",
       background:"rgba(0,0,0,0.7)",backdropFilter:"blur(6px)"}}>
       <div style={{background:"linear-gradient(135deg,#431407,#7C2D12)",
@@ -333,7 +340,7 @@ function TeacherAwardBanner({award,onDone}) {
         animation:"teacherAward 0.7s cubic-bezier(.17,.67,.35,1.3) forwards",
         boxShadow:"0 0 60px rgba(249,115,22,0.5)",maxWidth:340}}>
         <div style={{fontSize:60,marginBottom:8,animation:"orangeGlow 1.5s ease-in-out infinite"}}>🟠</div>
-        <div style={{fontFamily:"Fredoka One,cursive",fontSize:32,color:"#FED7AA",marginBottom:4}}>
+        <div id="teacher-award-title" style={{fontFamily:"Fredoka One,cursive",fontSize:32,color:"#FED7AA",marginBottom:4}}>
           +{award.orange} Orange Bucks!
         </div>
         <div style={{fontFamily:"Fredoka One,cursive",fontSize:18,color:"#FDBA74",marginBottom:16}}>
@@ -850,10 +857,17 @@ function OrangeRewards({orange,rewards,onClaim}) {
 
 // ── The Box ───────────────────────────────────────────────────────────────────
 function TheBox({phase,onOpen}) {
+  const isClickable = phase === "closed";
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"20px 0 32px"}}>
-      <div onClick={phase==="closed"?onOpen:undefined}
-        style={{cursor:phase==="closed"?"pointer":"default",position:"relative",userSelect:"none"}}>
+      <div
+        role={isClickable ? "button" : undefined}
+        tabIndex={isClickable ? 0 : undefined}
+        aria-label={isClickable ? "Open prize box" : undefined}
+        aria-disabled={!isClickable}
+        onClick={isClickable ? onOpen : undefined}
+        onKeyDown={isClickable ? (e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }) : undefined}
+        style={{cursor:isClickable?"pointer":"default",position:"relative",userSelect:"none"}}>
         <div style={{width:200,height:50,background:"linear-gradient(135deg,#FF6B6B,#FF8E53)",
           borderRadius:"12px 12px 0 0",boxShadow:"0 -4px 20px rgba(255,100,0,0.4)",
           position:"relative",zIndex:2,display:"flex",alignItems:"center",justifyContent:"center",

@@ -69,35 +69,48 @@ function PlanCard({ plan, selected, onSelect }) {
 
 // ── Student row input ─────────────────────────────────────────────────────────
 function StudentRow({ index, value, onChange, onRemove }) {
+  const rowNum = index + 1;
   return (
     <div style={{
       display: "grid", gridTemplateColumns: "1fr 1fr 80px 36px",
       gap: 8, marginBottom: 8, animation: "slideIn 0.2s ease",
     }}>
       <input
+        id={`student-name-${index}`}
         type="text" placeholder="First name"
+        aria-label={`Student ${rowNum} first name`}
         value={value.name}
         onChange={e => onChange({ ...value, name: e.target.value })}
         style={rowInput}
       />
       <input
+        id={`student-email-${index}`}
         type="email" placeholder="Parent email (optional)"
+        aria-label={`Student ${rowNum} parent email (optional)`}
+        autoComplete="email"
         value={value.parentEmail}
         onChange={e => onChange({ ...value, parentEmail: e.target.value })}
         style={rowInput}
       />
       <input
+        id={`student-pin-${index}`}
         type="text" placeholder="PIN"
+        aria-label={`Student ${rowNum} 4-digit PIN`}
+        inputMode="numeric"
         value={value.pin}
         maxLength={4}
         onChange={e => onChange({ ...value, pin: e.target.value.replace(/\D/g, "").slice(0, 4) })}
         style={{ ...rowInput, textAlign: "center", letterSpacing: 4, fontWeight: 800 }}
       />
-      <button type="button" onClick={onRemove} style={{
-        background: `${T.red}22`, border: `2px solid ${T.red}`,
-        borderRadius: 10, color: T.red, cursor: "pointer",
-        fontSize: 16, fontWeight: 800,
-      }}>✕</button>
+      <button type="button" onClick={onRemove}
+        aria-label={`Remove student ${rowNum}`}
+        style={{
+          background: `${T.red}22`, border: `2px solid ${T.red}`,
+          borderRadius: 10, color: T.red, cursor: "pointer",
+          fontSize: 16, fontWeight: 800,
+        }}>
+        <span aria-hidden="true">✕</span>
+      </button>
     </div>
   );
 }
@@ -308,15 +321,15 @@ export default function SetupScreen() {
 
       {/* Class info */}
       <div style={{ marginBottom: 14 }}>
-        <Lbl>Class Name</Lbl>
-        <input type="text" value={className}
+        <Lbl htmlFor="class-name">Class Name</Lbl>
+        <input id="class-name" type="text" value={className}
           onChange={e => setClassName(e.target.value)}
           placeholder="e.g. Room 12 — 4th Grade"
           style={formInput}/>
       </div>
       <div style={{ marginBottom: 20 }}>
-        <Lbl>School Name</Lbl>
-        <input type="text" value={schoolName}
+        <Lbl htmlFor="school-name">School Name</Lbl>
+        <input id="school-name" type="text" value={schoolName}
           onChange={e => setSchoolName(e.target.value)}
           placeholder="e.g. Lincoln Elementary"
           style={formInput}/>
@@ -445,12 +458,14 @@ export default function SetupScreen() {
 }
 
 // ── Shared styles ─────────────────────────────────────────────────────────────
-function Lbl({ children }) {
+function Lbl({ children, htmlFor }) {
+  const Tag = htmlFor ? "label" : "div";
   return (
-    <div style={{
+    <Tag htmlFor={htmlFor} style={{
+      display: "block",
       fontSize: 11, fontWeight: 800, color: T.sub,
       textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6,
-    }}>{children}</div>
+    }}>{children}</Tag>
   );
 }
 

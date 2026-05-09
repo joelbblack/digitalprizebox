@@ -423,7 +423,9 @@ function Waitlist({ onGetStarted }) {
           <form onSubmit={submit} style={{
             display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center",
           }}>
-            <input type="email" value={email}
+            <label htmlFor="waitlist-email" className="sr-only">Email address for waitlist signup</label>
+            <input id="waitlist-email" type="email" value={email}
+              autoComplete="email"
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com" required
               style={{

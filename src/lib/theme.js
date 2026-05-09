@@ -111,6 +111,61 @@ export const fontCSS = `
 @keyframes reveal    { 0%{opacity:0;transform:translateY(24px) scale(0.95);} 100%{opacity:1;transform:translateY(0) scale(1);} }
 @keyframes pulse     { 0%,100%{box-shadow:0 0 0 0 rgba(0,51,204,0.4);} 50%{box-shadow:0 0 0 10px rgba(0,51,204,0);} }
 @keyframes shake     { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-4px);} 40%,80%{transform:translateX(4px);} }
+
+/* ── Accessibility: visible focus indicator (WCAG 2.4.7) ─────────────── */
+:focus { outline: none; }
+:focus-visible {
+  outline: 3px solid #0033CC;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #0033CC;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(0, 51, 204, 0.25);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Screen-reader-only text (visually hidden, still announced) ──────── */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Skip-to-main link (visible on Tab focus) ────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 8px;
+  background: #0033CC;
+  color: #FFFFFF;
+  padding: 10px 18px;
+  border: 3px solid #000000;
+  border-radius: 0 0 14px 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  text-decoration: none;
+  z-index: 100000;
+  box-shadow: 4px 4px 0 #000000;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 0; }
 `;
 
 // ── Pricing constants ─────────────────────────────────────────────────────────
